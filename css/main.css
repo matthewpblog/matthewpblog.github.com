@@ -3,6 +3,15 @@ body {
 	font-family: Geneva,arial,serif;
 }
 
+a {
+	text-decoration: none;
+	color: black;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 body > header {
 	background: #515B5E;
 }

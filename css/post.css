@@ -1,6 +1,7 @@
 body {
 	background: #E2E3DF;
 	font-family: Geneva,arial,serif;
+	padding-bottom: 2em;
 }
 
 body > header {
@@ -17,6 +18,10 @@ body > header > hgroup > h1 {
 article {
 	margin: 1em 10em 0 10em;
 	text-align: justify;	
+}
+
+article p {
+	line-height: 1.5em;
 }
 
 article > header {
