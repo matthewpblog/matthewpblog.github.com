@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-	<title>Example Feed</title>
-	<subtitle>A subtitle.</subtitle>
-	<link href="http://blog.matthewphillips.info/atom.xml" rel="self" />
-	<link href="http://blog.matthewphillips.info" />
-	<id>urn:uuid:dcae6bd0-d959-11e0-9572-0800200c9a66</id>
-	<updated>2011-09-07T09:58:02Z</updated>
+	<title>Matthew Phillips</title>
+	<subtitle>Thoughts of no one particularly important.</subtitle>
+	<link href="http://www.matthewphillips.info/index.atom" rel="self" />
+	<link href="http://www.matthewphillips.info" />
+	<id>urn:uuid:7a0a4cc0-e155-11e0-9572-0800200c9a66</id>
+	<updated>2011-09-16T09:58:02Z</updated>
 	<author>
 		<name>Matthew Phillips</name>
 		<email>matthew@matthewphillips.info</email>
