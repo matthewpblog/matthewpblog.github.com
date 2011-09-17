@@ -11,13 +11,13 @@
 		<email>matthew@matthewphillips.info</email>
 	</author>
 	<entry>
-		<title>Testing</title>
+		<title>Hover.com Adds Unwanted Forwards</title>
 		<link href="http://blog.matthewphillips.info/2011/09/testing.html" />
-		<id>urn:uuid:e39feae0-d959-11e0-9572-0800200c9a66</id>
-		<updated>2011-09-07T09:58:02Z</updated>
+		<id>urn:uuid:29b03b40-e155-11e0-9572-0800200c9a66</id>
+		<updated>2011-09-17T09:58:02Z</updated>
 		<summary>
-		<p>Hover.com redesigned their admin interface a while back, and I'd only gotten the chance to play around with it a little bit. One of the nice things about Hover has always been it's simplicity and lack of noise as compared to a site like Go Daddy. A couple of weeks back I was doing some maintenance on unused domains and decided to poke around, finally coming across the Forwards interface.</p>
-		<p>To my surprise Hover.com has set up some forwards without my permission or knowledge. Luckily the domain in question is completely unused. If this had been my name domain I would be considerable more upset. But nevertheless, this is unacceptable. I don't want Hover profiting off of my domains except through charging me money for the services they provide.</p>	
+		Hover.com redesigned their admin interface a while back, and I'd only gotten the chance to play around with it a little bit. One of the nice things about Hover has always been it's simplicity and lack of noise as compared to a site like Go Daddy. A couple of weeks back I was doing some maintenance on unused domains and decided to poke around, finally coming across the Forwards interface.
+		To my surprise Hover.com has set up some forwards without my permission or knowledge. Luckily the domain in question is completely unused. If this had been my name domain I would be considerable more upset. But nevertheless, this is unacceptable. I don't want Hover profiting off of my domains except through charging me money for the services they provide.
 		</summary>
 	</entry>
 </feed>
