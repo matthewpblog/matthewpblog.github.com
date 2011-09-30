@@ -5,19 +5,28 @@
 	<link href="http://www.matthewphillips.info/index.atom" rel="self" />
 	<link href="http://www.matthewphillips.info" />
 	<id>urn:uuid:7a0a4cc0-e155-11e0-9572-0800200c9a66</id>
-	<updated>2011-09-16T09:58:02Z</updated>
+	<updated>2011-09-30T11:58:02Z</updated>
 	<author>
 		<name>Matthew Phillips</name>
 		<email>matthew@matthewphillips.info</email>
 	</author>
 	<entry>
 		<title>Hover.com Adds Unwanted Forwards</title>
-		<link href="http://blog.matthewphillips.info/2011/09/testing.html" />
+		<link href="http://www.matthewphillips.info/2011/09/no-thanks-hover.html" />
 		<id>urn:uuid:29b03b40-e155-11e0-9572-0800200c9a66</id>
 		<updated>2011-09-17T09:58:02Z</updated>
 		<summary>
 		Hover.com redesigned their admin interface a while back, and I'd only gotten the chance to play around with it a little bit. One of the nice things about Hover has always been it's simplicity and lack of noise as compared to a site like Go Daddy. A couple of weeks back I was doing some maintenance on unused domains and decided to poke around, finally coming across the Forwards interface.
 		To my surprise Hover.com has set up some forwards without my permission or knowledge. Luckily the domain in question is completely unused. If this had been my name domain I would be considerable more upset. But nevertheless, this is unacceptable. I don't want Hover profiting off of my domains except through charging me money for the services they provide.
+		</summary>
+	</entry>
+	<entry>
+		<title>I Don't Want Your Ecosystem</title>
+		<link href="http://www.matthewphillips.info/posts/ecosystems-harmful.html" />
+		<id>urn:uuid:5f63f410-eb97-11e0-9572-0800200c9a66</id>
+		<updated>2011-09-30T11:58:02Z</updated>
+		<summary>
+		The word of the moment seems to be "ecosystem", coming off of the announcement of Amazon's Kindle Fire tablet. In their case ecosystem refers to the catalog of media content Amazon has built up: books, movies, tv shows, music, and apps. If you're talking about Google ecosystem means something else. It's their web services: email, calendar, maps, etc. If you're talking about Apple you're probably mostly referring to their dedicated developer community. And of course Microsoft has their ecosystem, RIM has theirs, even Samsung to some degree.
 		</summary>
 	</entry>
 </feed>
