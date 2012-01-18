@@ -5,7 +5,12 @@
 	<meta http-equiv="pragma" content="no-cache">
 	<title>Maps</title>
   <link rel="stylesheet" href="style/maps.css" type="text/css" />
-	<script src="http://open.mapquestapi.com/sdk/js/v6.1.0/mqa.toolkit.js"></script>
+  <script type="text/javascript">
+    navigator.__defineGetter__('userAgent', function() {
+      return 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3'; 
+    });
+  </script>
+  <script src="http://open.mapquestapi.com/sdk/js/v6.1.0/mqa.toolkit.js"></script>
 	<script type="text/javascript" src="js/maps.js"></script>
 	</head>
 	<body>
