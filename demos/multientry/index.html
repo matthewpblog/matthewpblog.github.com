@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Page</title>
+</head>
+<body>
+  <a id="create" href="#">Create database</a>
+  <a id="fill" href="#">Fill database</a>
+  <a id="query" href="#">Query database</a>
+
+  <script type="application/javascript" defer="defer">
+    (function() {
+     var db;
+     window.indexedDB = window.indexedDB || window.mozIndexedDB;
+
+    function create() {
+      const DB_NAME = 'gvtest';
+      const DB_VERSION = 6;
+
+      var req = window.indexedDB.open(DB_NAME, DB_VERSION);
+      
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        var stores = ['contacts'];
+        stores.forEach(function(store) {
+          db.deleteObjectStore(store);
+
+          if(!db.objectStoreNames.contains(store)) {
+            var os = db.createObjectStore(store, { keyPath: 'name' });
+            var ix = os.createIndex('phoneNumber', 'phoneNumbers', { unique: false, multientry: true });
+            console.log('Multientry? ' + ix.multiEntry);
+          }
+        });
+      };
+
+      req.onsuccess = function(e) {
+        db = e.target.result;
+        console.log('Database created');
+      }
+
+      req.onerror = function(err) {
+        console.log('Error opening database: ' + err);
+      };
+       
+    }
+
+    function fill() {
+      var trans = db.transaction(['contacts'], IDBTransaction.READ_WRITE)
+      trans.oncomplete = function(e) {
+        console.log('Person created!');
+      };
+      trans.onerror = function(e) {
+        console.log('There was an error :(');
+      };
+
+      var ct = trans.objectStore('contacts');
+      var person = {
+        name: 'Joe',
+        phoneNumbers: [ '4445557777', '1112225555' ]
+      };
+
+      ct.add(person);
+    }
+
+    function query() {
+      var ct = db.transaction(['contacts']).objectStore('contacts');
+      var ix = ct.index('phoneNumber');
+      var req = ix.get('1112225555');
+      req.onsuccess = function(e) {
+        console.log("Retrieved! " + JSON.stringify(e.target.result));
+      };
+      req.onerror = function(e) {
+        console.log("There was an error in your query.");
+      };
+    }
+
+
+      var createBtn = document.getElementById('create'),
+        fillBtn = document.getElementById('fill'),
+        queryBtn = document.getElementById('query');
+
+      window.addEventListener('load', function winLoad() {
+        window.removeEventListener('load', winLoad);
+        createBtn.addEventListener('click', create);
+        fillBtn.addEventListener('click', fill);
+        queryBtn.addEventListener('click', query);
+      });
+
+      [ createBtn, fillBtn, queryBtn ].forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+        });
+      });
+
+
+    })();
+  </script>
+</body>
+</html>
