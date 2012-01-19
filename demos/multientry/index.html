@@ -23,7 +23,8 @@
         var db = e.target.result;
         var stores = ['contacts'];
         stores.forEach(function(store) {
-          db.deleteObjectStore(store);
+          if(db.objectStoreNames.contains(store))
+            db.deleteObjectStore(store);
 
           if(!db.objectStoreNames.contains(store)) {
             var os = db.createObjectStore(store, { keyPath: 'name' });
