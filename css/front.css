@@ -49,3 +49,7 @@ a, a:visited, a:hover {
   background: #B68900;
   color: #002B36;
 }
+
+@media only screen and (max-device-width: 480px) {
+
+}
