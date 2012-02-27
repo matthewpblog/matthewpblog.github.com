@@ -1,0 +1,52 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+body {
+  background: #FAF9F7;
+  color: #393738;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: normal;
+  text-transform: normal;
+  letter-spacing: normal;
+}
+
+header {
+  width: 100%;
+}
+
+header h1 {
+  font-weight: bold;
+  margin: auto;
+  text-align: center;
+  width: 100%;
+}
+
+header hr {
+  background: #DC441F;
+  color: #DC441F;
+  border: 0;
+  height: 5px;
+  width: 70%;
+}
+
+article h2 {
+  background: #E0E1D3;
+  padding-left: 1.5em;
+}
+
+article ul {
+  list-style-type: square;
+}
+
+article ul li {
+  color: #A4BB69;
+}
+
+article ul li span {
+  color: #393738;
+}
