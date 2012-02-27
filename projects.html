@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Projects | Matthew Phillips</title>
+</head>
+<body>
+  <header>
+    <h1>Projects and Code</h1>
+    <p>Projects listed here are a curated subset of projects I work on. See more at <a href="https://github.com/matthewp">GitHub</a>.</p>
+    <hr/>
+  </header>
+  <section id="projects" class="projects">
+    <article>
+      <h2>Audlibri</h2>
+      <ul>
+        <li>Multi-platform audiobook application written in HTML, JavaScript, Java, and C#</li>
+        <li>Idea came together after reading over the Chrome extention APIs released by Google in December 2010.</li>
+        <li>First Chrome extension/app written in one night, Christmas Eve 2010.</li>
+        <li><a href="https://chrome.google.com/webstore/detail/fjekppbejaekboiooidnboobkoiklckl">Chrome app</a> has over 3,500 users today.</li>
+        <li>Chrome app utilized the then new HTML5 Audio/Video tag for playing audio in browser. The audio tag didn't include a way to keep a playlist of tracks to be played in order, so I wrote and open-sourced <a href="https://github.com/matthewp/phonograph.js">Phonograph.js</a> in CoffeeScript for managing playlists.</li>
+        <li>The Chrome app pulled from the Librivox API, so to create a smoother experience I wrote my own backend and API. Each book is stored in a <a href="http://www.mongodb.org">MongoDB</a> database. Originally the API was written to coincide with the website for <a href="http://www.audlibri.com">Audlibri</a> but the Chrome app was later rewritten to use the API as well.</li>
+        <li>I began working on the <a href="http://market.android.com/details?id=com.phillipsoft.audlibri3">Android app</a> in February 2011 and released the first version to the Android market in June 2011. The Android application uses background threads to call the API for searching/browsing audiobooks, and uses a Service to play audiobooks when the user is not interacting withe app directly.</li>
+      </ul>
+    </article>
+    <article>
+      <h2>Atwork.mobi</h2>
+      <ul>
+        <li><a href="http://atwork.mobi">Atwork.mobi</a> is a mobile application written in html and JavaScript for consultants to keep track of the time spent working on client projects.</li>
+        <li>Fully open-sourced from the beginning, source available <a href="https://github.com/matthewp/at-work">on GitHub</a>.</li>
+        <li>Uses LocalStorage to maintain state. While the timer is running the user can change to another tab, look at their work log, and even close the site entirely but the timer will continue to run.</li>
+        <li>Uses an IndexedDB (which has sketchy support in mobile browsers) to store sessions the consultant has ended. Supports both the old version of IndexedDB (still being used by WebKit browsers) and the new version (as of now only supported by Firefox).</li>
+        <li>Uses CSS3 transitions for a unique tab-switching effect when moving between the work and log tabs.</li>
+        <li>Written entirely in custom JavaScript, without any bulky third-party libraries such as JQuery so the application is as responsive as any native counterpart in the same category.</li>
+        <li>Using Application Cache to bring downtime to a minimum. Over 1 weekend the site went down due to a botched upgrade (I had to wait for my VPS to reset my ssh public key) but the application continued to work for people who already had it "installed" on their phones. Application cache also reduces the amount of bandwidth my small VPS consumes, on page refreshes only the Manifest.appcache file (small plain text file) is downloaded.</li>
+      </ul>
+    </article>
+    <article>
+      <h2>Finger.js</h2>
+      <ul>
+        <li>Finger.js is a <a href="http://en.wikipedia.org/wiki/Finger_protocol">finger</a> server (<a href="https://github.com/matthewp/finger.js">source code</a>) written on Node.js.</li>
+        <li>Finger.js currently supports a subset of the Finger protocol <a href="http://tools.ietf.org/html/rfc1288#section-2.3">Q1 specification</a>, excluding those features which have shown to be a security risk in the years since finger was originally created.</li>
+        <li>Can run daemonized as a service on startup and receives requests on port 79.</li>
+        <li>Will read from a user's .plan or .project files and return the contents to the requestor. Supported both unix (including Mac OSX) and Windows as its host server</li>
+      </ul>
+    </article>
+    <article>
+      <h2>Maps</h2>
+      <ul>
+        <li>My (unnamed) <a href="https://github.com/matthewp/maps">mapping application</a> was created due to my frustration of current html-based mapping software on mobile phones. All of the major mapping providers (Google Maps, Yahoo Maps, and Mapquest) use user-agent sniffing to prevent browsers other than Mobile Safari and Android browser from visiting their sites. Additionally these sites, even when rendered in those providers, only provide a small subset of the functionality than the destkop versions provide.</li>
+        <li>Uses the terrific Leaflet project for rendering the map layer and Mapquest as the provider for Open Street Maps data.</li>
+      </ul>
+    </article>
+  </section>
+</body>
+</html>
