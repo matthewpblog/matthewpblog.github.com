@@ -1,5 +1,10 @@
 CACHE MANIFEST
-# v1 2012-01-28
+# v1 2012-02-27
 index.html
+resume.html
+projects.html
 me.jpg
+
+# CSS
 css/front.css
+css/projects.css

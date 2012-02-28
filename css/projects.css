@@ -7,7 +7,7 @@ html, body {
 body {
   background: #FAF9F7;
   color: #393738;
-  font-family: Georgia, serif;
+  font-family: 'Verdana', sans-serif;
   font-size: 17px;
   font-style: normal;
   font-weight: normal;
@@ -34,12 +34,21 @@ header hr {
   width: 70%;
 }
 
+header p {
+  font-size: 11px;
+  text-align: center;
+  width: 100%;
+}
+
 article h2 {
+  font-family: 'Ropa Sans', sans-serif;
+  font-size: 32px;
   background: #E0E1D3;
   padding-left: 1.5em;
 }
 
 article ul {
+  margin: 0 4em 0 2em;
   list-style-type: square;
 }
 
@@ -49,4 +58,15 @@ article ul li {
 
 article ul li span {
   color: #393738;
+  line-height: 1.4em;
+}
+
+section {
+  margin-bottom: 2em;
+}
+
+footer {
+  background: #DC441F;
+  border-radius: 8px 8px 0 0;
+  height: 15px;
 }
