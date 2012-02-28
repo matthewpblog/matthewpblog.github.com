@@ -30,7 +30,7 @@
 
           if(!db.objectStoreNames.contains(store)) {
             var os = db.createObjectStore(store, { keyPath: 'name' });
-            var ix = os.createIndex('phoneNumber', 'phoneNumbers', { unique: false, multientry: true });
+            var ix = os.createIndex('phoneNumber', 'phoneNumbers', { unique: false, multiEntry: true });
             console.log('Multientry? ' + ix.multiEntry);
           }
         });
