@@ -1,5 +1,7 @@
 CACHE MANIFEST
 # v1 2012-02-27
+
+CACHE
 index.html
 resume.html
 projects.html
@@ -8,3 +10,6 @@ me.jpg
 # CSS
 css/front.css
 css/projects.css
+
+NETWORK
+http://fonts.googleapis.com/
