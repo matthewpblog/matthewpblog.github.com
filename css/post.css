@@ -1,46 +1,61 @@
+@import url(http://fonts.googleapis.com/css?family=Belgrano);
+
 body {
-	background: #E2E3DF;
-	font-family: Geneva,arial,serif;
+	background: #F0EFD1;
+	color: #191919;
+	font-family: helvetica, arial,sans-serif;
+	font-size: 1.2em;
 	padding-bottom: 2em;
-}
-
-body > header {
-	background: #515B5E;
-}
-
-body > header > hgroup > h1 {
-	color: white;
-	font-size: 1.5em;
-	padding-left: 0.5em;	
 }
 
 /* Articles */
 article {
-	margin: 1em 10em 0 10em;
+	margin: 1em 10% 0 10%;
 	text-align: justify;	
+}
+
+article a {
+	color: #BF3211;
 }
 
 article p {
 	line-height: 1.5em;
+	margin-bottom: 0.8em;
 }
 
-article > header {
-	margin-bottom: 1em;
+article header {
+	position: relative;
+	margin-bottom: 2em;
+	text-align: left;
 }
 
-article > header > h1 {
+article header h1 {
 	-moz-column-span: all;
 	-webkit-column-span: all;
 	column-span: all;
-	font-size: 2em;
+	font-size: 2.8em;
 	font-weight: bolder;
 }
 
-article > header > time {
-	border-bottom: 1px solid #2E3233;
+article header time {
+	position: absolute;
+	right: 0;
+	color: #5D736B;
+	font-size: 14px;
 }
 
-article > footer {
+article img {
+	margin: 0.6em;
+}
+
+article h2 {
+	font-size: 1.6em;
+	font-weight: bold;
+	border-bottom: 1px dashed;
+	display: inline;
+}
+
+article footer {
 	font-style: italic;
 	font-weight: bold;
 	float: right;
