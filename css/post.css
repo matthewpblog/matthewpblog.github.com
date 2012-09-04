@@ -1,5 +1,3 @@
-@import url(http://fonts.googleapis.com/css?family=Belgrano);
-
 body {
 	background: #F0EFD1;
 	color: #191919;
@@ -46,6 +44,22 @@ article header time {
 
 article img {
 	margin: 0.6em;
+}
+
+article figure {
+	border-top: 1px dotted #BF3211;
+	border-bottom: 1px dotted #BF3211;
+	padding: 5px;
+}
+
+article figure img {
+	border: 1px solid #999;
+	padding: 5px;
+}
+
+article figure figcaption {
+	font-size: 12px;
+	margin-top: 10px;
 }
 
 article h2 {
