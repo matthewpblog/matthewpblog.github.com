@@ -1,62 +1,68 @@
-var mouse = {
-  x: 0,
-  y: 0,
-  isDown: false
-};
-
-function mouseMove(e) {
-  e.preventDefault();
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = (e.clientY / window.innerHeight) * 2 + 1;
-}
-
-function mouseDown(e) {
-  mouse.isDown = true;
-}
-
-function mouseUp(e) {
-  mouse.isDown = false;
-}
-
-function resetEvents(evt, fn) {
-  document.removeEventListener(evt, fn, false);
-  document.addEventListener(evt, fn, false);
-}
-
 var THREEY = THREEY || {};
 THREEY.Events = Events;
 
 function Events(camera, scene) {
-  resetEvents('mousemove', mouseMove);
   this.projector = new THREE.Projector();
   this.camera = camera;
   this.scene = scene;
-  this.handlers = {};
+  this.mouse = {
+    x: 0,
+    y: 0,
+    isDown: false,
+    firedDown: false,
+    firedUp: false
+  };
+
+  document.addEventListener('mousedown', this.mouseDown.bind(this));
+  document.addEventListener('mouseup', this.mouseUp.bind(this));
+  document.addEventListener('mousemove', this.mouseMove.bind(this));
 }
 
 Events.prototype.findIntersections = function() {
-  var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+  var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
   this.projector.unprojectVector(vector, this.camera);
 
   var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
   var intersects = raycaster.intersectObjects(this.scene.children);
 
   if(intersects.length > 0) {
-    if(this.intersected != intersects[0].object) {
-      if(this.intersected) {
-        this.intersected.material.emissive.setHex(this.intersected.currentHex);
-      }
-    
-      this.intersected = intersects[0].object;
-      this.intersected.currentHex = this.intersected.material.emissive.getHex();
-      this.intersected.material.emissive.setHex(0xff0000);
+    return intersects[0].object;
+  }
+};
+
+Events.prototype.mouseMove = function(e) {
+  e.preventDefault();
+  this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  this.mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
+
+  var obj = this.findIntersections();
+  if(!obj) {
+    return;
+  }
+
+  if(this.mouse.isDown) {
+    if(!this.mouse.firedDown) {
+      this.emit(Events.EVENTS.DOWN, obj);
+      this.mouse.fireDown = true;
+      this.mouse.firedUp = false;
     }
   } else {
-    if(this.intersected) {
-      this.intersected.material.emissive.setHex(this.intersected.currentHex);
+    if(!this.mouse.firedUp) {
+      this.emit(Events.EVENTS.UP, obj);
+      this.mouse.firedUp = true;
+      this.mouse.firedDown = false;
     }
-    this.intersected = null;
   }
+
+  this.emit(Events.EVENTS.MOVE, obj);
+};
+
+Events.prototype.mouseDown = function(e) {
+  this.mouse.isDown = true;
+};
+
+Events.prototype.mouseUp = function(e) {
+  this.mouse.isDown = false;
 };
 
 Events.EVENTS = {
@@ -65,47 +71,4 @@ Events.EVENTS = {
   MOVE: 'move'
 };
 
-Events.prototype.on = function(evt, obj, fn) {
-  var handlers = this.handlers[evt] = this.handlers[evt] || [];
-  handlers.push([obj, fn]);
-};
-
-Events.prototype.off = function(evt, obj, fn) {
-  var handlers = (this.handlers[evt] || [])
-    .filter(function(handler) {
-      return handler[0] == obj;
-    })
-    .map(function(handler, idx) {
-      return idx;
-    });
-
-  if(fn) {
-    var self = this;
-    handlers.forEach(function(idx) {
-      var handler = self.handlers[idx];
-      if(handler[1] == fn) {
-        self.handlers.splice(idx, 1);
-      }
-    });
-  } else {
-    this.handlers = this.handlers.filter(function(handler, idx) {
-      return handlers.indexOf(idx) === -1;
-    });
-  }
-};
-
-Events.prototype.emit = function(evt, obj) {
-  var args = Array.prototype.slice.call(arguments, 1);
-  var handlers = this.handlers[evt] || [];
-  if(!handlers.length) {
-    return;
-  }
-
-  handlers.filter(function(handler) {
-    return handler[0] == obj;
-  })
-  .forEach(function(handler) {
-    var fn = handler[1];
-    fn.apply(args);
-  });
-};
+Emitter(Events.prototype);

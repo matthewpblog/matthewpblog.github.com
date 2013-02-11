@@ -1,17 +1,6 @@
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
-function makeMaterial(color) {
-  return new THREE.MeshLambertMaterial({color:color});
-}
-
-function makeCube(color) {
-  var geometry = new THREE.CubeGeometry(1,1,1),
-      material = makeMaterial(color);
-  
-  return new THREE.Mesh(geometry, material);
-}
-
 function makeText(str, color) {
   color = color || Math.random() * 0xffffff;
 
@@ -36,19 +25,16 @@ function moveObject(obj, x, y, z) {
 }
 
 var scene = new THREE.Scene(),
-    camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 1000),
+    camera = new THREE.PerspectiveCamera(70, WIDTH / HEIGHT, 1, 10000),
     renderer = new THREE.WebGLRenderer(),
     events = new THREEY.Events(camera, scene);
 
+//camera.position.set(0, 300, 500);
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 
-var greenCube = makeCube(0x158C00),
-    redCube = makeCube(0xCF0000),
-    link1 = makeText('portfolio');
+var link1 = makeText('portfolio');
 
-scene.add(greenCube);
-scene.add(redCube);
 scene.add(link1);
 
 var ambientLight = new THREE.AmbientLight(0x555555);
@@ -59,15 +45,15 @@ directionalLight.position.set(1,1,1).normalize();
 scene.add(directionalLight);
 
 camera.position.z = 5;
-
-moveObject(redCube, 2, 2);
-moveObject(link1, -6, 2, -1.75);
+//moveObject(link1, -6, 2, -1.75);
 
 var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 function animate() {
   rAF(animate);
-  greenCube.rotation.x += 0.01; greenCube.rotation.y += 0.01;
-  events.findIntersections();
   renderer.render(scene, camera);
 }
 animate();
+
+events.on(Events.EVENTS.MOVE, function(mesh) {
+  var ha = '';
+});
