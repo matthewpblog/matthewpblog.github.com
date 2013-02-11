@@ -18,7 +18,7 @@ function makeText(str, color) {
   var text3d = new THREE.TextGeometry(str, {
         size: 1,
         height: 0.2,
-        curveSegments: 2,
+        curveSegments: 5,
         font: "droid serif"
       }),
       material = new THREE.MeshLambertMaterial({
@@ -37,7 +37,8 @@ function moveObject(obj, x, y, z) {
 
 var scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 1000),
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer(),
+    events = new THREEY.Events(camera, scene);
 
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
@@ -66,6 +67,7 @@ var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame || win
 function animate() {
   rAF(animate);
   greenCube.rotation.x += 0.01; greenCube.rotation.y += 0.01;
+  events.findIntersections();
   renderer.render(scene, camera);
 }
 animate();
