@@ -1,0 +1,1 @@
+../../tquery/plugins/text/tquery.text.js
