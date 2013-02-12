@@ -18,6 +18,19 @@ function makeText(str, color) {
   return new THREE.Mesh(text3d, material);
 }
 
+function makeLink(mesh) {
+  mesh.computeBoundingBox();
+  mesh.computeFaceNormals();
+
+  var size = new THREE.Vector3();
+  size.x = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
+  size.y = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+  size.z = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
+
+  var underlineH = size.y / 10,
+      deltaY = size.Y / 20;
+}
+
 function moveObject(obj, x, y, z) {
   obj.position.x = x;
   obj.position.y = y;
