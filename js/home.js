@@ -48,9 +48,15 @@ function makeLink(mesh, url) {
   cube.matrix.rotateAxis(axis);
   cube.position.add(axis.multiplyScalar(dist));
   cube.visible = false;
-
   mesh.add(cube);
-  mesh.url = url;
+
+  var clickableArea = new THREE.Mesh(
+    new THREE.CubeGeometry(size.x, size.y, size.z),
+    new THREE.MeshNormalMaterial()
+  );
+  clickableArea.url = url;
+  clickableArea.visible = false;
+  mesh.add(clickableArea);
 
   return mesh;
 }
@@ -67,6 +73,7 @@ var scene = new THREE.Scene(),
     events = new THREEY.Events(camera, scene);
 
 renderer.setSize(WIDTH, HEIGHT);
+//renderer.setClearColorHex(0xF6A95E, 1);
 document.body.appendChild(renderer.domElement);
 
 var link1 = makeLink(makeText('portfolio'), 'http://github.com/matthewp');
