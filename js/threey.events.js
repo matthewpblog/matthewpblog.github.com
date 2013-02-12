@@ -5,6 +5,7 @@ function Events(camera, scene) {
   this.projector = new THREE.Projector();
   this.camera = camera;
   this.scene = scene;
+  this.intersected = null;
   this.mouse = {
     x: 0,
     y: 0,
@@ -36,9 +37,20 @@ Events.prototype.mouseMove = function(e) {
   this.mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
 
   var obj = this.findIntersections();
+  if(this.intersected && obj !== this.intersected) {
+    this.emit(Events.EVENTS.OUT, this.intersected);
+  }
+
+  if(obj && obj !== this.intersected) {
+    this.emit(Events.EVENTS.OVER, obj);
+  }
+
   if(!obj) {
+    this.intersected = null;
     return;
   }
+
+  this.intersected = obj;
 
   if(this.mouse.isDown) {
     if(!this.mouse.firedDown) {
@@ -68,7 +80,9 @@ Events.prototype.mouseUp = function(e) {
 Events.EVENTS = {
   DOWN: 'down',
   UP: 'up',
-  MOVE: 'move'
+  MOVE: 'move',
+  OVER: 'over',
+  OUT: 'out'
 };
 
 Emitter(Events.prototype);

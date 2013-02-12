@@ -27,7 +27,7 @@ function makeText(str, color) {
   return new THREE.Mesh(text3d, material);
 }
 
-function makeLink(mesh) {
+function makeLink(mesh, url) {
   mesh.geometry.computeBoundingBox();
   mesh.geometry.computeFaceNormals();
 
@@ -47,8 +47,10 @@ function makeLink(mesh) {
       dist = -size.y / 2 - deltaY - underlineH / 2;
   cube.matrix.rotateAxis(axis);
   cube.position.add(axis.multiplyScalar(dist));
+  cube.visible = false;
 
   mesh.add(cube);
+  mesh.url = url;
 
   return mesh;
 }
@@ -67,9 +69,11 @@ var scene = new THREE.Scene(),
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 
-var link1 = makeLink(makeText('portfolio'));
+var link1 = makeLink(makeText('portfolio'), 'http://github.com/matthewp');
+var link2 = makeLink(makeText('fobo'), 'https://www.facebook.com/matthewcphillips');
+var link3 = makeLink(makeText('resume'), 'https://matthewphillips.info/resume.html');
 
-scene.add(link1);
+[link1, link2, link3].forEach(scene.add.bind(scene));
 
 var ambientLight = new THREE.AmbientLight(0x555555);
 scene.add(ambientLight);
@@ -79,7 +83,9 @@ directionalLight.position.set(1,1,1).normalize();
 scene.add(directionalLight);
 
 camera.position.z = 5;
-//moveObject(link1, -6, 2, -1.75);
+moveObject(link1, -4, 3, -2.75);
+moveObject(link2, 4, 2, -0.75);
+moveObject(link3, -2,-1.5, 0.75);
 
 var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 function animate() {
@@ -88,6 +94,27 @@ function animate() {
 }
 animate();
 
-events.on(Events.EVENTS.MOVE, function(mesh) {
-  var ha = '';
+window.addEventListener('resize', function() {
+  WIDTH = window.innerWidth;
+  HEIGHT = window.innerHeight;
+  camera.aspect = WIDTH / HEIGHT;
+  camera.updateProjectionMatrix();
+  renderer.setSize(WIDTH, HEIGHT);
+}, false);
+
+events.on(Events.EVENTS.OVER, function(mesh) {
+  mesh.children[0].visible = true;
+  document.body.style.cursor = 'pointer';
+});
+
+events.on(Events.EVENTS.OUT, function(mesh) {
+  mesh.children[0].visible = false;
+  document.body.style.cursor = 'auto';
+});
+
+events.on(Events.EVENTS.UP, function(mesh) {
+  /*var url = mesh.url;
+  if(url) {
+    window.location = url;
+  }*/
 });
