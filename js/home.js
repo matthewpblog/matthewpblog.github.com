@@ -7,7 +7,6 @@ function makeText(str, color) {
   var text3d = new THREE.TextGeometry(str, {
         size: 1,
         height: 0.2,
-        curveSegments: 5,
         font: "droid serif"
       }),
       material = new THREE.MeshLambertMaterial({
@@ -15,20 +14,43 @@ function makeText(str, color) {
         overdraw: true
       });
 
+  text3d.computeBoundingBox();
+  var bb = text3d.boundingBox,
+      center = new THREE.Vector3();
+  center.x = (bb.max.x - bb.min.x) / 2;
+  center.y = (bb.max.y - bb.min.y) / 2;
+  center.z = (bb.max.z - bb.min.z) / 2;
+  text3d.vertices.forEach(function(vertex) {
+    vertex.sub(center);
+  });
+
   return new THREE.Mesh(text3d, material);
 }
 
 function makeLink(mesh) {
-  mesh.computeBoundingBox();
-  mesh.computeFaceNormals();
+  mesh.geometry.computeBoundingBox();
+  mesh.geometry.computeFaceNormals();
 
-  var size = new THREE.Vector3();
-  size.x = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
-  size.y = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-  size.z = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
+  var bb = mesh.geometry.boundingBox,
+      size = new THREE.Vector3();
+  size.x = bb.max.x - bb.min.x;
+  size.y = bb.max.y - bb.min.y;
+  size.z = bb.max.z - bb.min.z;
 
   var underlineH = size.y / 10,
-      deltaY = size.Y / 20;
+      deltaY = size.y / 20;
+
+  var geometry = new THREE.CubeGeometry(size.x, underlineH, size.z);
+      cube = new THREE.Mesh(geometry, mesh.material);
+
+  var axis = (new THREE.Vector3()).set(0, 1, 0),
+      dist = -size.y / 2 - deltaY - underlineH / 2;
+  cube.matrix.rotateAxis(axis);
+  cube.position.add(axis.multiplyScalar(dist));
+
+  mesh.add(cube);
+
+  return mesh;
 }
 
 function moveObject(obj, x, y, z) {
@@ -42,11 +64,10 @@ var scene = new THREE.Scene(),
     renderer = new THREE.WebGLRenderer(),
     events = new THREEY.Events(camera, scene);
 
-//camera.position.set(0, 300, 500);
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 
-var link1 = makeText('portfolio');
+var link1 = makeLink(makeText('portfolio'));
 
 scene.add(link1);
 
