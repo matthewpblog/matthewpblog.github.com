@@ -73,8 +73,10 @@ var scene = new THREE.Scene(),
     events = new THREEY.Events(camera, scene);
 
 renderer.setSize(WIDTH, HEIGHT);
-//renderer.setClearColorHex(0xF6A95E, 1);
 document.body.appendChild(renderer.domElement);
+
+var grid = new THREEY.Grid();
+scene.add(grid);
 
 var link1 = makeLink(makeText('portfolio'), 'http://github.com/matthewp');
 var link2 = makeLink(makeText('fobo'), 'https://www.facebook.com/matthewcphillips');
