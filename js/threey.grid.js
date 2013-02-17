@@ -7,7 +7,7 @@ function Grid() {
       geometry = new THREE.Geometry(),
       floor = -75, step = 25;
 
-  for(var i = 0; i <= 20; i++) {
+  for(var i = 0; i <= 40; i++) {
     geometry.vertices.push( new THREE.Vector3( - 500, floor, i * step - 500 ) );
     geometry.vertices.push( new THREE.Vector3(   500, floor, i * step - 500 ) );
     geometry.vertices.push( new THREE.Vector3( i * step - 500, floor, -500 ) );

@@ -57,6 +57,10 @@ function makeLink(mesh, url) {
   clickableArea.url = url;
   clickableArea.visible = false;
   mesh.add(clickableArea);
+  
+  mesh.getUrl = function() {
+    return url;
+  };
 
   return mesh;
 }
@@ -80,7 +84,7 @@ scene.add(grid);
 
 var link1 = makeLink(makeText('portfolio'), 'http://github.com/matthewp');
 var link2 = makeLink(makeText('fobo'), 'https://www.facebook.com/matthewcphillips');
-var link3 = makeLink(makeText('resume'), 'https://matthewphillips.info/resume.html');
+var link3 = makeLink(makeText('resume'), 'http://matthewphillips.info/resume.html');
 
 [link1, link2, link3].forEach(scene.add.bind(scene));
 
@@ -122,8 +126,8 @@ events.on(Events.EVENTS.OUT, function(mesh) {
 });
 
 events.on(Events.EVENTS.UP, function(mesh) {
-  /*var url = mesh.url;
+  var url = mesh.getUrl && mesh.getUrl();
   if(url) {
     window.location = url;
-  }*/
+  }
 });
