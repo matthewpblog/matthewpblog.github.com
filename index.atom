@@ -5,7 +5,7 @@
 	<link href="http://www.matthewphillips.info/index.atom" rel="self" />
 	<link href="http://www.matthewphillips.info" />
 	<id>urn:uuid:7a0a4cc0-e155-11e0-9572-0800200c9a66</id>
-	<updated>2011-09-30T11:58:02Z</updated>
+	<updated>2013-03-17T16:11:02Z</updated>
 	<author>
 		<name>Matthew Phillips</name>
 		<email>matthew@matthewphillips.info</email>
@@ -28,5 +28,14 @@
 		<summary>
 		The word of the moment seems to be "ecosystem", coming off of the announcement of Amazon's Kindle Fire tablet. In their case ecosystem refers to the catalog of media content Amazon has built up: books, movies, tv shows, music, and apps. If you're talking about Google ecosystem means something else. It's their web services: email, calendar, maps, etc. If you're talking about Apple you're probably mostly referring to their dedicated developer community. And of course Microsoft has their ecosystem, RIM has theirs, even Samsung to some degree.
 		</summary>
-	</entry>
+  </entry>
+	<entry>
+		<title>On JavaScript and modules</title>
+		<link href="http://www.matthewphillips.info/posts/on-js-modules.html" />
+		<id>urn:uuid:cc2223f0-8f3e-11e2-9e96-0800200c9a66</id>
+		<updated>2013-03-17T16:11:02Z</updated>
+    <summary>
+    Writing modular JavaScript for the browsers is in a sad state. Though many solutions exist, they all ask a lot of developers, whether it is to write code in a certain way or to know too much about how the solution works, and none of them are forwards compatible. What we need is a way to write ES6 modules today.
+    </summary>
+  </entry>
 </feed>

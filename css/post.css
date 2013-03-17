@@ -75,4 +75,10 @@ article footer {
 	float: right;
 }
 
+article pre {
+  margin: 8px 20px;
+  font-family: monospace;
+  font-size: 90%;
+}
+
 /* End Articles */

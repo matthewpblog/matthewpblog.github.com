@@ -1,33 +1,24 @@
-
-<html>
-  <head>
-    <title>World Wide Web Home of Matthew Phillips</title>
-    <link rel="alternate" href="/index.atom" type="application/atom+xml"  title="Blog ATOM Feed" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r55/three.min.js"></script>
-    <script src="js/droid_serif_regular.typeface.js"></script>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        background-color: #000;
-      }
-    </style>
-  </head>
-  <body>
-    <script>
-      (function() {
-        var webgl = ( function () { try { return !! window.WebGLRenderingContext && !! document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); } catch( e ) { return false; } } )();
-        if(!webgl) {
-          window.location = '/old-index.html';
-        }
-      })();
-    </script>
-    <!--
-      GET OUTTA HERE!
-    -->
-    <script src="js/emitter.js"></script>
-    <script src="js/threey.events.js"></script>
-    <script src="js/threey.grid.js"></script>
-    <script src="js/home.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en" manifest="manifest.appcache">
+<head>
+	<title>World Wide Web Home of Matthew Phillips</title>
+	<link rel="stylesheet" href="/css/front.css" />
+	<link rel="alternate" href="/index.atom" type="application/atom+xml"  title="Blog ATOM Feed" />
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+  <!--
+    GET OUTTA HERE!
+  -->
+<div class="main">
+  <img class="portrait" height="320" width="240" src="me.jpg" />
+  <div class="links">
+    <a href="/resume.html">Resume</a>
+    <a href="http://github.com/matthewp">Portfolio</a>
+    <a href="https://www.facebook.com/matthewcphillips">Fobo</a>
+  </div>
+</div>
+</body>
 </html>
