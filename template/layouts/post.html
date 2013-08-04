@@ -11,6 +11,16 @@
   }
 </style>
 
+@(if cover)
+<style>
+  .cover {
+    height: 350px;
+    margin-top: -1.875em;
+    background: url("$(root)img/$(cover)") no-repeat scroll 0% 0% / 100% auto transparent;
+  }
+</style>
+<div class="cover"></div>
+@(end)
 <div class="post">
   <div class="row">
     <div class="large-8 large-centered columns">

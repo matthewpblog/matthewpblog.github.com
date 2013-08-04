@@ -1,5 +1,6 @@
 ; @layout post
-; @title Catwoman Volume 2: No Way Out
+; @title Catwoman Volume 2: No Easy Way Down
+; @cover no-easy-way-down.jpg
 ; @categories comics DC
 
 _By Ed Brubaker_
