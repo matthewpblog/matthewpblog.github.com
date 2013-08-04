@@ -6,7 +6,7 @@
  :post-dir     "posts/"
  :layout-dir   "layouts/"
  :post-filename-regexp #"(\d{4})-(\d{1,2})-(\d{1,2})[-_](.+)\."
- :post-filename-format "$(filename).html"
+ :post-filename-format "posts/$(filename).html"
  :compile-with-post []
  :url-base "/"
  :posts-per-page nil
