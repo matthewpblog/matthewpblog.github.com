@@ -2,7 +2,6 @@
 ; @title Catwoman Volume 2: No Way Out
 ; @categories comics DC
 
-# Catwoman Volume 2: No Way Out
 _By Ed Brubaker_
 
 I originally picked up this trade on a whim. I picked it up off the shelf at my LCS. I have long liked the Catwoman character, but the times when I tried out her ongoing I usually found it to be wanting. I suppose I had written off the series as being too low-priority for DC. Boy was I wrong. Had I known how fantastic this series would be I would have probably picked up the first trade first. Not to worry, I have that one as well now.

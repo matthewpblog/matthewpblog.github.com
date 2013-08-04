@@ -9,20 +9,29 @@
   <meta name="viewport" content="width=device-width" />
   <title>$(title)</title>
   <link rel="stylesheet" href="/css/foundation.css" />
-  <link rel="stylesheet" href="/css/site.css" />
+  @(if atom)
+  <link href="$(root)$(atom)" rel="alternate" title="$(site-title)" type="application/atom+xml" />
+  @(end)
+
 </head>
 <body>
+  <style>
+    footer {
+      background: none repeat scroll 0% 0% rgb(51, 51, 51);
+      height: 30px;
+    }
+  </style>
   <nav class="top-bar">
     <ul class="title-area">
       <li class="name">
-        <h1>
-          <a href="/">100 Fish Recipes</a>
-        </h1>
+        <h1></h1>
       </li>
     </ul>
   </nav>
   
   $(raw content)
+
+  <footer></footer>
 
 </body>
 </html>

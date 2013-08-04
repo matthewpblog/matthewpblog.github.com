@@ -1,41 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-	<title>Matthew Phillips</title>
-	<subtitle>Thoughts of no one particularly important.</subtitle>
-	<link href="http://www.matthewphillips.info/index.atom" rel="self" />
-	<link href="http://www.matthewphillips.info" />
-	<id>urn:uuid:7a0a4cc0-e155-11e0-9572-0800200c9a66</id>
-	<updated>2013-03-17T16:11:02Z</updated>
-	<author>
-		<name>Matthew Phillips</name>
-		<email>matthew@matthewphillips.info</email>
-	</author>
-	<entry>
-		<title>Hover.com Adds Unwanted Forwards</title>
-		<link href="http://www.matthewphillips.info/2011/09/no-thanks-hover.html" />
-		<id>urn:uuid:29b03b40-e155-11e0-9572-0800200c9a66</id>
-		<updated>2011-09-17T09:58:02Z</updated>
-		<summary>
-		Hover.com redesigned their admin interface a while back, and I'd only gotten the chance to play around with it a little bit. One of the nice things about Hover has always been it's simplicity and lack of noise as compared to a site like Go Daddy. A couple of weeks back I was doing some maintenance on unused domains and decided to poke around, finally coming across the Forwards interface.
-		To my surprise Hover.com has set up some forwards without my permission or knowledge. Luckily the domain in question is completely unused. If this had been my name domain I would be considerable more upset. But nevertheless, this is unacceptable. I don't want Hover profiting off of my domains except through charging me money for the services they provide.
-		</summary>
-	</entry>
-	<entry>
-		<title>I Don't Want Your Ecosystem</title>
-		<link href="http://www.matthewphillips.info/posts/ecosystems-harmful.html" />
-		<id>urn:uuid:5f63f410-eb97-11e0-9572-0800200c9a66</id>
-		<updated>2011-09-30T11:58:02Z</updated>
-		<summary>
-		The word of the moment seems to be "ecosystem", coming off of the announcement of Amazon's Kindle Fire tablet. In their case ecosystem refers to the catalog of media content Amazon has built up: books, movies, tv shows, music, and apps. If you're talking about Google ecosystem means something else. It's their web services: email, calendar, maps, etc. If you're talking about Apple you're probably mostly referring to their dedicated developer community. And of course Microsoft has their ecosystem, RIM has theirs, even Samsung to some degree.
-		</summary>
-  </entry>
-	<entry>
-		<title>On JavaScript and modules</title>
-		<link href="http://www.matthewphillips.info/posts/on-js-modules.html" />
-		<id>urn:uuid:cc2223f0-8f3e-11e2-9e96-0800200c9a66</id>
-		<updated>2013-03-17T16:11:02Z</updated>
-    <summary>
-    Writing modular JavaScript for the browsers is in a sad state. Though many solutions exist, they all ask a lot of developers, whether it is to write code in a certain way or to know too much about how the solution works, and none of them are forwards compatible. What we need is a way to write ES6 modules today.
-    </summary>
-  </entry>
+<title>Matthew Phillips</title>
+<link href="http://localhost:8080/atom.xml" rel="self" />
+<link href="http://localhost:8080/" />
+<updated></updated>
+<id>http://localhost:8080</id>
+<author><name></name></author>
+
+<entry>
+<title>Catwoman Volume 2: No Way Out</title>
+<link>http://localhost:8080/posts/catwoman-volume-2-no-way-out.html</link>
+<updated>2013-08-04T00:00:00</updated>
+<id>http://localhost:8080/posts/catwoman-volume-2-no-way-out.html</id>
+<content type="html">&lt;p&gt;&lt;em&gt;By Ed Brubaker&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;I originally picked up this trade on a whim. I picked it up off the shelf at my LCS. I have long liked the Catwoman character, but the times when I tried out her ongoing I usually found it to be wanting. I suppose I had written off the series as being too low-priority for DC. Boy was I wrong. Had I known how fantastic this series would be I would have probably picked up the first trade first. Not to worry, I have that one as well now.&lt;/p&gt;
+&lt;p&gt;Brubaker has a much different take on the character than anything I've read or seen before. Your typical Catwoman is that of clever, heart-of-gold theif who you can never quite trust completely. It's that characteristic, that she's going to screw you in the end, that has followed the character around. It's gotten a little stale; I can understand why some people feel like Catwoman isn't a character that much can be done with. Lucky Brubaker puts that opinion to rest for good. This is a different Catwoman. There is no heart-of-gold here, she's a geniunely good person who has a certain perspective that allows her to do bad things to people of a certain affluence and power. But to her peeps, those who grew up on the street like her, she's somewhat of a Robin Hood figure.&lt;/p&gt;
+&lt;p&gt;In this series we see a half-reformed Catwoman. One who has turned to a life of charity and giving back to the place that made her who she is. But she always has one foot back in the life of anti-heroism, as she seeks to protect her neighborhood. That's what makes the dynamic of this book so intriguing. We know that she's going to remain Catwoman yet the woman that we see as Selina Kyle isn't capable of becoming an out-and-out criminal. So she has to tip-toe the line. She is a vigilante, but a respectable one.&lt;/p&gt;
+&lt;h2&gt;Black Mask&lt;/h2&gt;
+&lt;p&gt;This is the first time I've read a &lt;strong&gt;Black Mask&lt;/strong&gt; story, not being aware of the character at all. First thought was that he looks almost exactly like Red Skull, one of Captain America's rogues, but the internet seems to suggest the characters aren't much related aside from their look. Black Mask is a crime boss, and that's the gist of what I know about the character.&lt;/p&gt;
+&lt;p&gt;Unfortunately this series doesn't get too much into his background or motivation. In one of the very last issues of the trade we get a little back story about what happened to him. It's a creepy vignette about being tortured and how surviving it led him to embrace the mask and see torture as an art form.&lt;/p&gt;
+&lt;p&gt;But this story is about Catwoman and how her past follows her into her present. Selina finds that a childhood friend, Sylvia Sinclair, has made her way back to Gotham, seemingly helping kids stay out of trouble. Later we found out that she is working for Black Mask; being used actually because she is one of the only people that know the true identity of Catwoman.&lt;/p&gt;
+&lt;p&gt;Catwoman is getting in Black Mask's way, it's as simple as that. But it's an interesting exploration into how Catwoman deals with the fact that her past causes hardship in her present, and how it affects those around her. Selina's sister is badly traumatized in this storyline (her husband is tortured and murdered) and that follows the rest of the trade.&lt;/p&gt;
+&lt;h2&gt;Selina and Holly Road Trip It&lt;/h2&gt;
+&lt;p&gt;The trade drags a little after the Black Mask story completes with Selina, her sister, and Slam (who is an awesome character by the way) deal with the events that occurred in the previous story. There's some good stuff here, and Slam and Selina's relationship is revealing about both of their personalities; Selina wants a distraction whereas Slam wants something to anchor him to the real world. Ultimately though, aside from the gorgeous art, I felt that this middle section could have been left out.&lt;/p&gt;
+&lt;p&gt;After, however, we get a series of wonderful stories involving Selina and Holly going on a road trip and the adventures that follow from that. Wildcat makes an appearance and becomes Holly's trainer. Catwoman and Holly stumbling upon a robbery in a diner is my favorite.&lt;/p&gt;
+&lt;p&gt;This is what I really want from a Catwoman series, I've decided. The 1 or 2 issue story arcs work well for the character as they allow her to explore the many sides of her personality, better. I'm hoping that the 3rd trade continues with that, at least for a while.&lt;/p&gt;
+</content>
+</entry>
+
+
+<entry>
+<title>Hover.com Adds Unwanted Forwards</title>
+<link href="http://www.matthewphillips.info/2011/09/no-thanks-hover.html" />
+<id>urn:uuid:29b03b40-e155-11e0-9572-0800200c9a66</id>
+<updated>2011-09-17T09:58:02Z</updated>
+<summary>
+Hover.com redesigned their admin interface a while back, and I'd only gotten the chance to play around with it a little bit. One of the nice things about Hover has always been it's simplicity and lack of noise as compared to a site like Go Daddy. A couple of weeks back I was doing some maintenance on unused domains and decided to poke around, finally coming across the Forwards interface.
+To my surprise Hover.com has set up some forwards without my permission or knowledge. Luckily the domain in question is completely unused. If this had been my name domain I would be considerable more upset. But nevertheless, this is unacceptable. I don't want Hover profiting off of my domains except through charging me money for the services they provide.
+</summary>
+</entry>
+<entry>
+<title>I Don't Want Your Ecosystem</title>
+<link href="http://www.matthewphillips.info/posts/ecosystems-harmful.html" />
+<id>urn:uuid:5f63f410-eb97-11e0-9572-0800200c9a66</id>
+<updated>2011-09-30T11:58:02Z</updated>
+<summary>
+The word of the moment seems to be "ecosystem", coming off of the announcement of Amazon's Kindle Fire tablet. In their case ecosystem refers to the catalog of media content Amazon has built up: books, movies, tv shows, music, and apps. If you're talking about Google ecosystem means something else. It's their web services: email, calendar, maps, etc. If you're talking about Apple you're probably mostly referring to their dedicated developer community. And of course Microsoft has their ecosystem, RIM has theirs, even Samsung to some degree.
+</summary>
+</entry>
+<entry>
+<title>On JavaScript and modules</title>
+<link href="http://www.matthewphillips.info/posts/on-js-modules.html" />
+<id>urn:uuid:cc2223f0-8f3e-11e2-9e96-0800200c9a66</id>
+<updated>2013-03-17T16:11:02Z</updated>
+<summary>
+Writing modular JavaScript for the browsers is in a sad state. Though many solutions exist, they all ask a lot of developers, whether it is to write code in a certain way or to know too much about how the solution works, and none of them are forwards compatible. What we need is a way to write ES6 modules today.
+</summary>
+</entry>
 </feed>
