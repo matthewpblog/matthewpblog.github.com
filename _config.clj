@@ -6,15 +6,14 @@
  :post-dir     "posts/"
  :layout-dir   "layouts/"
  :post-filename-regexp #"(\d{4})-(\d{1,2})-(\d{1,2})[-_](.+)\."
- :post-filename-format "$(filename)/index.html"
+ :post-filename-format "$(filename).html"
  :compile-with-post []
  :url-base "/"
  :posts-per-page nil
 
- :site {:site-title "misaki markdown"
+ :site {:site-title "Matthew Phillips"
         :atom       "atom.xml"
         :atom-base  "http://localhost:8080"
-        :twitter-id "uochan"
 
         :local {:css ["css/main.css"]
                 :js  ["js/highlight.pack.js"
@@ -30,8 +29,6 @@
  ;; code html format setting
  ;;   defailt value; "<pre><code@(if lang) class="brush: $(lang);"@(end)>$(code)</code></pre>"
  :code-html-format "<pre><code@(if lang) class=\"brush: $(lang);\"@(end)>$(code)</code></pre>"
-
- :cuma {:extension "extension.clj"}
  
  :compiler "markdown"
  }
