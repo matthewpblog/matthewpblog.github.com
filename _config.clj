@@ -12,7 +12,7 @@
  :posts-per-page nil
 
  :site {:site-title "Matthew Phillips"
-        :atom       "atom.xml"
+        :atom       "index.atom"
         :atom-base  "http://localhost:8080"
 
         :local {:css ["css/main.css"]
