@@ -1,0 +1,34 @@
+; @markdown? false
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></head>script>
+    <![endif]-->
+
+    @(if atom)
+    <link href="$(root)$(atom)" rel="alternate" title="$(site-title)" type="application/atom+xml" />
+    @(end)
+
+    @(for remote.css)
+    <link rel="stylesheet" href="$(.)" />
+    @(end)
+
+    @(for local.css)
+    <link rel="stylesheet" href="$(root)$(.)" />
+    @(end)
+
+    <title>$(title)</title>
+</head>
+<body>
+$(raw content)
+
+@(for local.js)
+<script type="text/javascript" src="$(root)$(.)"></script>
+@(end)
+</body>
+</html>
+
