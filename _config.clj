@@ -13,7 +13,7 @@
 
  :site {:site-title "Matthew Phillips"
         :atom       "index.atom"
-        :atom-base  "http://localhost:8080"
+        :atom-base  "http://matthewphillips.info"
 
         :local {:css ["css/main.css"]
                 :js  ["js/highlight.pack.js"
