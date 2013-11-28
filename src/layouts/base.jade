@@ -13,7 +13,7 @@ mixin nav(current)
   ul.nav.group
     li.icon-menu.menu
     li.nav-link.red(class= current === "index" ? "active" : "")
-      a.name(href="#{data.baseUrl}") My Name
+      a.name(href="#{data.baseUrl}") WWW Home
     li.nav-link.blue(class= current === "about" ? "active" : "")
       a(href="#{data.baseUrl}about.html") about
     li.nav-link.orange(class= current === "projects" ? "active" : "")
@@ -29,7 +29,7 @@ html
     link(rel="icon", type="image/png", href="#{data.baseUrl}images/cabin.png")
     link(href="#{data.baseUrl}styles/main.css", rel="stylesheet")
     block title
-      title= "My Blog"
+      title= "World Wide Web Home of Matthew Phillips"
   body
     block nav
 
@@ -39,5 +39,3 @@ html
     script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js", type="text/javascript")
     script(src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js", type="text/javascript")
     script(src="#{data.baseUrl}scripts/main.js", type="text/javascript")
-    script.
-      // Add your analytics code here
