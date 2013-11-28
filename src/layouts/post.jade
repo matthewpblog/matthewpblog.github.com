@@ -1,0 +1,14 @@
+extends base
+
+block title
+  title= post.title
+  if (post.description)
+    meta(name="description", content="#{post.description}")
+
+block nav
+  mixin nav()
+
+block content
+  .post
+    mixin post(post)
+    include _social
