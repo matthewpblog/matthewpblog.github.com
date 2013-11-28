@@ -1,6 +1,6 @@
 {
   title: "Catwoman Volume 2: No Easy Way Down",
-  date:   "2013-08-3",
+  date:   "2013-08-04",
   cover: "no-easy-way-down.jpg",
   categories: "comics DC"
 }
