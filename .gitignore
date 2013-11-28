@@ -1,2 +1,5 @@
 Thumbs.db
 .c9revisions/
+.grunt/
+.sass-cache/
+node_modules/
