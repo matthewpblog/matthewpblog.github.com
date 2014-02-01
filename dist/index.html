@@ -1,4 +1,70 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/building-an-accordion-with-can-component.html"><h1 class="post-title">Building an accordion with can.Component</h1></a><h2 class="post-date">Published&nbsp<abbr title="2013-12-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>I learn best by doing, so in an effort to learn more about <a href="http://canjs.com/guides/Components.html">can.Component</a> I&#39;ve been creating common types of components using the new framework. An <strong>accordion</strong> is one such example and I wanted to write about my experience creating the component. Note that this article doesn&#39;t constitute a best practice, I&#39;ve only been using can.Component for a few weeks now. Nor is the goal here for the least amount of code (My first couple of iterations used less code actually), rather I wanted to write the component as DRY as possible.</p>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/markdown-enable-your-blog-comments-with-web-components.html"><h1 class="post-title">Markdown Enable Your Blog Comments with Web Components</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-02-01T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>If you&#39;re like me and are excited about getting started using web components today, you might find yourself struggling coming up with practical uses that aren&#39;t the typical carousel, calendar, or <a href="http://matthewphillips.info/posts/building-an-accordion-with-can-component.html">accordion</a> widgets that we&#39;ve all written a hundred times in plain JavaScript.</p>
+<p>In this article I&#39;ll walk you through the process of:</p>
+<ul>
+<li><p>Finding a practical use for web components.</p>
+</li>
+<li><p>Developing your first iteration.</p>
+</li>
+<li><p>Refining, deciding when components are needed and when they are just extra fluff.</p>
+</li>
+</ul>
+<p>All of my examples will use <a href="http://canjs.com/guides/Components.html">can.Component</a> because it&#39;s available today, is stable, and has really good browser support, but are still applicable no matter what your web component framework of choice is.</p>
+<h1><a name="from-concept-to-code" class="anchor" href="#from-concept-to-code"><span class="header-link"></span></a>From Concept to Code</h1>
+<p>If all you&#39;re interested in is learning you can pick just about any API on the web and turn it into a web component. Or pick your favorite JavaScript library and wrap a component around it. Web components are primed to be the new jQuery plugin.</p>
+<h2><a name="markdown" class="anchor" href="#markdown"><span class="header-link"></span></a>Markdown</h2>
+<p>If you&#39;re a programmer you probably use markdown (or another markup generator) quite often. I&#39;m writing this post in markdown right now. The only downside is I have a Grunt task running in the background that is rerendering the html every time I save the file. What if you could write markdown and have it generate all in the browser? You want to write something like:</p>
+<pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;markdown&gt;</span>
+# Hello world!
+
+* Oh my, **lists**
+<span class="nt">&lt;/markdown&gt;</span>
+</pre></div>
+</code></pre>
+<p>And let a library do the heavy lifting. Luckily there is a <a href="https://github.com/coreyti/showdown">Showdown</a>, a JavaScript library for turning markdown into HTML. It&#39;s pretty fantastic. So let&#39;s make a component.</p>
+<p>Since Showdown does most of the heavy lifting all we need is a nice wrapper that will allow us to write Markdown inside of a tag and have it render the HTML automatically. Using can.Component we can do that easily, here&#39;s a demo:</p>
+<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
+<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<p>The code should speak for itself. The <code>x-markdown</code> component (all web components should be namespaced, we use <code>x-</code> in this example) generates the HTML after it is inserted into the page. We simply listen for the <code>inserted</code> event and set the <code>&lt;content/&gt;</code> provided by the user to the <code>markdown</code> property on the component&#39;s Scope.</p>
+<p>The powerful part of this example is the <code>can.compute</code>. Computes are a type of object that can listen to changes of other objects and automatically recompute themselves. If you&#39;ve used <a href="http://knockoutjs.com/documentation/observables.html">ko.observable</a> or Ember <a href="http://emberjs.com/guides/object-model/computed-properties/">computed properties</a> the idea is much the same, but can.computes are a bit more powerful (we&#39;ll get to that later).</p>
+<p>The compute simple takes the value of the <code>markdown</code> property (which is set in the <code>inserted</code> event) and uses Showdown to generate the html that will be displayed.</p>
+<h1><a name="using-with-blog-comments" class="anchor" href="#using-with-blog-comments"><span class="header-link"></span></a>Using with Blog Comments</h1>
+<p>While cool, this example isn&#39;t that practical. In reality you&#39;ll rarely have a scenario where you need to write HTML inside of a web browser, otherwise using a static site generator is probably what you&#39;ll be using.</p>
+<p>One place where you would want to generate the HTML on the fly is for blog comments. If your blog is developer-focused it makes sense to allow the reader to write comments in markdown, and have a live preview of what it will look like. So let&#39;s refactor <code>&lt;x-markdown&gt;</code> to be our live preview.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">can</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">tag</span><span class="o">:</span> <span class="s1">&#39;x-markdown&#39;</span><span class="p">,</span>
+  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div&gt;{{{html}}}&lt;/div&gt;&#39;</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">html</span><span class="o">:</span> <span class="nx">can</span><span class="p">.</span><span class="nx">compute</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">markdown</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">);</span>
+      <span class="kd">var</span> <span class="nx">converter</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Showdown</span><span class="p">.</span><span class="nx">converter</span><span class="p">();</span>
+      <span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">converter</span><span class="p">.</span><span class="nx">makeHtml</span><span class="p">(</span><span class="nx">markdown</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">html</span><span class="p">;</span>
+    <span class="p">}),</span>
+    <span class="nx">markdown</span><span class="o">:</span> <span class="s1">&#39;&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>This new version of <code>&lt;x-markdown&gt;</code> is much more succinct because we&#39;ve eliminated the <code>&lt;content/&gt;</code> portion by getting the raw markdown from a textarea. can.Component allows you to pass data (included complex objects) through an element&#39;s attribute tags. We&#39;ll use it like such: <code>&lt;x-markdown markdown=&quot;value&quot;&gt;&lt;/x-markdown&gt;</code> so that the <code>html</code> compute will be live-bound to the <code>value</code> object that we pass in.</p>
+<p>Next we need to create a live-bound textarea we&#39;ll call <code>&lt;x-textarea&gt;</code>. The idea that both x-markdown and x-textarea will be live-bound to the same compute object, and any time you type into the textarea the markdown will automatically be rerendered in the preview window. Demo time:</p>
+<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
+<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<p>Try out the fiddle (Click on the <strong>Result</strong> link) and see for yourself how the preview updates as you type. The secret sauce here is that we are using <code>can-value</code> to bind the textarea&#39;s <code>value</code> to our scope property also called <code>value</code>. can-value works on the element&#39;s <code>change</code> event, which for most types of forms is fine, but in our case we need the preview to update as you type, so we&#39;ve added a <code>keyup</code> event that simply triggers the textarea&#39;s change event as the user types. Simple!</p>
+<h1><a name="when-not-to-web-component" class="anchor" href="#when-not-to-web-component"><span class="header-link"></span></a>When not to Web Component</h1>
+<p>Awesome, we&#39;ve built a live-bound markdown enabled comment system. In less than 30 lines of code. However you might notice that the <code>&lt;x-textarea&gt;</code> isn&#39;t really doing much at all. It simply turns a normal textarea into a live-bound one.</p>
+<p>However in reality textareas <em>really are</em> live-bound, they use the normal DOM events to update their values. So all we are using the <code>&lt;x-textarea&gt;</code> for in practice is to turn the DOM events into can events. Luckily <a href="http://canjs.com/docs/can.compute.html">can.compute</a> already has a way of doing this, so we don&#39;t need the <code>x-textarea</code> at all.</p>
+<p>can.compute can take a set of arguments that includes an element, the property to bind to, and an event to bind to. We&#39;ll use it like:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">markdown</span> <span class="o">=</span> <span class="nx">can</span><span class="p">.</span><span class="nx">compute</span><span class="p">(</span><span class="nx">textarea</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;keyup&#39;</span><span class="p">);</span>
+</pre></div>
+</code></pre>
+<p>This allows us to move our textarea outside of the script tag (since we&#39;re getting rid of the component) but still have a live-bound value between the textarea and our <code>x-markdown</code> preview. See the demo below.</p>
+<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
+<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/2/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<p>Hopefully I&#39;ve demonstrated the process of coming up with an idea for a component (essentially an encapsulated piece of HTML with JavaScript interactivity) and refining it until you are left with only the bits of code that you need. We&#39;ve created a Markdown-enabled blog commenting system is only 18 lines of code. Let it be inspiration for your next component. Can you do better, how about an MDN reference widget?</p>
+</div></div><div class="post"><div class="post-head group"><a href="/posts/building-an-accordion-with-can-component.html"><h1 class="post-title">Building an accordion with can.Component</h1></a><h2 class="post-date">Published&nbsp<abbr title="2013-12-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>I learn best by doing, so in an effort to learn more about <a href="http://canjs.com/guides/Components.html">can.Component</a> I&#39;ve been creating common types of components using the new framework. An <strong>accordion</strong> is one such example and I wanted to write about my experience creating the component. Note that this article doesn&#39;t constitute a best practice, I&#39;ve only been using can.Component for a few weeks now. Nor is the goal here for the least amount of code (My first couple of iterations used less code actually), rather I wanted to write the component as DRY as possible.</p>
 <p>I&#39;ve long been a fan of the <a href="http://www.w3.org/TR/components-intro/">Web Components</a> and was excited at the idea that <a href="http://canjs.com/index.html">can</a> could make it possible to write components today. Components are much different than traditional MVC-style programming, in that much more of your code is spent expressing what a component is rather than listening for DOM events and reacting. To that purpose, when I set out to create an accordion control I started with what I wanted it to look like in the end.</p>
 <p>An accordion is made up of a list of elements, each with a header and content, that when the header is clicked the content collapses and only the header is shown. So in the end, our html should look something like:</p>
 <pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;accordion&gt;</span>
@@ -94,82 +160,4 @@
 <p>As you can see, creating reusable components with can.Component is fairly straight forward. It&#39;s just a matter of rethinking how you design a component, to be more declarative. I&#39;m hopeful that designing this way will make it more natural to create smaller, more modular components. Your application itself should be merely a declaration of componenents and bindings of data between them.</p>
 <h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
 <iframe width="100%" height="300" src="http://jsfiddle.net/a6r3c/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-</div></div><div class="post"><div class="post-head group"><a href="/posts/functional-javascript-in-action.html"><h1 class="post-title">Functional JavaScript in action</h1></a><h2 class="post-date">Published&nbsp<abbr title="2013-11-28T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>Recently came across a <a href="http://redactweb.com/javascript-to-convert-between-states-and-abbreviations/">blog post</a> about a JavaScript function to convert state names to abbreviations (or vice versa) and realized that it&#39;s an excellent topic to present the power that can be had from functional programming in JavaScript.</p>
-<p>The premise of the article is that the author needed a function that when given a state name or abbreviation would return the opposite. The author went about it by first finding a PHP function that does the same, then simply converted the code over to JavaScript. While this method surely works for the purpose needed, it also illustrates how powerful functional programming techniques could be used instead which will produce the same result, but also have some reusable code.</p>
-<p>First, let&#39;s rewrite the function to get rid of the looping pattern. To do this in a more functional way we can break down what is happening into a few steps. The function is provided two arguments: <code>name</code> and <code>to</code>. Name is the value that we are looking up in our array and to is the key that we want to convert to. Given that, in order to find the value we need to know the name of the key of that value. It&#39;s the opposite of <code>to</code>, right? Using the power of Underscore/Lodash -- I prefer <a href="http://lodash.com/docs">Lo-Dash</a> -- this can be done using the <code>_.without</code> function. Now, keep in mind that for performance it would probably be better to find the <code>from</code> value using a ternary expression, but for the sake of the article we want to do it in a functional way. So that makes our first expression:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-</pre></div>
-</code></pre>
-<p>What this does is simply take the array, find the value that matches <code>to</code> and remove it, leaving only one string which is our <code>from</code> key.</p>
-<p>Now that we know what our <code>from</code> key is, we need to look up the <code>name</code> in our states array. But before we do that let&#39;s see how the original blog post is doing the lookup:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">index</span><span class="p">,</span> <span class="nx">value</span><span class="p">){</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">to</span> <span class="o">==</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">abbrev</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()){</span>
-      <span class="nx">returnthis</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
-      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
-    <span class="p">}</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">to</span> <span class="o">==</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()){</span>
-      <span class="nx">returnthis</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">abbrev</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span>
-      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>Simple enough, they are looping over their <code>states</code> array and finding the value that matches what they want to convert. If they are converting to <code>name</code>, then they are comparing against the <code>abbrev</code>, and they are converting to <code>abbrev</code> they are comparing to <code>name</code>. When they find the match they assign it to their <code>returnthis</code> variable and then returning false, which will existing the loop in <code>$.each</code>.</p>
-<p>We can do better. Since we&#39;ve already gotten the <code>from</code> key, we can skip the repetitive if/else block that does the same thing. And instead of using an <code>each</code> loop let&#39;s use the power of functional programming to <code>_.find</code> that value.</p>
-<p>First, let&#39;s construct a regular expression that we can test against values, to prevent the <code>toLowerCase</code> conversion they are doing.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
-</pre></div>
-</code></pre>
-<p>This simply creates a regular expression that matches for the <code>name</code>, ignoring case. Now let&#39;s find the object that matches the value in our <code>from</code> key:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">st</span><span class="p">){</span>
-  <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">st</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>Perfect, this will find the object we are looking for (<code>RegExp.prototype.test</code> returns true on a match) and we only need to return the <code>to</code> key. Full source:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">convertState</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">to</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-  <span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
-
-  <span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">st</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">st</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-  <span class="p">});</span>
-
-  <span class="k">return</span> <span class="nx">selected</span><span class="p">[</span><span class="nx">to</span><span class="p">];</span>
-<span class="p">}</span>
-</pre></div>
-</code></pre>
-<p>But wait, we&#39;ve uncovered a pattern here. This is where functional programming becomes most useful. When you write a bit of code, note that there&#39;s a pattern, and abstract out that pattern so that you can reuse the code whenever the pattern is discovered. In our case, what are we really doing? We&#39;re operating on an array of objects, each containing 2 keys. We look up the value from one key and return the other. Simple, right?</p>
-<p>So what we can and should do is create a function that does all of this for you automatically. It returns a functional that operates on that set of rules using the array you provide it. First we need to replace this line:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-</pre></div>
-</code></pre>
-<p>To get rid of the hard coded string array. Instead we want to pass in our &quot;array of objects&quot; and have the function find the fields. We can do that like so:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">fields</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</pre></div>
-</code></pre>
-<p>And then we simply need to return a function that takes <code>name</code> (for value lookup) and <code>to</code> arguments. With that we&#39;ve created a <strong><em>higher order function</em></strong> that makes it easy any time we have a situation with the same pattern. Full source and examples below.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">makeSwappable</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">fields</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">to</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">(</span><span class="nx">fields</span><span class="p">,</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-    <span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
-
-    <span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">item</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-    <span class="p">});</span>
-
-    <span class="k">return</span> <span class="nx">selected</span><span class="p">[</span><span class="nx">to</span><span class="p">];</span>
-  <span class="p">};</span>
-<span class="p">}</span>
-
-<span class="kd">var</span> <span class="nx">convertState</span> <span class="o">=</span> <span class="nx">makeSwappable</span><span class="p">(</span><span class="nx">states</span><span class="p">);</span>
-
-<span class="nx">convertState</span><span class="p">(</span><span class="s1">&#39;Kentucky&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">);</span> <span class="c1">// -&gt; &#39;KY&#39;</span>
-<span class="nx">convertState</span><span class="p">(</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">);</span> <span class="c1">// -&gt; &#39;California&#39;</span>
-</pre></div>
-</code></pre>
 </div></div><div class="pagination group"><a href="/page/1/" class="older">&#8592; Older</a></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
