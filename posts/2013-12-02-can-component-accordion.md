@@ -100,7 +100,7 @@ can.Component.extend({
       this.scope.select(selected);
     },
     '{items} change': function(list, ev, what, how, newVal){
-      if(~~what.indexOf('open') && newVal) {
+      if(~what.indexOf('open') && newVal) {
         var which = +what.substr(0, what.indexOf('.'));
         this.scope.select(which);
       }
@@ -120,4 +120,4 @@ And that's pretty much all there is to an accordion. One other thing you might b
 As you can see, creating reusable components with can.Component is fairly straight forward. It's just a matter of rethinking how you design a component, to be more declarative. I'm hopeful that designing this way will make it more natural to create smaller, more modular components. Your application itself should be merely a declaration of componenents and bindings of data between them.
 
 ## Demo
-<iframe width="100%" height="300" src="http://jsfiddle.net/a6r3c/5/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<iframe width="100%" height="300" src="http://jsfiddle.net/a6r3c/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
