@@ -2,6 +2,14 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pages: {
+      options: {
+        rss: {
+          title: 'World Wide Web Home of Matthew Phillips',
+          description: 'Musings on Web Components, mostly',
+          url: 'http://matthewphillips.info',
+          author: 'Matthew Phillips'
+        }
+      },
       posts: {
         src: 'posts',
         dest: 'dist',
