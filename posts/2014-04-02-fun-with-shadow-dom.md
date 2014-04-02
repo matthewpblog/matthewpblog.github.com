@@ -4,6 +4,8 @@
   "categories": "javascript webcomponents"
 }
 
+**Update**: To do this demo you first need to enable experimental web platform features [in chrome://flags](chrome://flags/#enable-experimental-web-platform-features).
+
 Now that Chrome has shipped Shadow DOM we can start experimenting with what possibilities are going to open up to developers. Consider this a beginner/intermediate post about Shadow DOM. I assume you already know Shadow DOM is a way to "hide" an element's structure while opening up insertion points to its inner content.
 
 With that in mind, this is a simple exercise in seeing the weirdness that is Shadow DOM. So open up a text editor and create an HTML file with these contents:
