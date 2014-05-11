@@ -1,4 +1,31 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/markdown-enable-your-blog-comments-with-web-components.html"><h1 class="post-title">Markdown Enable Your Blog Comments with Web Components</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-01T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>If you&#39;re like me and are excited about getting started using web components today, you might find yourself struggling coming up with practical uses that aren&#39;t the typical carousel, calendar, or <a href="http://matthewphillips.info/posts/building-an-accordion-with-can-component.html">accordion</a> widgets that we&#39;ve all written a hundred times in plain JavaScript.</p>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/test-your-application-entry-point.html"><h1 class="post-title">Test Your Application Entry Point</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-26T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">define</span><span class="p">([</span><span class="s1">&#39;xwidget&#39;</span><span class="p">,</span> <span class="s1">&#39;ywidget&#39;</span><span class="p">,</span> <span class="s1">&#39;routing&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">XWidget</span><span class="p">,</span> <span class="nx">YWidget</span><span class="p">,</span> <span class="nx">route</span><span class="p">){</span>
+  <span class="c1">// Load everything!</span>
+
+  <span class="c1">// Set up global state!</span>
+  <span class="kd">var</span> <span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">light</span><span class="o">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span>
+    <span class="nx">time</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+  <span class="p">};</span>
+
+  <span class="c1">// Initialize main widget!</span>
+  <span class="kd">var</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XWidget</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">subwidget</span><span class="o">:</span> <span class="k">new</span> <span class="nx">YWidget</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;&lt;div&gt;&lt;/div&gt;&#39;</span><span class="p">),</span> <span class="p">{}),</span>
+    <span class="nx">state</span><span class="o">:</span> <span class="nx">state</span>
+  <span class="p">});</span>
+
+  <span class="c1">// Listen for routes</span>
+  <span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/calendar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">// Make some change to `main` probably</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>It&#39;s very easy to forget that not only is this an important chunk of code, it influences everything else that happens further down the chain in your application. <strong>Test it</strong> as though it&#39;s just as important, because it is.</p>
+<p>When you begin crafting your application as a pyramid of <a href="http://dailyjs.com/2014/03/10/components-controls/">web components</a> this becomes even more critical. Using <a href="http://canjs.com/guides/Components.html">can.Component</a>&#39;s scoping rules, data you initialize in your <code>main.js</code> will trickle down and be used by any component on your page, no matter how deeply nested.</p>
+<p>This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for <code>&lt;x-widget&gt;</code> are not enough, that top level file might be doing things just slightly differently.</p>
+<p>The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I&#39;m currently doing) you&#39;ll notice that things break as your entry point file is actually dependent on something in your <code>index.html</code> file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.</p>
+</div></div><div class="post"><div class="post-head group"><a href="/posts/markdown-enable-your-blog-comments-with-web-components.html"><h1 class="post-title">Markdown Enable Your Blog Comments with Web Components</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-01T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>If you&#39;re like me and are excited about getting started using web components today, you might find yourself struggling coming up with practical uses that aren&#39;t the typical carousel, calendar, or <a href="http://matthewphillips.info/posts/building-an-accordion-with-can-component.html">accordion</a> widgets that we&#39;ve all written a hundred times in plain JavaScript.</p>
 <p>In this article I&#39;ll walk you through the process of:</p>
 <ul>
 <li><p>Finding a practical use for web components.</p>
@@ -64,100 +91,4 @@
 <iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/5/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 <p>Hopefully I&#39;ve demonstrated the process of coming up with an idea for a component (essentially an encapsulated piece of HTML with JavaScript interactivity) and refining it until you are left with only the bits of code that you need. We&#39;ve created a Markdown-enabled blog commenting system is only 18 lines of code. Let it be inspiration for your next component. Can you do better, how about an MDN reference widget?</p>
-</div></div><div class="post"><div class="post-head group"><a href="/posts/building-an-accordion-with-can-component.html"><h1 class="post-title">Building an accordion with can.Component</h1></a><h2 class="post-date">Published&nbsp<abbr title="2013-12-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>I learn best by doing, so in an effort to learn more about <a href="http://canjs.com/guides/Components.html">can.Component</a> I&#39;ve been creating common types of components using the new framework. An <strong>accordion</strong> is one such example and I wanted to write about my experience creating the component. Note that this article doesn&#39;t constitute a best practice, I&#39;ve only been using can.Component for a few weeks now. Nor is the goal here for the least amount of code (My first couple of iterations used less code actually), rather I wanted to write the component as DRY as possible.</p>
-<p>I&#39;ve long been a fan of the <a href="http://www.w3.org/TR/components-intro/">Web Components</a> and was excited at the idea that <a href="http://canjs.com/index.html">can</a> could make it possible to write components today. Components are much different than traditional MVC-style programming, in that much more of your code is spent expressing what a component is rather than listening for DOM events and reacting. To that purpose, when I set out to create an accordion control I started with what I wanted it to look like in the end.</p>
-<p>An accordion is made up of a list of elements, each with a header and content, that when the header is clicked the content collapses and only the header is shown. So in the end, our html should look something like:</p>
-<pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;accordion&gt;</span>
-  <span class="nt">&lt;collapsible&gt;</span>...<span class="nt">&lt;/collapsible&gt;</span>
-  <span class="nt">&lt;collapsible&gt;</span>...<span class="nt">&lt;/collapsible&gt;</span>
-  <span class="nt">&lt;collapsible&gt;</span>...<span class="nt">&lt;/collapsible&gt;</span>
-<span class="nt">&lt;/accordion&gt;</span>
-</pre></div>
-</code></pre>
-<p>Note that we actually have 2 components here. It&#39;s important that the <code>collapsible</code> component operate independently of being hosted inside of an <code>accordion</code>. This leads to DRYer code, a <code>collapsible</code> component is something that can be useful in a lot of places.</p>
-<h2><a name="collapsible" class="anchor" href="#collapsible"><span class="header-link"></span></a>Collapsible</h2>
-<p>So first to build our <code>collapsible</code> component. Like I said before, a <code>collapsible</code> has a header containing a title, and it has a content section. It should look something like:</p>
-<pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;collapsible</span> <span class="na">class=</span><span class="s">&quot;open&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;header&gt;</span>
-    <span class="nt">&lt;h1&gt;</span>This is a title<span class="nt">&lt;/h1&gt;</span>
-  <span class="nt">&lt;/header&gt;</span>
-  <span class="nt">&lt;article&gt;</span>This is content.<span class="nt">&lt;/article&gt;</span>
-<span class="nt">&lt;/collapsible&gt;</span>
-</pre></div>
-</code></pre>
-<p>Note that the collapsible contains a class called <code>open</code>. This will be used with CSS to control the <code>article</code>&#39;s height. If the collapsible is not open we&#39;ll hide it by setting its height to <code>0px</code> and overflow to <code>none</code>. Now to the code for this component:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">can</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-  <span class="nx">tag</span><span class="o">:</span> <span class="s1">&#39;collapsible&#39;</span><span class="p">,</span>
-  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;header can-click=&quot;toggle&quot;&gt;&lt;h1&gt;{{item.title}}&lt;/h1&gt;&lt;/header&gt;&#39;</span> <span class="o">+</span>
-    <span class="s1">&#39;&lt;article&gt;{{item.content}}&lt;/article&gt;&#39;</span><span class="p">,</span>
-  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
-    <span class="nx">item</span><span class="o">:</span> <span class="k">new</span> <span class="nx">can</span><span class="p">.</span><span class="nx">Map</span><span class="p">({}),</span>
-    <span class="nx">toggle</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;item.open&#39;</span><span class="p">,</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;item.open&#39;</span><span class="p">));</span>
-    <span class="p">}</span>
-  <span class="p">},</span>
-  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s1">&#39;{item} open&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">ev</span><span class="p">,</span> <span class="nx">newVal</span><span class="p">){</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">[</span><span class="nx">newVal</span> <span class="o">?</span> <span class="s1">&#39;addClass&#39;</span> <span class="o">:</span> <span class="s1">&#39;removeClass&#39;</span><span class="p">](</span><span class="s1">&#39;open&#39;</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>It&#39;s pretty straight forward. The <code>can-click=&quot;toggle&quot;</code> attribute tells can that when the header is clicked, call the <code>toggle</code> function, which is part of the component&#39;s scope. The <code>toggle</code> function simple toggle the <code>item</code>&#39;s <code>open</code> flag. Then we have an event that listens for the changes to <code>open</code> and sets the element&#39;s class appropriately. Note that I could have placed the <code>open</code> class as part of the <code>&lt;article&gt;</code> element. The advantage to doing it that way is that it could have been included in the template which would have avoided the entire events section of the code. Ultimately I decided that it was more <em>correct</em> to have the <code>collapsible</code> itself be either open or not. Either approach is valid. The CSS is straight forward, but if you&#39;re a better designer than I you might use transforms or transitions.</p>
-<pre><code class="lang-css"><div class="highlight"><pre><span class="nt">collapsible</span> <span class="nt">article</span> <span class="p">{</span>
-  <span class="k">overflow</span><span class="o">:</span> <span class="k">hidden</span><span class="p">;</span>
-  <span class="k">height</span><span class="p">;</span> <span class="m">0px</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="nt">collapsible</span><span class="nc">.open</span> <span class="nt">article</span> <span class="p">{</span>
-  <span class="k">height</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</code></pre>
-<p>You can try this on your own, using this simple component you have a collapsible header/content panel.</p>
-<h2><a name="accordion" class="anchor" href="#accordion"><span class="header-link"></span></a>Accordion</h2>
-<p>An accordion simple wraps a number of <code>collapsible</code>s and has 1 extra feature: it ensures that only 1 collapsible is open at a time. So in order to create my accordion I really only need a couple of things:</p>
-<ol>
-<li>A way to listen for when a collapsible&#39;s <code>open</code> property changes.</li>
-<li>A way to determine which items need to be set to closed.</li>
-</ol>
-<p>Below is the code that creates our accordion, take a look first and then I&#39;ll step you through what is happening.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">can</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-  <span class="nx">tag</span><span class="o">:</span> <span class="s1">&#39;accordion&#39;</span><span class="p">,</span>
-  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;{{#each items}}&lt;collapsible item=&quot;items.{{@index}}&quot;&gt;&#39;</span> <span class="o">+</span>
-    <span class="s1">&#39;&lt;/collapsible&gt;{{/each}}&#39;</span><span class="p">,</span>
-  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
-    <span class="nx">items</span><span class="o">:</span> <span class="k">new</span> <span class="nx">can</span><span class="p">.</span><span class="nx">List</span><span class="p">([]).</span>
-    <span class="nx">selected</span><span class="o">:</span> <span class="s1">&#39;@&#39;</span><span class="p">,</span>
-    <span class="nx">select</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">index</span><span class="p">){</span>
-      <span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">);</span>
-      <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">items</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">);</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">isOpen</span> <span class="o">=</span> <span class="nx">i</span> <span class="o">===</span> <span class="nx">index</span><span class="p">;</span>
-        <span class="nx">items</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="nx">isOpen</span><span class="p">);</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">},</span>
-  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s1">&#39;inserted&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
-      <span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="o">+</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;selected&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="mi">0</span><span class="p">);</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="nx">selected</span><span class="p">);</span>
-    <span class="p">},</span>
-    <span class="s1">&#39;{items} change&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">list</span><span class="p">,</span> <span class="nx">ev</span><span class="p">,</span> <span class="nx">what</span><span class="p">,</span> <span class="nx">how</span><span class="p">,</span> <span class="nx">newVal</span><span class="p">){</span>
-      <span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nx">what</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;open&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">newVal</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">which</span> <span class="o">=</span> <span class="o">+</span><span class="nx">what</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">what</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">));</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="nx">which</span><span class="p">);</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>The first thing you&#39;re likely to notice is that we&#39;re attaching this to the collapsible: <code>item=&quot;items.{{@index}}&quot;</code>. We are doing this because the way you pass data to a child component is through its attributes. The attribute&#39;s name is the name of the property on the component&#39;s scope that we want to set, in this case <code>item</code>. The attribute value is the name of the parent scope&#39;s property that we want to pass in, in this case <code>item.0</code> (or <code>item.1</code>, etc. <code>{{@index}}</code> gets the index inside of our each loop).</p>
-<p>Since the <code>collapsible</code> controls its own <code>open</code> state we only need to observe changes that happen to our children items. This is what is happening in the <code>{items} change</code> event. Any time something changes to one of our items we check to see if it is an open event, and if so we run the scope&#39;s <code>select</code> method which takes the index of the item that is selected and marks all others as closed (by changing their <code>close</code> property, which automatically prompts an event in the <code>collapsible</code> component which is what actually removes the class.</p>
-<p>And that&#39;s pretty much all there is to an accordion. One other thing you might be unaware of is why the scope has a <code>selected</code> property with a value of <code>@</code>. This means that we want to use the value of the attribute rather than an object it refers to. We use this so that you can pass in the default collapsible to open like so: <code>&lt;accordion selected=&quot;2&quot;&gt;&lt;/accordion&gt;</code> means that the <code>collapsible</code> with an index of 2 will be open and all others closed.</p>
-<h2><a name="summary" class="anchor" href="#summary"><span class="header-link"></span></a>Summary</h2>
-<p>As you can see, creating reusable components with can.Component is fairly straight forward. It&#39;s just a matter of rethinking how you design a component, to be more declarative. I&#39;m hopeful that designing this way will make it more natural to create smaller, more modular components. Your application itself should be merely a declaration of componenents and bindings of data between them.</p>
-<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
-<iframe width="100%" height="300" src="http://jsfiddle.net/a6r3c/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 </div></div><div class="pagination group"><a href="/" class="newer">Newer &#8594;</a><a href="/page/2/" class="older">&#8592; Older</a></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>

@@ -1,4 +1,41 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/fun-with-shadow-dom.html"><h1 class="post-title">Fun with Shadow DOM</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-04-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p><strong>Update</strong>: To do this demo you first need to enable experimental web platform features <a href="chrome://flags/#enable-experimental-web-platform-features">in chrome://flags</a>.</p>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/responsive-computes.html"><h1 class="post-title">Responsive Computes</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-05-11T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>Recently I was working on a template and ran into issues trying to make it responsive purely using CSS media queries. The problem is that the mark-up of the mobile view and that of the desktop were just too different. In fact, the <em>functionality</em> of the two views were a bit different as well.</p>
+<p>At this point you might give up and just write up two separate templates and use media queries to hide one of them. Bootstrap even <a href="http://getbootstrap.com/css/#responsive-utilities-classes">has classes</a> for just such a case.</p>
+<p>Luckily, however, there is the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window.matchMedia">matchMedia</a> API that brings the power of media queries to JavaScript. There&#39;s fairly broad <a href="http://caniuse.com/#feat=matchmedia">browse support</a> and even <a href="https://github.com/weblinc/media-match/blob/master/media.match.js">a polyfill</a> if you want support in older IE browsers. matchMedia allows you to use the same type of media queries in JavaScript that you can use in CSS, for example:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">mql</span> <span class="o">=</span> <span class="nx">matchMedia</span><span class="p">(</span><span class="s1">&#39;only screen and (max-width: 768px)&#39;</span><span class="p">);</span>
+<span class="nx">mql</span><span class="p">.</span><span class="nx">matches</span> <span class="o">===</span> <span class="kc">true</span><span class="p">;</span> <span class="c1">// true if the screen is &lt;= 768px</span>
+</pre></div>
+</code></pre>
+<p>Additionally matchMedia queries include an <code>addListener</code> function that takes a callback that will be called when the media query&#39;s status changes; meaning you can resize the browser and the media query will respond when the screen becomes less than 768px (for example).</p>
+<h2><a name="live-bound-responsive-templates" class="anchor" href="#live-bound-responsive-templates"><span class="header-link"></span></a>Live-bound responsive templates</h2>
+<p>If you use CanJS you&#39;re familiar with can.computes, but you might not be familiar with the <a href="http://canjs.com/docs/can.compute.html#sig_can_compute_initialValue__settings__">2nd signature</a> which allows you to create a compute from any type of event emitting object. This means we can easily turn our matchMedia query into a compute that can be used in templates:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">mql</span> <span class="o">=</span> <span class="nx">matchMedia</span><span class="p">(</span><span class="s1">&#39;only screen and (max-width: 768px)&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">mobile</span> <span class="o">=</span> <span class="nx">can</span><span class="p">.</span><span class="nx">compute</span><span class="p">(</span><span class="nx">mql</span><span class="p">.</span><span class="nx">matches</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="k">return</span> <span class="nx">mql</span><span class="p">.</span><span class="nx">matches</span><span class="p">;</span>
+  <span class="p">},</span>
+  <span class="nx">set</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">// Do nothing for this one</span>
+  <span class="p">},</span>
+  <span class="nx">on</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">updated</span><span class="p">){</span>
+    <span class="nx">mql</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="nx">updated</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">off</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">updated</span><span class="p">){</span>
+    <span class="nx">mql</span><span class="p">.</span><span class="nx">removeListener</span><span class="p">(</span><span class="nx">updated</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>The compute&#39;s <code>settings</code> object describes how to bind the compute to the media query and respond to changes. Now your templates can be responsive in a much more powerful way than what CSS allows:</p>
+<pre><code class="lang-html"><div class="highlight"><pre>{{#if mobile}}
+  <span class="nt">&lt;div&gt;</span>Hi there phone! Mobile navigation goes here.<span class="nt">&lt;/div&gt;</span>
+{{else}}
+  <span class="nt">&lt;div&gt;</span>Totally different desktop experience!<span class="nt">&lt;/div&gt;</span>
+{{/if}}
+</pre></div>
+</code></pre>
+<p>The broader lesson here is that <a href="http://canjs.com/docs/can.compute.html">can.computes</a> are crazy powerful. If you&#39;re only using them to respond to changes in your business logic you&#39;re not unlocking their full potential. The browser provides many APIs, like matchMedia, that can be bound to. Check out the <a href="http://bitovi.com/blog/2013/04/weekly-widget-compute-slider.html">video slider</a> and be inspired.</p>
+</div></div><div class="post"><div class="post-head group"><a href="/posts/fun-with-shadow-dom.html"><h1 class="post-title">Fun with Shadow DOM</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-04-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p><strong>Update</strong>: To do this demo you first need to enable experimental web platform features <a href="chrome://flags/#enable-experimental-web-platform-features">in chrome://flags</a>.</p>
 <p>Now that Chrome has shipped Shadow DOM we can start experimenting with what possibilities are going to open up to developers. Consider this a beginner/intermediate post about Shadow DOM. I assume you already know Shadow DOM is a way to &quot;hide&quot; an element&#39;s structure while opening up insertion points to its inner content.</p>
 <p>With that in mind, this is a simple exercise in seeing the weirdness that is Shadow DOM. So open up a text editor and create an HTML file with these contents:</p>
 <pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
@@ -68,31 +105,4 @@
 <p>Back to the question, how is multiple shadow trees useful anyways? A big part of web components is going to be extending existing components. Shadow DOM provides an excellent way to do that. Let&#39;s say I created <code>&lt;super-calendar&gt;</code> and it was awesome... but ugly. You might want to come around and create <code>&lt;pretty-calendar&gt;</code> that modified part of the DOM structure a little bit, applied some prettyier scoped <code>&lt;style&gt;</code> but left my JavaScript alone. With <code>&lt;shadow&gt;</code> and <code>select</code> you can do all of that, keeping just the parts of my ugly calendar that are needed to function.</p>
 <p>Hopefully this has taught you a little bit about what is possible thanks to Shadow DOM. More important, however, is that you see how easy it is to experiment with emerging web technologies thanks to the awesome developer tools Chrome and Firefox provide us.</p>
 <p>Send your thoughts/hacks to <em>matthew@matthewphillips.info</em>.</p>
-</div></div><div class="post"><div class="post-head group"><a href="/posts/test-your-application-entry-point.html"><h1 class="post-title">Test Your Application Entry Point</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-26T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">define</span><span class="p">([</span><span class="s1">&#39;xwidget&#39;</span><span class="p">,</span> <span class="s1">&#39;ywidget&#39;</span><span class="p">,</span> <span class="s1">&#39;routing&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">XWidget</span><span class="p">,</span> <span class="nx">YWidget</span><span class="p">,</span> <span class="nx">route</span><span class="p">){</span>
-  <span class="c1">// Load everything!</span>
-
-  <span class="c1">// Set up global state!</span>
-  <span class="kd">var</span> <span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">light</span><span class="o">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span>
-    <span class="nx">time</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
-  <span class="p">};</span>
-
-  <span class="c1">// Initialize main widget!</span>
-  <span class="kd">var</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XWidget</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">subwidget</span><span class="o">:</span> <span class="k">new</span> <span class="nx">YWidget</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;&lt;div&gt;&lt;/div&gt;&#39;</span><span class="p">),</span> <span class="p">{}),</span>
-    <span class="nx">state</span><span class="o">:</span> <span class="nx">state</span>
-  <span class="p">});</span>
-
-  <span class="c1">// Listen for routes</span>
-  <span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/calendar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
-    <span class="c1">// Make some change to `main` probably</span>
-  <span class="p">});</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>It&#39;s very easy to forget that not only is this an important chunk of code, it influences everything else that happens further down the chain in your application. <strong>Test it</strong> as though it&#39;s just as important, because it is.</p>
-<p>When you begin crafting your application as a pyramid of <a href="http://dailyjs.com/2014/03/10/components-controls/">web components</a> this becomes even more critical. Using <a href="http://canjs.com/guides/Components.html">can.Component</a>&#39;s scoping rules, data you initialize in your <code>main.js</code> will trickle down and be used by any component on your page, no matter how deeply nested.</p>
-<p>This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for <code>&lt;x-widget&gt;</code> are not enough, that top level file might be doing things just slightly differently.</p>
-<p>The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I&#39;m currently doing) you&#39;ll notice that things break as your entry point file is actually dependent on something in your <code>index.html</code> file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.</p>
 </div></div><div class="pagination group"><a href="/page/1/" class="older">&#8592; Older</a></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
