@@ -1,4 +1,74 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/test-your-application-entry-point.html"><h1 class="post-title">Test Your Application Entry Point</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-26T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/fun-with-shadow-dom.html"><h1 class="post-title">Fun with Shadow DOM</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-04-02T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p><strong>Update</strong>: To do this demo you first need to enable experimental web platform features <a href="chrome://flags/#enable-experimental-web-platform-features">in chrome://flags</a>.</p>
+<p>Now that Chrome has shipped Shadow DOM we can start experimenting with what possibilities are going to open up to developers. Consider this a beginner/intermediate post about Shadow DOM. I assume you already know Shadow DOM is a way to &quot;hide&quot; an element&#39;s structure while opening up insertion points to its inner content.</p>
+<p>With that in mind, this is a simple exercise in seeing the weirdness that is Shadow DOM. So open up a text editor and create an HTML file with these contents:</p>
+<pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;title&gt;</span>Fun with Shadow<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;template</span> <span class="na">id=</span><span class="s">&quot;tmpl&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;style&gt;div</span> <span class="p">{</span> <span class="k">color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span> <span class="p">}</span><span class="nt">&lt;/style&gt;</span>
+  <span class="nt">&lt;div&gt;</span>Hello <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Matthew<span class="nt">&lt;/span&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+<span class="nt">&lt;template</span> <span class="na">id=</span><span class="s">&quot;tmpl2&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div&gt;</span>Welcome to the internet<span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;shadow&gt;&lt;/shadow&gt;</span>
+<span class="nt">&lt;/template&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+</code></pre>
+<p>From here on the rest of the tutorial is done from Chrome&#39;s DevTools. So open your brower and navigate to the page you just created and open the DevTools. This is a simple page with a container div and a couple of templates.</p>
+<p>You should see nothing on your page at this point, but we&#39;ll change that. The element <code>&lt;div id=&quot;container&quot;&gt;&lt;/div&gt;</code> is the root element we&#39;re going to play around with so go ahead and get a reference to it.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">c</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;#container&#39;</span><span class="p">);</span>
+</pre></div>
+</code></pre>
+<p>Next we&#39;re going to create this div&#39;s <a href="http://www.w3.org/TR/shadow-dom/#dfn-shadow-root">shadow root</a>. The shadow root is the place where you can append stuff to the div and not have to worry about the page&#39;s styling interfering (among other advantages).</p>
+<p>Before we create the shadow root, type this into the console and hit enter:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">c</span><span class="p">.</span><span class="nx">shadowRoot</span>
+</pre></div>
+</code></pre>
+<p>It should return <code>null</code>, as the div doesn&#39;t have a shadow root yet. So let&#39;s go ahead and change that. Create the shadow root and keep a reference for later:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">root1</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">createShadowRoot</span><span class="p">();</span>
+</pre></div>
+</code></pre>
+<p>Should return (in the console):</p>
+<pre><code><div class="highlight"><pre><span class="err">#</span><span class="nx">shadow</span><span class="o">-</span><span class="nx">root</span>
+</pre></div>
+</code></pre>
+<p>This also updates <code>c.shadowRoot</code>. Test it by doing:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">root1</span> <span class="o">===</span> <span class="nx">c</span><span class="p">.</span><span class="nx">shadowRoot</span>
+</pre></div>
+</code></pre>
+<p>And you&#39;ll get <code>true</code>. Awesome. Now that you have a shadow root you&#39;ll want to add stuff to it. This works like any other element. You can use <code>innerHTML</code>, <code>appendChild</code>, <code>insertBefore</code>, etc. to add content to the shadow. Let&#39;s use our first template to attach some content:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">root1</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;#tmpl&#39;</span><span class="p">).</span><span class="nx">content</span><span class="p">)</span>
+</pre></div>
+</code></pre>
+<p>The immediate effect you&#39;ll see is the words &quot;Hello Matthew&quot; in red on the page. This is because the template contains a <code>&lt;style&gt;</code> tag that styles the content within the template.</p>
+<p>You&#39;ll also notice that we <em>didn&#39;t</em> append the template, we appended the template&#39;s <code>content</code> property. This is a read-only property containing a document fragment of the template&#39;s content.</p>
+<p>If you navigate to the DevTools&#39; <strong>Elements</strong> tab and expand the <code>#container</code> div you&#39;ll see... nothing at all. This is because shadow root is hidden by default. You can change this by going into Settings -&gt; Elements and selecting <em>Show Shadow DOM</em>. Now go back to <strong>Elements</strong> and you&#39;ll see a <code>#shadow-root</code> nested under your div. Yay!</p>
+<h2><a name="deeper-down-the-rabbit-hole" class="anchor" href="#deeper-down-the-rabbit-hole"><span class="header-link"></span></a>Deeper down the rabbit hole</h2>
+<p>We could stop here and you&#39;d have a good idea of what the Shadow DOM allows you to do, and how to use an element&#39;s shadow root. But we&#39;re going to take it one step further. When we created the shadow root you might have asked yourself why there is a method <code>createShadowRoot</code> in the first place. Does it mean you can have multiple shadow root&#39;s in an element? It does!</p>
+<p>So let&#39;s go ahead and create a second shadow root to further our experimentation:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">root2</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">createShadowRoot</span><span class="p">();</span>
+</pre></div>
+</code></pre>
+<p>This will return a new shadow root. But what you might also notice is that the words &quot;Hello Matthew&quot; disappeared from the page. What&#39;s going on? First use the <strong>Elements</strong> tab and expand your <code>#container</code> div and there should now be two shadow roots. The first is <code>root1</code> and its contents are still there. That&#39;s good, but why can&#39;t we see it?</p>
+<p>The reason is that the browser only renders the <em>last</em> shadow tree. The others are still there, you just can&#39;t see them. In your console do this:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">c</span><span class="p">.</span><span class="nx">shadowRoot</span> <span class="o">==</span> <span class="nx">root1</span>
+<span class="nx">c</span><span class="p">.</span><span class="nx">shadowRoot</span> <span class="o">==</span> <span class="nx">root2</span>
+</pre></div>
+</code></pre>
+<p>As you can see, the div&#39;s new shadowRoot is now <code>root2</code>. You might be asking how this is useful... I&#39;ll get to an explanation but it might be better to show you. Go ahead and attach that other template to the new root:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">root2</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;#tmpl2&#39;</span><span class="p">).</span><span class="nx">content</span><span class="p">);</span>
+</pre></div>
+</code></pre>
+<p>Ah! The first shadow&#39;s content is back. This is because <code>#tmpl2</code> has an insertion point with <code>&lt;shadow&gt;&lt;/shadow&gt;</code>. This says &quot;insert the previous shadow here&quot;, more or less. You may also notice that the second template&#39;s div is not in red. This is because the <code>&lt;style&gt;</code> tag in the first template is scoped to only content within that template. This is the beauty of templates.</p>
+<p>Back to the question, how is multiple shadow trees useful anyways? A big part of web components is going to be extending existing components. Shadow DOM provides an excellent way to do that. Let&#39;s say I created <code>&lt;super-calendar&gt;</code> and it was awesome... but ugly. You might want to come around and create <code>&lt;pretty-calendar&gt;</code> that modified part of the DOM structure a little bit, applied some prettyier scoped <code>&lt;style&gt;</code> but left my JavaScript alone. With <code>&lt;shadow&gt;</code> and <code>select</code> you can do all of that, keeping just the parts of my ugly calendar that are needed to function.</p>
+<p>Hopefully this has taught you a little bit about what is possible thanks to Shadow DOM. More important, however, is that you see how easy it is to experiment with emerging web technologies thanks to the awesome developer tools Chrome and Firefox provide us.</p>
+<p>Send your thoughts/hacks to <em>matthew@matthewphillips.info</em>.</p>
+</div></div><div class="post"><div class="post-head group"><a href="/posts/test-your-application-entry-point.html"><h1 class="post-title">Test Your Application Entry Point</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-26T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
 <pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">define</span><span class="p">([</span><span class="s1">&#39;xwidget&#39;</span><span class="p">,</span> <span class="s1">&#39;ywidget&#39;</span><span class="p">,</span> <span class="s1">&#39;routing&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">XWidget</span><span class="p">,</span> <span class="nx">YWidget</span><span class="p">,</span> <span class="nx">route</span><span class="p">){</span>
   <span class="c1">// Load everything!</span>
 
@@ -25,70 +95,4 @@
 <p>When you begin crafting your application as a pyramid of <a href="http://dailyjs.com/2014/03/10/components-controls/">web components</a> this becomes even more critical. Using <a href="http://canjs.com/guides/Components.html">can.Component</a>&#39;s scoping rules, data you initialize in your <code>main.js</code> will trickle down and be used by any component on your page, no matter how deeply nested.</p>
 <p>This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for <code>&lt;x-widget&gt;</code> are not enough, that top level file might be doing things just slightly differently.</p>
 <p>The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I&#39;m currently doing) you&#39;ll notice that things break as your entry point file is actually dependent on something in your <code>index.html</code> file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.</p>
-</div></div><div class="post"><div class="post-head group"><a href="/posts/markdown-enable-your-blog-comments-with-web-components.html"><h1 class="post-title">Markdown Enable Your Blog Comments with Web Components</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-01T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>If you&#39;re like me and are excited about getting started using web components today, you might find yourself struggling coming up with practical uses that aren&#39;t the typical carousel, calendar, or <a href="http://matthewphillips.info/posts/building-an-accordion-with-can-component.html">accordion</a> widgets that we&#39;ve all written a hundred times in plain JavaScript.</p>
-<p>In this article I&#39;ll walk you through the process of:</p>
-<ul>
-<li><p>Finding a practical use for web components.</p>
-</li>
-<li><p>Developing your first iteration.</p>
-</li>
-<li><p>Refining, deciding when components are needed and when they are just extra fluff.</p>
-</li>
-</ul>
-<p>All of my examples will use <a href="http://canjs.com/guides/Components.html">can.Component</a> because it&#39;s available today, is stable, and has really good browser support, but are still applicable no matter what your web component framework of choice is.</p>
-<h1><a name="from-concept-to-code" class="anchor" href="#from-concept-to-code"><span class="header-link"></span></a>From Concept to Code</h1>
-<p>If all you&#39;re interested in is learning you can pick just about any API on the web and turn it into a web component. Or pick your favorite JavaScript library and wrap a component around it. Web components are primed to be the new jQuery plugin.</p>
-<h2><a name="markdown" class="anchor" href="#markdown"><span class="header-link"></span></a>Markdown</h2>
-<p>If you&#39;re a programmer you probably use markdown (or another markup generator) quite often. I&#39;m writing this post in markdown right now. The only downside is I have a Grunt task running in the background that is rerendering the html every time I save the file. What if you could write markdown and have it generate all in the browser? You want to write something like:</p>
-<pre><code class="lang-html"><div class="highlight"><pre><span class="nt">&lt;markdown&gt;</span>
-# Hello world!
-
-* Oh my, **lists**
-<span class="nt">&lt;/markdown&gt;</span>
-</pre></div>
-</code></pre>
-<p>And let a library do the heavy lifting. Luckily there is a <a href="https://github.com/coreyti/showdown">Showdown</a>, a JavaScript library for turning markdown into HTML. It&#39;s pretty fantastic. So let&#39;s make a component.</p>
-<p>Since Showdown does most of the heavy lifting all we need is a nice wrapper that will allow us to write Markdown inside of a tag and have it render the HTML automatically. Using can.Component we can do that easily, here&#39;s a demo:</p>
-<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
-<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
-<p>The code should speak for itself. The <code>x-markdown</code> component (all web components should be namespaced, we use <code>x-</code> in this example) generates the HTML after it is inserted into the page. We simply listen for the <code>inserted</code> event and set the <code>&lt;content/&gt;</code> provided by the user to the <code>markdown</code> property on the component&#39;s Scope.</p>
-<p>The powerful part of this example is the <code>can.compute</code>. Computes are a type of object that can listen to changes of other objects and automatically recompute themselves. If you&#39;ve used <a href="http://knockoutjs.com/documentation/observables.html">ko.observable</a> or Ember <a href="http://emberjs.com/guides/object-model/computed-properties/">computed properties</a> the idea is much the same, but can.computes are a bit more powerful (we&#39;ll get to that later).</p>
-<p>The compute simple takes the value of the <code>markdown</code> property (which is set in the <code>inserted</code> event) and uses Showdown to generate the html that will be displayed.</p>
-<h1><a name="using-with-blog-comments" class="anchor" href="#using-with-blog-comments"><span class="header-link"></span></a>Using with Blog Comments</h1>
-<p>While cool, this example isn&#39;t that practical. In reality you&#39;ll rarely have a scenario where you need to write HTML inside of a web browser, otherwise using a static site generator is probably what you&#39;ll be using.</p>
-<p>One place where you would want to generate the HTML on the fly is for blog comments. If your blog is developer-focused it makes sense to allow the reader to write comments in markdown, and have a live preview of what it will look like. So let&#39;s refactor <code>&lt;x-markdown&gt;</code> to be our live preview.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">can</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-  <span class="nx">tag</span><span class="o">:</span> <span class="s1">&#39;x-markdown&#39;</span><span class="p">,</span>
-  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div&gt;{{{html}}}&lt;/div&gt;&#39;</span><span class="p">,</span>
-  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
-    <span class="nx">html</span><span class="o">:</span> <span class="nx">can</span><span class="p">.</span><span class="nx">compute</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-      <span class="kd">var</span> <span class="nx">markdown</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">);</span>
-      <span class="kd">var</span> <span class="nx">converter</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Showdown</span><span class="p">.</span><span class="nx">converter</span><span class="p">();</span>
-      <span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">converter</span><span class="p">.</span><span class="nx">makeHtml</span><span class="p">(</span><span class="nx">markdown</span><span class="p">);</span>
-      <span class="k">return</span> <span class="nx">html</span><span class="p">;</span>
-    <span class="p">}),</span>
-    <span class="nx">markdown</span><span class="o">:</span> <span class="s1">&#39;&#39;</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>This new version of <code>&lt;x-markdown&gt;</code> is much more succinct because we&#39;ve eliminated the <code>&lt;content/&gt;</code> portion by getting the raw markdown from a textarea. can.Component allows you to pass data (included complex objects) through an element&#39;s attribute tags. We&#39;ll use it like such: <code>&lt;x-markdown markdown=&quot;value&quot;&gt;&lt;/x-markdown&gt;</code> so that the <code>html</code> compute will be live-bound to the <code>value</code> object that we pass in.</p>
-<p>Next we need to create a live-bound textarea we&#39;ll call <code>&lt;x-textarea&gt;</code>. The idea that both x-markdown and x-textarea will be live-bound to the same compute object, and any time you type into the textarea the markdown will automatically be rerendered in the preview window. Demo time:</p>
-<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
-<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
-<p>Try out the fiddle (Click on the <strong>Result</strong> link) and see for yourself how the preview updates as you type. The secret sauce here is that we are using <code>can-value</code> to bind the textarea&#39;s <code>value</code> to our scope property also called <code>value</code>. can-value works on the element&#39;s <code>change</code> event, which for most types of forms is fine, but in our case we need the preview to update as you type, so we&#39;ve added a <code>keyup</code> event that simply triggers the textarea&#39;s change event as the user types. Simple!</p>
-<h1><a name="when-not-to-web-component" class="anchor" href="#when-not-to-web-component"><span class="header-link"></span></a>When not to Web Component</h1>
-<p>Awesome, we&#39;ve built a live-bound markdown enabled comment system. In less than 30 lines of code. However you might notice that the <code>&lt;x-textarea&gt;</code> isn&#39;t really doing much at all. It simply turns a normal textarea into a live-bound one.</p>
-<p>However in reality textareas <em>really are</em> live-bound, they use the normal DOM events to update their values. So all we are using the <code>&lt;x-textarea&gt;</code> for in practice is to turn the DOM events into can events. Luckily <a href="http://canjs.com/docs/can.compute.html">can.compute</a> already has a way of doing this, so we don&#39;t need the <code>x-textarea</code> at all.</p>
-<p>can.compute can take a set of arguments that includes an element, the property to bind to, and an event to bind to. We&#39;ll use it like:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">markdown</span> <span class="o">=</span> <span class="nx">can</span><span class="p">.</span><span class="nx">compute</span><span class="p">(</span><span class="nx">textarea</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;keyup&#39;</span><span class="p">);</span>
-</pre></div>
-</code></pre>
-<p>This allows us to move our textarea outside of the script tag (since we&#39;re getting rid of the component) but still have a live-bound value between the textarea and our <code>x-markdown</code> preview. See the demo below.</p>
-<h2><a name="demo" class="anchor" href="#demo"><span class="header-link"></span></a>Demo</h2>
-<iframe width="100%" height="300" src="http://jsfiddle.net/TBFp6/5/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
-<p>Hopefully I&#39;ve demonstrated the process of coming up with an idea for a component (essentially an encapsulated piece of HTML with JavaScript interactivity) and refining it until you are left with only the bits of code that you need. We&#39;ve created a Markdown-enabled blog commenting system is only 18 lines of code. Let it be inspiration for your next component. Can you do better, how about an MDN reference widget?</p>
 </div></div><div class="pagination group"><a href="/" class="newer">Newer &#8594;</a><a href="/page/2/" class="older">&#8592; Older</a></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
