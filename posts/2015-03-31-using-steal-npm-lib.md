@@ -34,7 +34,7 @@ Steal will look for `dep.js` in the project's root folder. To set an alternative
 
     {
       "name": "my-module",
-      "main": "src/main.js",
+      "main": "dist/cjs/main.js",
       "system": {
         "main": "main",
         "directories": {
