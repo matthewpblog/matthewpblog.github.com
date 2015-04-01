@@ -594,7 +594,7 @@ table {
 
 /* line 156, ../../src/styles/_solarized-dark.scss */
 .highlight .ni {
-  color: purple;
+  color: #800080;
 }
 
 /* line 160, ../../src/styles/_solarized-dark.scss */
@@ -637,7 +637,7 @@ table {
 
 /* line 191, ../../src/styles/_solarized-dark.scss */
 .highlight .vc {
-  color: teal;
+  color: #008080;
 }
 
 /* line 195, ../../src/styles/_solarized-dark.scss */
@@ -692,12 +692,12 @@ table {
 
 /* line 235, ../../src/styles/_solarized-dark.scss */
 .highlight .sb {
-  color: #dd1144;
+  color: #d14;
 }
 
 /* line 239, ../../src/styles/_solarized-dark.scss */
 .highlight .sc {
-  color: #dd1144;
+  color: #d14;
 }
 
 /* line 243, ../../src/styles/_solarized-dark.scss */
@@ -717,7 +717,7 @@ table {
 
 /* line 255, ../../src/styles/_solarized-dark.scss */
 .highlight .sh {
-  color: #dd1144;
+  color: #d14;
 }
 
 /* line 259, ../../src/styles/_solarized-dark.scss */
@@ -727,7 +727,7 @@ table {
 
 /* line 263, ../../src/styles/_solarized-dark.scss */
 .highlight .sx {
-  color: #dd1144;
+  color: #d14;
 }
 
 /* line 267, ../../src/styles/_solarized-dark.scss */

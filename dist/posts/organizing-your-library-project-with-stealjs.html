@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>Organizing your library project with StealJS</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/organizing-your-library-project-with-stealjs.html"><h1 class="post-title">Organizing your library project with StealJS</h1></a><h2 class="post-date">Published&nbsp<abbr title="2015-03-31T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>With <a href="http://stealjs.com/">StealJS</a> you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:</p>
+<pre><code><div class="highlight"><pre><span class="o">-</span> <span class="nx">src</span>
+  <span class="o">-</span> <span class="nx">main</span><span class="p">.</span><span class="nx">js</span>
+  <span class="o">-</span> <span class="nx">dep</span><span class="p">.</span><span class="nx">js</span>
+<span class="o">-</span> <span class="nx">test</span>
+  <span class="o">-</span> <span class="nx">test</span><span class="p">.</span><span class="nx">html</span>
+  <span class="o">-</span> <span class="nx">test</span><span class="p">.</span><span class="nx">js</span>
+<span class="kr">package</span><span class="p">.</span><span class="nx">json</span>
+<span class="nx">Gruntfile</span><span class="p">.</span><span class="nx">js</span>
+</pre></div>
+</code></pre>
+<p>In order to keep a shallow folder structure we&#39;ve divided the library&#39;s source code in <code>src</code> and its tests in <code>test</code>. The root directory only contains our <code>package.json</code> and a <code>Gruntfile.js</code> for builds.</p>
+<p>With this structure you might try to install your module with NPM:</p>
+<pre><code><div class="highlight"><pre><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">my</span><span class="o">-</span><span class="nx">module</span> <span class="o">--</span><span class="nx">save</span>
+</pre></div>
+</code></pre>
+<p>And then load it in your project:</p>
+<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">myModule</span> <span class="nx">from</span> <span class="s2">&quot;my-module&quot;</span><span class="p">;</span>
+</pre></div>
+</code></pre>
+<p>However this will fail because your <code>main</code> is not pointing to right place. Imagine your <code>main.js</code> look like:</p>
+<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">dep</span> <span class="nx">from</span> <span class="s2">&quot;my-module/dep&quot;</span><span class="p">;</span>
+</pre></div>
+</code></pre>
+<p>Steal will look for <code>dep.js</code> in the project&#39;s root folder. To set an alternative root, correctly called the lib folder, set it in the <code>package.json</code>:</p>
+<pre><code><div class="highlight"><pre><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;my-module&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;main&quot;</span><span class="o">:</span> <span class="s2">&quot;src/main.js&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;system&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;main&quot;</span><span class="o">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;directories&quot;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s2">&quot;lib&quot;</span><span class="o">:</span> <span class="s2">&quot;src&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</code></pre>
+<p>This tells Steal that your library&#39;s code is nested under the <code>src</code> folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:</p>
+<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">myModuleDep</span> <span class="nx">from</span> <span class="s2">&quot;my-module/dep&quot;</span><span class="p">;</span>
+</pre></div>
+</code></pre>
+<p>Will correctly load <code>src/dep.js</code> if that&#39;s the module you want to test.</p>
+<h2><a name="building" class="anchor" href="#building"><span class="header-link"></span></a>Building</h2>
+<p>If you&#39;re only target Steal you can go ahead and publish your module on NPM. But if you want to reach users of other module loaders you should set up a build script. <a href="http://stealjs.com/docs/steal-tools.html">steal-tools</a> makes this easy. For example if using Grunt:</p>
+<pre><code><div class="highlight"><pre><span class="nx">grunt</span><span class="p">.</span><span class="nx">initConfig</span><span class="p">({</span>
+  <span class="s2">&quot;steal-export&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">dist</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">system</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">config</span><span class="o">:</span> <span class="s2">&quot;package.json!npm&quot;</span>
+      <span class="p">},</span>
+      <span class="nx">outputs</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;+cjs&quot;</span><span class="o">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;+amd&quot;</span><span class="o">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;global-js&quot;</span><span class="o">:</span> <span class="p">{]</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
+</div></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
