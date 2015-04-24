@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[World Wide Web Home of Matthew Phillips]]></title><description><![CDATA[Musings on Web Components, mostly]]></description><link>http://matthewphillips.info</link><generator>RSS for Node</generator><lastBuildDate>Wed, 01 Apr 2015 03:07:13 GMT</lastBuildDate><atom:link href="http://matthewphillips.info/feed.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Matthew Phillips]]></author><pubDate>Wed, 01 Apr 2015 03:07:13 GMT</pubDate><copyright><![CDATA[2015 Matthew Phillips]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Matthew Phillips]]></managingEditor><webMaster><![CDATA[Matthew Phillips]]></webMaster><ttl>60</ttl><item><title><![CDATA[Organizing your library project with StealJS]]></title><description><![CDATA[<p>With <a href="http://stealjs.com/">StealJS</a> you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:</p>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[World Wide Web Home of Matthew Phillips]]></title><description><![CDATA[Musings on Web Components, mostly]]></description><link>http://matthewphillips.info</link><generator>RSS for Node</generator><lastBuildDate>Fri, 24 Apr 2015 02:24:44 GMT</lastBuildDate><atom:link href="http://matthewphillips.info/feed.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Matthew Phillips]]></author><pubDate>Fri, 24 Apr 2015 02:24:44 GMT</pubDate><copyright><![CDATA[2015 Matthew Phillips]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Matthew Phillips]]></managingEditor><webMaster><![CDATA[Matthew Phillips]]></webMaster><ttl>60</ttl><item><title><![CDATA[Using NPM with SystemJS]]></title><description><![CDATA[<p><a href="https://github.com/stealjs/system-npm">system-npm</a> is an amazing plugin for SystemJS that enables you to load your NPM dependencies with zero configuration.  Just load system-npm and then load your project; require your NPM dependencies just as if you were in Node.</p>
+<p>To use system-npm with SystemJS you&#39;ll first want to install SystemJS into your project.  In this post we&#39;re assuming you&#39;ve included <code>system.js</code> and <code>es6-module-loader.js</code> in a <code>vendor/</code> folder, but you can place it where-ever you want. Then simply add a script tag to your page to load SystemJS:</p>
+<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;vendor/system.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</pre></div>
+</code></pre>
+<h2><a name="installing" class="anchor" href="#installing"><span class="header-link"></span></a>Installing</h2>
+<p><strong>system-npm</strong> is installed through NPM (of course!):</p>
+<pre><code><div class="highlight"><pre><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">system</span><span class="o">-</span><span class="nx">npm</span> <span class="o">--</span><span class="nx">save</span><span class="o">-</span><span class="nx">dev</span>
+</pre></div>
+</code></pre>
+<h2><a name="configuring" class="anchor" href="#configuring"><span class="header-link"></span></a>Configuring</h2>
+<p>Next you&#39;ll want to configure SystemJS to know where to load the plugin. Create a <code>config.js</code> file and add the appropriate config:</p>
+<pre><code><div class="highlight"><pre><span class="nx">System</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="nx">map</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;npm&quot;</span><span class="o">:</span> <span class="s2">&quot;system-npm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;npm-extension&quot;</span><span class="o">:</span> <span class="s2">&quot;system-npm/npm-extension&quot;</span>
+    <span class="p">},</span>
+    <span class="nx">paths</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;system-npm/*&quot;</span><span class="o">:</span> <span class="s2">&quot;node_modules/system-npm/*.js&quot;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>This tells SystemJS how to load system-npm. Add the configuration script to your page after SystemJS:</p>
+<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;config.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</pre></div>
+</code></pre>
+<h2><a name="load-your-app" class="anchor" href="#load-your-app"><span class="header-link"></span></a>Load your app</h2>
+<p>Now that it is configured you can load your <code>package.json</code> using the plugin and then start up your applicaiton:</p>
+<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+    <span class="nx">System</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s2">&quot;package.json!npm&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">System</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s2">&quot;app/app&quot;</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre></div>
+</code></pre>
+<h2><a name="develop" class="anchor" href="#develop"><span class="header-link"></span></a>Develop</h2>
+<p>From here you can develop as you wish, sharing the same dependencies between Node and the Browser. <strong>system-npm</strong> will load your package.json and use the metadata. If you want to limit it to only loading your client-side deps, you can specify this in your configuration:</p>
+<pre><code><div class="highlight"><pre><span class="nx">System</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+  <span class="nx">npmDependencies</span><span class="o">:</span> <span class="p">[</span>
+    <span class="s2">&quot;jquery&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;backbone&quot;</span>
+  <span class="p">]</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>Doing this, system-npm will only load <em>jquery</em> and <em>backbone</em> as dependencies.</p>
+<p>It&#39;s that simple. system-npm is a great way to instantly make your SystemJS projects nearly configuration-free.</p>
+]]></description><link>http://matthewphillips.info/posts/using-npm-with-systemjs.html</link><guid isPermaLink="true">http://matthewphillips.info/posts/using-npm-with-systemjs.html</guid><dc:creator><![CDATA[Matthew Phillips]]></dc:creator><pubDate>Sun, 26 Apr 2015 00:00:00 GMT</pubDate></item><item><title><![CDATA[Organizing your library project with StealJS]]></title><description><![CDATA[<p>With <a href="http://stealjs.com/">StealJS</a> you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:</p>
 <pre><code><div class="highlight"><pre><span class="o">-</span> <span class="nx">src</span>
   <span class="o">-</span> <span class="nx">main</span><span class="p">.</span><span class="nx">js</span>
   <span class="o">-</span> <span class="nx">dep</span><span class="p">.</span><span class="nx">js</span>
@@ -60,6 +108,7 @@
 </pre></div>
 </code></pre>
 <p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
+<p>See <a href="https://github.com/bitovi-components/bit-tabs">bit-tabs</a> for a full example of this directory structure in action.</p>
 ]]></description><link>http://matthewphillips.info/posts/organizing-your-library-project-with-stealjs.html</link><guid isPermaLink="true">http://matthewphillips.info/posts/organizing-your-library-project-with-stealjs.html</guid><dc:creator><![CDATA[Matthew Phillips]]></dc:creator><pubDate>Tue, 31 Mar 2015 00:00:00 GMT</pubDate></item><item><title><![CDATA[I'm Sold on HTML-based Templating]]></title><description><![CDATA[<p>I&#39;ve finally come around to liking HTML-based templates. I&#39;ve been a hold-out for a long time but I&#39;m finding it harder and harder to resist the tide and I&#39;m officially calling it today; HTML templates have won.</p>
 <p>What am I talking about? If you&#39;ve done heavy JavaScript developer since, well the dawn of time, you&#39;re probably used to creating templates a lot like this:</p>
 <pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/mustache&quot;</span> <span class="nx">id</span><span class="o">=</span><span class="nx">template</span><span class="err">&quot;</span><span class="o">&gt;</span>
@@ -462,11 +511,4 @@
 <span class="nx">convertState</span><span class="p">(</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">);</span> <span class="c1">// -&gt; &#39;California&#39;</span>
 </pre></div>
 </code></pre>
-]]></description><link>http://matthewphillips.info/posts/functional-javascript-in-action.html</link><guid isPermaLink="true">http://matthewphillips.info/posts/functional-javascript-in-action.html</guid><dc:creator><![CDATA[Matthew Phillips]]></dc:creator><pubDate>Thu, 28 Nov 2013 00:00:00 GMT</pubDate></item><item><title><![CDATA[Beware the Creeper]]></title><description><![CDATA[<p><em>By Jason Hall</em></p>
-<p><em>Art by Cliff Chiang</em></p>
-<p>I have an affinity for The Creeper which dates back to Steve Niles&#39; brief run. Niles&#39; <em>30 Days of Night</em> series was one of the books that got me into comics. So given that, and the fabulous cover to the graphic novel, the chances of me not liking this book were close to zero. No need to worry though, my bias cannot be blamed for this one, as this has to be the definitive Creeper story ever told. Hall&#39;s convinced me that Creeper is a character that belongs in 1925 Paris and that will color all interpretations that I read going forward.</p>
-<p>It&#39;s interesting that this is the case, because about half way through the book it became apparent to me that Jason Hall really just wanted to write about the surrealism and the bohemian movement in France during the early 20th century. I&#39;m rather glad that he found the excuse because with the few short acts of <strong>Beware the Creeper</strong> he was able to craft together a world that really feels lived in. That he managed to throw in a classic DC villain into the mix without making it feel the slightest bit ridiculous is commendable. In fact I wonder if this book was concepted around The Creeper or if The Creeper was only selected after Hall had decided that he wanted to do a book about French surrealism.</p>
-<p>Structurally the book is not breaking any new territory. In the first act we are introduced to the characters, ending in Judith Benoir&#39;s rape and (seemingly) transformation into The Creeper. Act two is the escalation and what happens to Paris as a result of The Creeper coming on to the scene. At first they openly embrace him/her as she/he seems to represent the surrealist rejection of the ordinary. By the end of the second act, however, the feeling is that The Creeper has gone too far (having been accused of a couple of murders) and so we see that despite their embellishments the people of Paris have some, frankly, normal values as well. Act three is where we find out that things are not what they seem; I&#39;ll not spoil that particular reveal but instead just say that the hints are all over the book and not something you&#39;ll have trouble putting together yourself.</p>
-<p>I always question trickery of the sort in a non-detective book. The questions I ask is if the twist is necessary and if it detracts from the themes of the book. Examining this I have to wonder what it is that the twist is supposed to reveal. Something about Paris or about the characters? For it&#39;s many strengths, <strong>Beware the Creeper</strong> is not particularly a character piece. Aside from that of the Creeper&#39;s secret identity, the rest are fairly ordinary characters who could have been plucked from any other story written in a similar structure. The characters are not the focal point and that&#39;s why I think it works. The Creeper is not a product of events that occurred as much as he/she is a product of surrealism itself. That someone can go inside is nothing novel; that they go insane and turn into... this, well that can only happen in the setting in which this lives.</p>
-<p>Ultimately that&#39;s why this book is so successful. Hall has recreated Paris 1925 in a way that we all feel we are there ourselves. The story is merely an excuse to visit this world for an hour (or so). Here&#39;s hoping Hall allows us to revisit this world some day.</p>
-]]></description><link>http://matthewphillips.info/posts/beware-the-creeper.html</link><guid isPermaLink="true">http://matthewphillips.info/posts/beware-the-creeper.html</guid><dc:creator><![CDATA[Matthew Phillips]]></dc:creator><pubDate>Tue, 17 Sep 2013 00:00:00 GMT</pubDate></item></channel></rss>
+]]></description><link>http://matthewphillips.info/posts/functional-javascript-in-action.html</link><guid isPermaLink="true">http://matthewphillips.info/posts/functional-javascript-in-action.html</guid><dc:creator><![CDATA[Matthew Phillips]]></dc:creator><pubDate>Thu, 28 Nov 2013 00:00:00 GMT</pubDate></item></channel></rss>

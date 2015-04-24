@@ -69,3 +69,5 @@ If you're only target Steal you can go ahead and publish your module on NPM. But
     });
 
 Then by simply running `grunt steal-export` will produce `dist/cjs`, `dist/amd`, and `dist/global` folders containing code that will run in RequireJS, Browserify, and as a browser global. Read [the full guide](http://stealjs.com/docs/StealJS.project-exporting.html) on setting up an export for your project for more.
+
+See [bit-tabs](https://github.com/bitovi-components/bit-tabs) for a full example of this directory structure in action.
