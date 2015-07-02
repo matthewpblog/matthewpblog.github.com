@@ -3,7 +3,7 @@
 var path = require("path");
 var fs = require("fs");
 
-var stream = fs.createReadStream(__dirname + "/../oposts", "utf8");
+var stream = fs.createReadStream(__dirname + "/../posts", "utf8");
 
 var data = "", files = [];
 stream.on("data", function(line){

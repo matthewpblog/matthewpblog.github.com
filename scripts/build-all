@@ -4,4 +4,4 @@ do
 
   scripts/gist-html $id > dist/posts/$file\.html
 
-done < oposts
+done < posts
