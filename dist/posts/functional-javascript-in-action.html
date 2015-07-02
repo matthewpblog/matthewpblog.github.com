@@ -1,79 +1,104 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>Functional JavaScript in action</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/functional-javascript-in-action.html"><h1 class="post-title">Functional JavaScript in action</h1></a><h2 class="post-date">Published&nbsp<abbr title="2013-11-28T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>Recently came across a <a href="http://redactweb.com/javascript-to-convert-between-states-and-abbreviations/">blog post</a> about a JavaScript function to convert state names to abbreviations (or vice versa) and realized that it&#39;s an excellent topic to present the power that can be had from functional programming in JavaScript.</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="..">
+    <meta charset="utf-8">
+      <title>Functional JavaScript in action | Matthew Phillips</title>
+
+    <meta name="author" content="Matthew Phillips">
+    <meta name="date" content="2013-11-27">
+
+    <link rel="stylesheet" href="styles//normalize.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Code+Pro:300,600">
+    <link rel="stylesheet" href="styles/screen.css">
+    <link rel="stylesheet" href="styles/github.css">
+</head>
+<body>
+  <section class="content">
+    <header>
+      <h1 id="gistid"><a href="https://gist.github.com/0f90864c3e344725e945">gist #0f90864c3e344725e945</a></h1>
+      <h2 id="description" class="instapaper_title entry-title">Functional JavaScript in action</h2>
+    </header>
+
+    <div id="gistbody" class="instapaper_body entry-content">
+      <article>
+        <p>Recently came across a <a href="http://redactweb.com/javascript-to-convert-between-states-and-abbreviations/">blog post</a> about a JavaScript function to convert state names to abbreviations (or vice versa) and realized that it&#39;s an excellent topic to present the power that can be had from functional programming in JavaScript.</p>
 <p>The premise of the article is that the author needed a function that when given a state name or abbreviation would return the opposite. The author went about it by first finding a PHP function that does the same, then simply converted the code over to JavaScript. While this method surely works for the purpose needed, it also illustrates how powerful functional programming techniques could be used instead which will produce the same result, but also have some reusable code.</p>
 <p>First, let&#39;s rewrite the function to get rid of the looping pattern. To do this in a more functional way we can break down what is happening into a few steps. The function is provided two arguments: <code>name</code> and <code>to</code>. Name is the value that we are looking up in our array and to is the key that we want to convert to. Given that, in order to find the value we need to know the name of the key of that value. It&#39;s the opposite of <code>to</code>, right? Using the power of Underscore/Lodash -- I prefer <a href="http://lodash.com/docs">Lo-Dash</a> -- this can be done using the <code>_.without</code> function. Now, keep in mind that for performance it would probably be better to find the <code>from</code> value using a ternary expression, but for the sake of the article we want to do it in a functional way. So that makes our first expression:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-</pre></div>
+<pre><code class="hljs javascript"><span class="hljs-keyword">var</span> <span class="hljs-keyword">from</span> = _.without([<span class="hljs-string">'name'</span>, <span class="hljs-string">'abbrev'</span>], <span class="hljs-keyword">to</span>)[<span class="hljs-number">0</span>];
 </code></pre>
 <p>What this does is simply take the array, find the value that matches <code>to</code> and remove it, leaving only one string which is our <code>from</code> key.</p>
 <p>Now that we know what our <code>from</code> key is, we need to look up the <code>name</code> in our states array. But before we do that let&#39;s see how the original blog post is doing the lookup:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">index</span><span class="p">,</span> <span class="nx">value</span><span class="p">){</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">to</span> <span class="o">==</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">abbrev</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()){</span>
-      <span class="nx">returnthis</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
-      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
-    <span class="p">}</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">to</span> <span class="o">==</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()){</span>
-      <span class="nx">returnthis</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">abbrev</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span>
-      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
+<pre><code class="hljs javascript">$.each(states, <span class="hljs-keyword">function</span>(index, <span class="hljs-keyword">value</span>){
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">to</span> == <span class="hljs-symbol">'name'</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">value</span>.abbrev.toLowerCase<span class="hljs-literal">()</span> == name.toLowerCase<span class="hljs-literal">()</span>){
+      returnthis = <span class="hljs-keyword">value</span>.name;
+      return <span class="hljs-literal">false</span>;
+    }
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">to</span> == <span class="hljs-symbol">'abbrev'</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">value</span>.name.toLowerCase<span class="hljs-literal">()</span> == name.toLowerCase<span class="hljs-literal">()</span>){
+      returnthis = <span class="hljs-keyword">value</span>.abbrev.toUpperCase<span class="hljs-literal">()</span>;
+      return <span class="hljs-literal">false</span>;
+    }
+  }
+});
 </code></pre>
 <p>Simple enough, they are looping over their <code>states</code> array and finding the value that matches what they want to convert. If they are converting to <code>name</code>, then they are comparing against the <code>abbrev</code>, and they are converting to <code>abbrev</code> they are comparing to <code>name</code>. When they find the match they assign it to their <code>returnthis</code> variable and then returning false, which will existing the loop in <code>$.each</code>.</p>
 <p>We can do better. Since we&#39;ve already gotten the <code>from</code> key, we can skip the repetitive if/else block that does the same thing. And instead of using an <code>each</code> loop let&#39;s use the power of functional programming to <code>_.find</code> that value.</p>
 <p>First, let&#39;s construct a regular expression that we can test against values, to prevent the <code>toLowerCase</code> conversion they are doing.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
-</pre></div>
+<pre><code class="hljs javascript"><span class="hljs-keyword">var</span> exp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + name + <span class="hljs-string">'$'</span>, <span class="hljs-string">'i'</span>);
 </code></pre>
 <p>This simply creates a regular expression that matches for the <code>name</code>, ignoring case. Now let&#39;s find the object that matches the value in our <code>from</code> key:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">st</span><span class="p">){</span>
-  <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">st</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-<span class="p">});</span>
-</pre></div>
+<pre><code class="hljs javascript">var selected = _.<span class="hljs-built_in">find</span>(states, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(st)</span>{</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">exp</span>.test(st<span class="hljs-matrix">[from]</span>);
+});
 </code></pre>
 <p>Perfect, this will find the object we are looking for (<code>RegExp.prototype.test</code> returns true on a match) and we only need to return the <code>to</code> key. Full source:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">convertState</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">to</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-  <span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
+<pre><code class="hljs javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">convertState</span>(<span class="hljs-params">name, to</span>) </span>{
+  <span class="hljs-keyword">var</span> from = _.without([<span class="hljs-string">'name'</span>, <span class="hljs-string">'abbrev'</span>], to)[<span class="hljs-number">0</span>];
+  <span class="hljs-keyword">var</span> exp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + name + <span class="hljs-string">'$'</span>, <span class="hljs-string">'i'</span>);
 
-  <span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">states</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">st</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">st</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-  <span class="p">});</span>
+  <span class="hljs-keyword">var</span> selected = _.find(states, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">st</span>) </span>{
+    <span class="hljs-keyword">return</span> exp.test(st[from]);
+  });
 
-  <span class="k">return</span> <span class="nx">selected</span><span class="p">[</span><span class="nx">to</span><span class="p">];</span>
-<span class="p">}</span>
-</pre></div>
+  <span class="hljs-keyword">return</span> selected[to];
+}
 </code></pre>
 <p>But wait, we&#39;ve uncovered a pattern here. This is where functional programming becomes most useful. When you write a bit of code, note that there&#39;s a pattern, and abstract out that pattern so that you can reuse the code whenever the pattern is discovered. In our case, what are we really doing? We&#39;re operating on an array of objects, each containing 2 keys. We look up the value from one key and return the other. Simple, right?</p>
 <p>So what we can and should do is create a function that does all of this for you automatically. It returns a functional that operates on that set of rules using the array you provide it. First we need to replace this line:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">],</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-</pre></div>
+<pre><code class="hljs javascript"><span class="hljs-keyword">var</span> <span class="hljs-keyword">from</span> = _.without([<span class="hljs-string">'name'</span>, <span class="hljs-string">'abbrev'</span>], <span class="hljs-keyword">to</span>)[<span class="hljs-number">0</span>];
 </code></pre>
 <p>To get rid of the hard coded string array. Instead we want to pass in our &quot;array of objects&quot; and have the function find the fields. We can do that like so:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">fields</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</pre></div>
+<pre><code class="hljs javascript"><span class="hljs-keyword">var</span> fields = _.keys(<span class="hljs-keyword">array</span>[<span class="hljs-number">0</span>]);
 </code></pre>
 <p>And then we simply need to return a function that takes <code>name</code> (for value lookup) and <code>to</code> arguments. With that we&#39;ve created a <strong><em>higher order function</em></strong> that makes it easy any time we have a situation with the same pattern. Full source and examples below.</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">makeSwappable</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">fields</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">to</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">from</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">(</span><span class="nx">fields</span><span class="p">,</span> <span class="nx">to</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-    <span class="kd">var</span> <span class="nx">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">);</span>
+<pre><code class="hljs javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeSwappable</span><span class="hljs-params">(array)</span> </span>{
+  <span class="hljs-keyword">var</span> fields = _.keys(<span class="hljs-keyword">array</span>[<span class="hljs-number">0</span>]);
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name, to)</span> </span>{
+    <span class="hljs-keyword">var</span> from = _.without(fields, to)[<span class="hljs-number">0</span>];
+    <span class="hljs-keyword">var</span> exp = <span class="hljs-keyword">new</span> RegExp(<span class="hljs-string">'^'</span> + name + <span class="hljs-string">'$'</span>, <span class="hljs-string">'i'</span>);
 
-    <span class="kd">var</span> <span class="nx">selected</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">exp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">item</span><span class="p">[</span><span class="nx">from</span><span class="p">]);</span>
-    <span class="p">});</span>
+    <span class="hljs-keyword">var</span> selected = _.find(<span class="hljs-keyword">array</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span> </span>{
+      <span class="hljs-keyword">return</span> exp.test(item[from]);
+    });
 
-    <span class="k">return</span> <span class="nx">selected</span><span class="p">[</span><span class="nx">to</span><span class="p">];</span>
-  <span class="p">};</span>
-<span class="p">}</span>
+    <span class="hljs-keyword">return</span> selected[to];
+  };
+}
 
-<span class="kd">var</span> <span class="nx">convertState</span> <span class="o">=</span> <span class="nx">makeSwappable</span><span class="p">(</span><span class="nx">states</span><span class="p">);</span>
+<span class="hljs-keyword">var</span> convertState = makeSwappable(states);
 
-<span class="nx">convertState</span><span class="p">(</span><span class="s1">&#39;Kentucky&#39;</span><span class="p">,</span> <span class="s1">&#39;abbrev&#39;</span><span class="p">);</span> <span class="c1">// -&gt; &#39;KY&#39;</span>
-<span class="nx">convertState</span><span class="p">(</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">);</span> <span class="c1">// -&gt; &#39;California&#39;</span>
-</pre></div>
+convertState(<span class="hljs-string">'Kentucky'</span>, <span class="hljs-string">'abbrev'</span>); <span class="hljs-comment">// -&gt; 'KY'</span>
+convertState(<span class="hljs-string">'CA'</span>, <span class="hljs-string">'name'</span>); <span class="hljs-comment">// -&gt; 'California'</span>
 </code></pre>
-</div></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
+
+
+      </article>
+    </div>
+    <footer style="display: block">
+      <p>Matthew Phillips</p>
+    </footer>
+  </section>
+</body>
+</html>

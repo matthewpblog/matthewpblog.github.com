@@ -1,111 +1,114 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>World Wide Web Home of Matthew Phillips</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red active"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/using-npm-with-systemjs.html"><h1 class="post-title">Using NPM with SystemJS</h1></a><h2 class="post-date">Published&nbsp<abbr title="2015-04-23T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p><a href="https://github.com/stealjs/system-npm">system-npm</a> is an amazing plugin for SystemJS that enables you to load your NPM dependencies with zero configuration.  Just load system-npm and then load your project; require your NPM dependencies just as if you were in Node.</p>
-<p>To use system-npm with SystemJS you&#39;ll first want to install SystemJS into your project.  In this post we&#39;re assuming you&#39;ve included <code>system.js</code> and <code>es6-module-loader.js</code> in a <code>vendor/</code> folder, but you can place it where-ever you want. Then simply add a script tag to your page to load SystemJS:</p>
-<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;vendor/system.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
-</pre></div>
-</code></pre>
-<h2><a name="installing" class="anchor" href="#installing"><span class="header-link"></span></a>Installing</h2>
-<p><strong>system-npm</strong> is installed through NPM (of course!):</p>
-<pre><code><div class="highlight"><pre><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">system</span><span class="o">-</span><span class="nx">npm</span> <span class="o">--</span><span class="nx">save</span><span class="o">-</span><span class="nx">dev</span>
-</pre></div>
-</code></pre>
-<h2><a name="configuring" class="anchor" href="#configuring"><span class="header-link"></span></a>Configuring</h2>
-<p>Next you&#39;ll want to configure SystemJS to know where to load the plugin. Create a <code>config.js</code> file and add the appropriate config:</p>
-<pre><code><div class="highlight"><pre><span class="nx">System</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
-    <span class="nx">map</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;npm&quot;</span><span class="o">:</span> <span class="s2">&quot;system-npm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;npm-extension&quot;</span><span class="o">:</span> <span class="s2">&quot;system-npm/npm-extension&quot;</span>
-    <span class="p">},</span>
-    <span class="nx">paths</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;system-npm/*&quot;</span><span class="o">:</span> <span class="s2">&quot;node_modules/system-npm/*.js&quot;</span>
-    <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>This tells SystemJS how to load system-npm. Add the configuration script to your page after SystemJS:</p>
-<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;config.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
-</pre></div>
-</code></pre>
-<h2><a name="load-your-app" class="anchor" href="#load-your-app"><span class="header-link"></span></a>Load your app</h2>
-<p>Now that it is configured you can load your <code>package.json</code> using the plugin and then start up your applicaiton:</p>
-<pre><code><div class="highlight"><pre><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
-    <span class="nx">System</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s2">&quot;package.json!npm&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-        <span class="nx">System</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s2">&quot;app/app&quot;</span><span class="p">);</span>
-    <span class="p">});</span>
-<span class="o">&lt;</span><span class="err">/script&gt;</span>
-</pre></div>
-</code></pre>
-<h2><a name="develop" class="anchor" href="#develop"><span class="header-link"></span></a>Develop</h2>
-<p>From here you can develop as you wish, sharing the same dependencies between Node and the Browser. <strong>system-npm</strong> will load your package.json and use the metadata. If you want to limit it to only loading your client-side deps, you can specify this in your configuration:</p>
-<pre><code><div class="highlight"><pre><span class="nx">System</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
-  <span class="nx">npmDependencies</span><span class="o">:</span> <span class="p">[</span>
-    <span class="s2">&quot;jquery&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;backbone&quot;</span>
-  <span class="p">]</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>Doing this, system-npm will only load <em>jquery</em> and <em>backbone</em> as dependencies.</p>
-<p>It&#39;s that simple. system-npm is a great way to instantly make your SystemJS projects nearly configuration-free.</p>
-</div></div><div class="post"><div class="post-head group"><a href="/posts/organizing-your-library-project-with-stealjs.html"><h1 class="post-title">Organizing your library project with StealJS</h1></a><h2 class="post-date">Published&nbsp<abbr title="2015-03-31T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>With <a href="http://stealjs.com/">StealJS</a> you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:</p>
-<pre><code><div class="highlight"><pre><span class="o">-</span> <span class="nx">src</span>
-  <span class="o">-</span> <span class="nx">main</span><span class="p">.</span><span class="nx">js</span>
-  <span class="o">-</span> <span class="nx">dep</span><span class="p">.</span><span class="nx">js</span>
-<span class="o">-</span> <span class="nx">test</span>
-  <span class="o">-</span> <span class="nx">test</span><span class="p">.</span><span class="nx">html</span>
-  <span class="o">-</span> <span class="nx">test</span><span class="p">.</span><span class="nx">js</span>
-<span class="kr">package</span><span class="p">.</span><span class="nx">json</span>
-<span class="nx">Gruntfile</span><span class="p">.</span><span class="nx">js</span>
-</pre></div>
-</code></pre>
-<p>In order to keep a shallow folder structure we&#39;ve divided the library&#39;s source code in <code>src</code> and its tests in <code>test</code>. The root directory only contains our <code>package.json</code> and a <code>Gruntfile.js</code> for builds.</p>
-<p>With this structure you might try to install your module with NPM:</p>
-<pre><code><div class="highlight"><pre><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">my</span><span class="o">-</span><span class="nx">module</span> <span class="o">--</span><span class="nx">save</span>
-</pre></div>
-</code></pre>
-<p>And then load it in your project:</p>
-<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">myModule</span> <span class="nx">from</span> <span class="s2">&quot;my-module&quot;</span><span class="p">;</span>
-</pre></div>
-</code></pre>
-<p>However this will fail because your <code>main</code> is not pointing to right place. Imagine your <code>main.js</code> look like:</p>
-<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">dep</span> <span class="nx">from</span> <span class="s2">&quot;my-module/dep&quot;</span><span class="p">;</span>
-</pre></div>
-</code></pre>
-<p>Steal will look for <code>dep.js</code> in the project&#39;s root folder. To set an alternative root, correctly called the lib folder, set it in the <code>package.json</code>:</p>
-<pre><code><div class="highlight"><pre><span class="p">{</span>
-  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;my-module&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;main&quot;</span><span class="o">:</span> <span class="s2">&quot;dist/cjs/main.js&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;system&quot;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s2">&quot;main&quot;</span><span class="o">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;directories&quot;</span><span class="o">:</span> <span class="p">{</span>
-      <span class="s2">&quot;lib&quot;</span><span class="o">:</span> <span class="s2">&quot;src&quot;</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</code></pre>
-<p>This tells Steal that your library&#39;s code is nested under the <code>src</code> folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:</p>
-<pre><code><div class="highlight"><pre><span class="kr">import</span> <span class="nx">myModuleDep</span> <span class="nx">from</span> <span class="s2">&quot;my-module/dep&quot;</span><span class="p">;</span>
-</pre></div>
-</code></pre>
-<p>Will correctly load <code>src/dep.js</code> if that&#39;s the module you want to test.</p>
-<h2><a name="building" class="anchor" href="#building"><span class="header-link"></span></a>Building</h2>
-<p>If you&#39;re only target Steal you can go ahead and publish your module on NPM. But if you want to reach users of other module loaders you should set up a build script. <a href="http://stealjs.com/docs/steal-tools.html">steal-tools</a> makes this easy. For example if using Grunt:</p>
-<pre><code><div class="highlight"><pre><span class="nx">grunt</span><span class="p">.</span><span class="nx">initConfig</span><span class="p">({</span>
-  <span class="s2">&quot;steal-export&quot;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="nx">dist</span><span class="o">:</span> <span class="p">{</span>
-      <span class="nx">system</span><span class="o">:</span> <span class="p">{</span>
-        <span class="nx">config</span><span class="o">:</span> <span class="s2">&quot;package.json!npm&quot;</span>
-      <span class="p">},</span>
-      <span class="nx">outputs</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;+cjs&quot;</span><span class="o">:</span> <span class="p">{},</span>
-        <span class="s2">&quot;+amd&quot;</span><span class="o">:</span> <span class="p">{},</span>
-        <span class="s2">&quot;global-js&quot;</span><span class="o">:</span> <span class="p">{]</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</pre></div>
-</code></pre>
-<p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
-<p>See <a href="https://github.com/bitovi-components/bit-tabs">bit-tabs</a> for a full example of this directory structure in action.</p>
-</div></div><div class="pagination group"><a href="/page/1/" class="older">&#8592; Older</a></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
+<!doctype html>
+<html>
+<head>
+  <title>World Wide Web Home of Matthew Phillips</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 300 1em/1.4 'Open Sans',sans-serif;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    header {
+      flex: none;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    header hgroup {
+      padding: 1.5em;
+      background-color: #f0f0f0;
+    }
+
+    main {
+      display: flex;
+      padding: 1.5em;
+    }
+
+    article {
+      flex: 1;
+      padding: 0 2em;
+    }
+
+    article h1 {
+      font-weight: 300;
+    }
+
+    nav {
+      background: #f0f0f0;
+      flex: 0 0 12em;
+      order: -1;
+      display: flex;
+      padding: 1em;
+      flex-direction: column;
+    }
+
+    nav strong {
+      align-self: center;
+    }
+
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: center;
+    }
+
+    nav ul a {
+      color: inherit;
+    }
+
+    .posts a {
+      color: inherit;
+      font-weight: 200;
+      font-size: 85%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <hgroup>
+      <h1>Matthew Phillips</h1>
+    </hgroup>
+  </header>
+  <main>
+    <article>
+      <h1>Posts</h1>
+
+      <div class="posts">
+        <h2><a href="posts/gist-based-blogging.html">Building a gist-based blogging tool</a></h2>
+        <h2><a href="posts/using-npm-with-systemjs.html">Using NPM with SystemJS</a></h2>
+        <h2><a href="posts/organizing-your-library-project-with-stealjs.html">Organizing your library project with StealJS</a></h2>
+        <h2><a href="posts/im-sold-on-html-based-templating.html">I&#x27;m Sold on HTML-based Templating</a></h2>
+        <h2><a href="posts/if-books-had-been-invented-for-the-web.html">If Books Had Been Invented for the Web</a></h2>
+        <h2><a href="posts/responsive-computes.html">Responsive Computes</a></h2>
+        <h2><a href="posts/fun-with-shadow-dom.html">Fun with Shadow DOM</a></h2>
+        <h2><a href="posts/test-your-application-entry-point.html">Test Your Application Entry Point</a></h2>
+        <h2><a href="posts/markdown-enable-your-blog-comments-with-web-components.html">Markdown Enable Your Blog Comments with Web Components</a></h2>
+        <h2><a href="posts/building-an-accordion-with-can-component.html">Building an accordion with can.Component</a></h2>
+        <h2><a href="posts/functional-javascript-in-action.html">Functional JavaScript in action</a></h2>
+        <h2><a href="posts/beware-the-creeper.html">Beware the Creeper</a></h2>
+        <h2><a href="posts/batman-the-long-halloween.html">Batman: The Long Halloween</a></h2>
+        <h2><a href="posts/state-of-developing-on-a-chromebook.html">State of Developing on a Chromebook</a></h2>
+        <h2><a href="posts/using-cloud-drives-on-chromebooks.html">Using Cloud Drives on Chromebooks</a></h2>
+        <h2><a href="posts/catwoman-volume-2-no-easy-way-down.html">Catwoman Volume 2: No Easy Way Down</a></h2>
+      </div>
+    </article>
+    <nav>
+      <strong>Find Me</strong>
+
+      <ul>
+        <li><a href="https://github.com/matthewp">GitHub</a></li>
+        <li><a href="http://lanyrd.com/profile/matthewcp/">Lanyrd</a></li>
+      </ul>
+    </nav>
+  </main>
+</body>
+</html>

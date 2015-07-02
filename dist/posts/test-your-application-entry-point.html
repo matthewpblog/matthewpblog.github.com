@@ -1,28 +1,64 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/images/cabin.png"><link href="/styles/main.css" rel="stylesheet"><title>Test Your Application Entry Point</title></head><body><ul class="nav group"><li class="icon-menu menu"></li><li class="nav-link red"><a href="/" class="name">WWW Home</a></li><li class="nav-link blue"><a href="/about.html">about</a></li><li class="nav-link orange"><a href="/projects.html">projects</a></li><li class="nav-link green"><a href="/archives.html">archives</a></li></ul><div class="content"><div class="post"><div class="post-head group"><a href="/posts/test-your-application-entry-point.html"><h1 class="post-title">Test Your Application Entry Point</h1></a><h2 class="post-date">Published&nbsp<abbr title="2014-03-26T00:00:00.000Z" class="timeago"></abbr></h2></div><div class="post-body markdown"><p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
-<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">define</span><span class="p">([</span><span class="s1">&#39;xwidget&#39;</span><span class="p">,</span> <span class="s1">&#39;ywidget&#39;</span><span class="p">,</span> <span class="s1">&#39;routing&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">XWidget</span><span class="p">,</span> <span class="nx">YWidget</span><span class="p">,</span> <span class="nx">route</span><span class="p">){</span>
-  <span class="c1">// Load everything!</span>
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="..">
+    <meta charset="utf-8">
+      <title>Test Your Application Entry Point | Matthew Phillips</title>
 
-  <span class="c1">// Set up global state!</span>
-  <span class="kd">var</span> <span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">light</span><span class="o">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span>
-    <span class="nx">time</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
-  <span class="p">};</span>
+    <meta name="author" content="Matthew Phillips">
+    <meta name="date" content="2014-03-25">
 
-  <span class="c1">// Initialize main widget!</span>
-  <span class="kd">var</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XWidget</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">subwidget</span><span class="o">:</span> <span class="k">new</span> <span class="nx">YWidget</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;&lt;div&gt;&lt;/div&gt;&#39;</span><span class="p">),</span> <span class="p">{}),</span>
-    <span class="nx">state</span><span class="o">:</span> <span class="nx">state</span>
-  <span class="p">});</span>
+    <link rel="stylesheet" href="styles//normalize.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Code+Pro:300,600">
+    <link rel="stylesheet" href="styles/screen.css">
+    <link rel="stylesheet" href="styles/github.css">
+</head>
+<body>
+  <section class="content">
+    <header>
+      <h1 id="gistid"><a href="https://gist.github.com/78f0fb4a812b7422ef04">gist #78f0fb4a812b7422ef04</a></h1>
+      <h2 id="description" class="instapaper_title entry-title">Test Your Application Entry Point</h2>
+    </header>
 
-  <span class="c1">// Listen for routes</span>
-  <span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/calendar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
-    <span class="c1">// Make some change to `main` probably</span>
-  <span class="p">});</span>
-<span class="p">});</span>
-</pre></div>
+    <div id="gistbody" class="instapaper_body entry-content">
+      <article>
+        <p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&#39;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
+<pre><code class="hljs javascript">define([
+  <span class="hljs-string">'xwidget'</span>,
+  <span class="hljs-string">'ywidget'</span>,
+  <span class="hljs-string">'routing'</span>
+], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">XWidget, YWidget, route</span>)</span>{
+  <span class="hljs-comment">// Load everything!</span>
+
+  <span class="hljs-comment">// Set up global state!</span>
+  <span class="hljs-keyword">var</span> state = {
+    light: <span class="hljs-string">'green'</span>,
+    time: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()
+  };
+
+  <span class="hljs-comment">// Initialize main widget!</span>
+  <span class="hljs-keyword">var</span> main = <span class="hljs-keyword">new</span> XWidget(<span class="hljs-string">'body'</span>, {
+    subwidget: <span class="hljs-keyword">new</span> YWidget($(<span class="hljs-string">'&lt;div&gt;&lt;/div&gt;'</span>), {}),
+    state: state
+  });
+
+  <span class="hljs-comment">// Listen for routes</span>
+  route(<span class="hljs-string">'/calendar'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+    <span class="hljs-comment">// Make some change to `main` probably</span>
+  });
+});
 </code></pre>
 <p>It&#39;s very easy to forget that not only is this an important chunk of code, it influences everything else that happens further down the chain in your application. <strong>Test it</strong> as though it&#39;s just as important, because it is.</p>
 <p>When you begin crafting your application as a pyramid of <a href="http://dailyjs.com/2014/03/10/components-controls/">web components</a> this becomes even more critical. Using <a href="http://canjs.com/guides/Components.html">can.Component</a>&#39;s scoping rules, data you initialize in your <code>main.js</code> will trickle down and be used by any component on your page, no matter how deeply nested.</p>
 <p>This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for <code>&lt;x-widget&gt;</code> are not enough, that top level file might be doing things just slightly differently.</p>
 <p>The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I&#39;m currently doing) you&#39;ll notice that things break as your entry point file is actually dependent on something in your <code>index.html</code> file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.</p>
-</div></div></div><script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.1.0/jquery.timeago.min.js" type="text/javascript"></script><script src="/scripts/main.js" type="text/javascript"></script></body></html>
+
+
+      </article>
+    </div>
+    <footer style="display: block">
+      <p>Matthew Phillips</p>
+    </footer>
+  </section>
+</body>
+</html>

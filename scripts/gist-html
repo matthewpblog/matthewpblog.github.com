@@ -1,0 +1,20 @@
+#!/bin/bash
+
+GIST_ID=$1
+
+IFS='%'
+
+GIST_JSON=`curl -H "Authorization: token 6c57fe4596ca5c2aa45bb131b0b892377bef0cc2" -s https://api.github.com/gists/$GIST_ID`
+
+CONTENT=`echo $GIST_JSON | jq '.files[.files | keys[0]].content'`
+METADATA=`echo $GIST_JSON | jq -r '.files["metadata.json"].content'`
+HTML=`echo $CONTENT | jq -r '.' | marked --options marked_options.js | jq -s -R '.'`
+
+# Get the title either from metadata.title or .description
+TITLE=`[[ "$METADATA" == "null" ]] && echo $GIST_JSON | jq '.description' || echo $METADATA | jq '.title'`
+ID=`echo $GIST_JSON | jq ".id"`
+DATE=\"`[[ "$METADATA" == "null" ]] && echo "foo" || echo $METADATA | jq -r '.date' | xargs -I{} gdate -d {} +%Y-%m-%d`\"
+
+DATA="{\"id\": $ID, \"title\": $TITLE, \"content\": $HTML, \"metadata\": $METADATA, \"date\": $DATE}"
+
+echo $DATA | hb -i templates/post.handlebars
