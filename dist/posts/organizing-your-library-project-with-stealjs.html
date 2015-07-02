@@ -33,13 +33,16 @@
 Gruntfile.js
 </code></pre><p>In order to keep a shallow folder structure we&#39;ve divided the library&#39;s source code in <code>src</code> and its tests in <code>test</code>. The root directory only contains our <code>package.json</code> and a <code>Gruntfile.js</code> for builds.</p>
 <p>With this structure you might try to install your module with NPM:</p>
-<pre><code>npm <span class="hljs-operator"><span class="hljs-keyword">install</span> my-<span class="hljs-keyword">module</span> <span class="hljs-comment">--save</span></span>
-</code></pre><p>And then load it in your project:</p>
-<pre><code><span class="hljs-keyword">import</span> myModule <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module"</span>;
-</code></pre><p>However this will fail because your <code>main</code> is not pointing to right place. Imagine your <code>main.js</code> look like:</p>
-<pre><code><span class="hljs-keyword">import</span> dep <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module/dep"</span>;
-</code></pre><p>Steal will look for <code>dep.js</code> in the project&#39;s root folder. To set an alternative root, correctly called the lib folder, set it in the <code>package.json</code>:</p>
-<pre><code>{
+<pre><code class="hljs shell">npm <span class="hljs-operator"><span class="hljs-keyword">install</span> my-<span class="hljs-keyword">module</span> <span class="hljs-comment">--save</span></span>
+</code></pre>
+<p>And then load it in your project:</p>
+<pre><code class="hljs js"><span class="hljs-keyword">import</span> myModule <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module"</span>;
+</code></pre>
+<p>However this will fail because your <code>main</code> is not pointing to right place. Imagine your <code>main.js</code> look like:</p>
+<pre><code class="hljs js"><span class="hljs-keyword">import</span> dep <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module/dep"</span>;
+</code></pre>
+<p>Steal will look for <code>dep.js</code> in the project&#39;s root folder. To set an alternative root, correctly called the lib folder, set it in the <code>package.json</code>:</p>
+<pre><code class="hljs json">{
   "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"my-module"</span></span>,
   "<span class="hljs-attribute">main</span>": <span class="hljs-value"><span class="hljs-string">"dist/cjs/main.js"</span></span>,
   "<span class="hljs-attribute">system</span>": <span class="hljs-value">{
@@ -49,12 +52,14 @@ Gruntfile.js
     </span>}
   </span>}
 </span>}
-</code></pre><p>This tells Steal that your library&#39;s code is nested under the <code>src</code> folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:</p>
-<pre><code><span class="hljs-keyword">import</span> myModuleDep <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module/dep"</span>;
-</code></pre><p>Will correctly load <code>src/dep.js</code> if that&#39;s the module you want to test.</p>
+</code></pre>
+<p>This tells Steal that your library&#39;s code is nested under the <code>src</code> folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:</p>
+<pre><code class="hljs js"><span class="hljs-keyword">import</span> myModuleDep <span class="hljs-keyword">from</span> <span class="hljs-string">"my-module/dep"</span>;
+</code></pre>
+<p>Will correctly load <code>src/dep.js</code> if that&#39;s the module you want to test.</p>
 <h2 id="building">Building</h2>
 <p>If you&#39;re only target Steal you can go ahead and publish your module on NPM. But if you want to reach users of other module loaders you should set up a build script. <a href="http://stealjs.com/docs/steal-tools.html">steal-tools</a> makes this easy. For example if using Grunt:</p>
-<pre><code>grunt.initConfig({
+<pre><code class="hljs js">grunt.initConfig({
   <span class="hljs-string">"steal-export"</span>: {
     dist: {
       <span class="hljs-keyword">system</span>: {
@@ -68,7 +73,8 @@ Gruntfile.js
     }
   }
 });
-</code></pre><p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
+</code></pre>
+<p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
 <p>See <a href="https://github.com/bitovi-components/bit-tabs">bit-tabs</a> for a full example of this directory structure in action.</p>
 
 

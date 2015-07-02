@@ -4,7 +4,7 @@ GIST_ID=$1
 
 IFS='%'
 
-GIST_JSON=`curl -H "Authorization: token 6c57fe4596ca5c2aa45bb131b0b892377bef0cc2" -s https://api.github.com/gists/$GIST_ID`
+GIST_JSON=`curl -H "Authorization: token $GITHUB_TOKEN" -s https://api.github.com/gists/$GIST_ID`
 
 CONTENT=`echo $GIST_JSON | jq '.files[.files | keys[0]].content'`
 METADATA=`echo $GIST_JSON | jq -r '.files["metadata.json"].content'`
