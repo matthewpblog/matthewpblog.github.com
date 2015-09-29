@@ -14,9 +14,11 @@ body {
   height: 100%;
   padding: 1em;
   margin: 0;
-  font-family: 'Sentinel SSm A', 'Sentinel SSm B', Georgia, serif;
-  color: #444;
-  font-weight: 300; }
+  background: #000;
+  font-family: courier, monospace;
+  color: #fff;
+  font-size: 14px;
+  font-weight: normal; }
 
 a {
   color: #4da7ca;
@@ -42,9 +44,8 @@ a {
       .content #gistid a:hover {
         text-decoration: underline; }
   .content #description {
-    font-family: 'Tungsten A', 'Tungsten B';
     font-weight: 500;
-    font-size: 5em;
+    font-size: 16px;
     text-transform: uppercase;
     line-height: 1em; }
     .content #description.loading {
@@ -73,9 +74,9 @@ a {
 article > h1:first-child {
   display: none; }
 article h1, article h2, article h3, article h4, article h5 {
-  font-weight: 300;
+  font-weight: bolder;
   margin-top: 2em;
-  color: black; }
+  color: #fff; }
 article h1, article h2 {
   font-size: 1.5em; }
 article h3 {
@@ -105,6 +106,22 @@ article .highlight {
   padding: 0.1em 0.5em;
   background: #1d1f21;
   font-size: 0.88em; }
+
+#prompt {
+  text-transform: none;
+}
+
+#prompt .host {
+  color: #0f0;
+}
+
+#prompt .tilde {
+  color: #ff0096;
+}
+
+#prompt .dollar {
+  color: #0bc;
+}
 
 @media all and (min-width: 33.236em) {
   .content {

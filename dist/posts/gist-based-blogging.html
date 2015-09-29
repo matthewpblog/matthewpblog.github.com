@@ -17,7 +17,10 @@
   <section class="content">
     <header>
       <h1 id="gistid"><a href="https://gist.github.com/beb161d681dab3b028f0">gist #beb161d681dab3b028f0</a></h1>
-      <h2 id="description" class="instapaper_title entry-title">Building a gist-based blogging tool</h2>
+      <h2 id="description" class="instapaper_title entry-title">
+        <span id="prompt"><span class="host">matthew@local</span><span>:</span><span class="tilde">~</span><span class="dollar">$<?span></span>
+        <span> echo 'Building a gist-based blogging tool'</span>
+      </h2>
     </header>
 
     <div id="gistbody" class="instapaper_body entry-content">
@@ -31,10 +34,11 @@
 <p>This all worked well enough but I felt uneasy about pulling directly from Gist to serve the blog posts. It just felt wasteful, even if I included caching that prevented it from fetching the gists on each requests. Additional it broke my old links. I played around with the idea of having a &quot;slug&quot; that would serve as the id for a post, but this meant I would need to pull that index gist to find out which gist id the slug referred to. Again, not terrible, just more code than I wanted.</p>
 <h2 id="one-thing-well">One thing well</h2>
 <p>I&#39;ve always been a fan of the Unix philosophy of doing one thing well, so I started to think why not construct the posts using basic cli tools already available. You can easily pull down a gist using the GitHub API and then use a series of other tools to generate the html. The full bash script can be seen below, but here&#39;s the pseudo-code of what happens:</p>
-<pre><code>curl https://api.github.com/gists/$GIST_ID |<span class="hljs-string"> \
+<pre><code class="hljs shell">curl https://api.github.com/gists/$GIST_ID |<span class="hljs-string"> \
 jq '.files[.files </span>|<span class="hljs-string"> keys[0]].content' </span>|<span class="hljs-string"> \
 marked </span>|<span class="hljs-string"> hb -i post.handlebars</span>
-</code></pre><p>It&#39;s pretty simple, let me explain what easy step does:</p>
+</code></pre>
+<p>It&#39;s pretty simple, let me explain what easy step does:</p>
 <h3 id="curl-api-github-com">curl api.github.com</h3>
 <p>Luckily pulling down gists is really easy with the GitHub API. Unless you are doing it a lot, and likely programmatically, you don&#39;t even need to set up an auth token, but you can do this if you want. It returns a JSON containing a lot of data, but we really just want the post content.</p>
 <h3 id="jq">jq</h3>
