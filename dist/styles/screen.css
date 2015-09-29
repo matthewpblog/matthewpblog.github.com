@@ -43,11 +43,8 @@ a {
       text-decoration: none; }
       .content #gistid a:hover {
         text-decoration: underline; }
-  .content #description {
-    font-weight: 500;
-    font-size: 16px;
-    text-transform: uppercase;
-    line-height: 1em; }
+    .content #description {
+      margin-top: 2em;}
     .content #description.loading {
       -webkit-animation: throb 1s infinite alternate linear;
       -moz-animation: throb 1s infinite alternate linear;
@@ -70,6 +67,11 @@ a {
       .content > footer p .poweredby {
         display: inline-block;
         margin-right: 1em; }
+
+header h3 {
+  font-weight: normal;
+  font-size: 16px;
+}
 
 article > h1:first-child {
   display: none; }

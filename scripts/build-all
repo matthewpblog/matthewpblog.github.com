@@ -2,6 +2,6 @@
 while read id file
 do
 
-  scripts/gist-html $id > dist/posts/$file\.html
+  scripts/gist-html $id $file > dist/posts/$file\.html
 
 done < posts
