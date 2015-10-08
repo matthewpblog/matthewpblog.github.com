@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="..">
+    <meta charset="utf-8">
+      <title>How hot module swapping works | Matthew Phillips</title>
+
+    <meta name="author" content="Matthew Phillips">
+    <meta name="date" content="2015-10-07">
+
+    <link rel="stylesheet" href="styles//normalize.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Code+Pro:300,600">
+    <link rel="stylesheet" href="styles/screen.css">
+    <link rel="stylesheet" href="styles/github.css">
+</head>
+<body>
+  <section class="content">
+    <header>
+      <h1 id="gistid"><a href="https://gist.github.com/aa739b6ec14671de65b3">gist #aa739b6ec14671de65b3</a></h1>
+      <h3>
+        <span id="prompt"><span class="host">matthew@local</span><span>:</span><span class="tilde">~</span><span class="dollar">$<?span></span>
+          <span> cat how-hot-swapping-works.markdown</span>
+      </h3>
+      <h2 id="description" class="instapaper_title entry-title">How hot module swapping works</h2>
+    </header>
+
+    <div id="gistbody" class="instapaper_body entry-content">
+      <article>
+        <p><a href="http://stealjs.com/">Steal</a> added hot module swapping (aka live reload, aka hot module replacement) about 6 months ago, but how it works isn&#39;t obvious, so I thought I&#39;d write about it. You can read more about the feature and how to use it <a href="http://blog.bitovi.com/hot-module-replacement-comes-to-stealjs/">here</a>.  This article is more technical and explains what happens under the hood. Don&#39;t worry, there&#39;s nothing overly complex here and it&#39;s rather easy to understand once you understand dependency graphs.</p>
+<h2 id="dependency-graph">Dependency graph</h2>
+<p>When you load your app using Steal (or any other module loader) it saves the modules in a registry.  A registry is just an object where the keys are the module names (like <strong>lodash</strong>) and the values are the module values (like a function or an object; whatever it is you export from the module).</p>
+<p>With Steal we retain another data structure that lists modules (by their module name) and metadata about them, specifically what their dependencies are. We call this the <strong>dependency graph</strong>.  It looks something like this:</p>
+<pre><code class="hljs js">{
+  "<span class="hljs-attribute">lodash</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">jquery</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">my/custom/element</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[<span class="hljs-string">"jquery"</span>, <span class="hljs-string">"lodash"</span>]
+  </span>}</span>,
+  "<span class="hljs-attribute">my/main/app</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[<span class="hljs-string">"jquery"</span>, <span class="hljs-string">"my/custom/element"</span>]
+  </span>}
+</span>}
+</code></pre>
+<p>It&#39;s pretty simple.  Each key is a module name and the value is an object that contains metadata; most importantly is an array of the module&#39;s dependencies.</p>
+<h2 id="file-watcher">File watcher</h2>
+<p>To know when a module changes we need a server that watches for file changes. This is what happens when you run <code>steal-tools live-reload</code>.</p>
+<p>The live-reload server gets the dependency graph of your project and listens for file changes to each module. The dependency graph shown above also has a property called <strong>address</strong> that is the path to the module&#39;s file. We add a file watcher to every file in the graph so that we know when work has been saved.</p>
+<p>When you open a page in your app with the live-reload server running it establishes a connection to that server with a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket</a>. By default it uses port 8012.</p>
+<p>The file watcher will see changes to the files in the dependency graph and send a message through the WebSocket back to the browser with the name of the module that changed.</p>
+<h2 id="tearing-down-the-graph">Tearing down the graph</h2>
+<p>Back on the browser side, it receives the WebSocket message with the name of the module that changed. Since the module changed we need to re-import it. But we also need to re-import it&#39;s parent modules (the modules that import it) and the parent&#39;s then need to import their parents, etc. all the way up the graph.</p>
+<p>This might sound wrong to you; why do you need to re-import the parent modules?  Consider this example:</p>
+<h3 id="module-a">Module A</h3>
+<pre><code class="hljs js"><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"foo"</span>;
+};
+</code></pre>
+<h3 id="module-b">Module B</h3>
+<pre><code class="hljs js"><span class="hljs-reserved">var</span> moduleA = <span class="hljs-built_in">require</span>(<span class="hljs-string">"module-a"</span>);
+
+moduleA(); <span class="hljs-regexp">//</span> -&gt; <span class="hljs-string">"foo"</span>
+</code></pre>
+<p>And then consider that module A changes to this:</p>
+<h3 id="module-a">Module A</h3>
+<pre><code class="hljs js"><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"bar"</span>;
+};
+</code></pre>
+<p>If we don&#39;t re-import Module B then it will continue to have a reference to the old Module A function that returns &quot;foo&quot;. In JavaScript once you have a reference to an object or a function that reference can never be changed by external code.</p>
+<p>So to solve this we simply walk up the dependency graph and get a list of modules that need to be reloaded. Consider the original example graph:</p>
+<pre><code class="hljs js">{
+  "<span class="hljs-attribute">lodash</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">jquery</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">my/util</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">my/custom/element</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[<span class="hljs-string">"jquery"</span>, <span class="hljs-string">"lodash"</span>, <span class="hljs-string">"my/util"</span>]
+  </span>}</span>,
+  "<span class="hljs-attribute">my/main/app</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[<span class="hljs-string">"jquery"</span>, <span class="hljs-string">"my/custom/element"</span>]
+  </span>}
+</span>}
+</code></pre>
+<p>Let&#39;s say my/util changes. Its only has one parent (the modules that depend on it), my/custom/element. However my/main/app depends on my/custom/element so we have to reload that as well. We tear down the graph by removing these modules from the registry. Afterwards the graph looks like:</p>
+<pre><code class="hljs js">{
+  "<span class="hljs-attribute">lodash</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}</span>,
+  "<span class="hljs-attribute">jquery</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">dependencies</span>": <span class="hljs-value">[]
+  </span>}
+</span>}
+</code></pre>
+<p>Just lodash and jquery remain. We reimport the top-level parent module after walking all the way up the graph, in our case it is my/main/app. By reimporting the top-level parent it will reimport the modules that have been deleted from the registry, here it is my/custom/element and my/util. However any other dependencies, such as jquery and lodash, are not reimported because they are already in the registry.</p>
+<p>Steal contains several optimizations that makes the reloading blazing fast. For most changes you&#39;ll see your changes reflected in under 100ms.</p>
+<p>The basic operation of what Steal does to reload modules is quite simple. The hard work comes from plugins and code that use the live-reload APIs. In the future I&#39;d like to write a bit more on what these plugins do and how <em>they</em> work as well.</p>
+
+
+      </article>
+    </div>
+    <footer style="display: block">
+      <p>Matthew Phillips</p>
+    </footer>
+  </section>
+</body>
+</html>
