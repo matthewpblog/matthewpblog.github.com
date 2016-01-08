@@ -1,0 +1,1134 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Matthew Phillips</title>
+    <link>https://matthewphillips.info/</link>
+    <description>Recent content on Matthew Phillips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 08 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://matthewphillips.info/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How hot module swapping works</title>
+      <link>https://matthewphillips.info/posts/how-hot-swapping-works.html</link>
+      <pubDate>Thu, 08 Oct 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/how-hot-swapping-works.html</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;http://stealjs.com/&#34;&gt;Steal&lt;/a&gt; added hot module swapping (aka live reload, aka hot module replacement) about 6 months ago, but how it works isn&amp;rsquo;t obvious, so I thought I&amp;rsquo;d write about it. You can read more about the feature and how to use it &lt;a href=&#34;http://blog.bitovi.com/hot-module-replacement-comes-to-stealjs/&#34;&gt;here&lt;/a&gt;.  This article is more technical and explains what happens under the hood. Don&amp;rsquo;t worry, there&amp;rsquo;s nothing overly complex here and it&amp;rsquo;s rather easy to understand once you understand dependency graphs.&lt;/p&gt;
+
+&lt;h2 id=&#34;dependency-graph:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Dependency graph&lt;/h2&gt;
+
+&lt;p&gt;When you load your app using Steal (or any other module loader) it saves the modules in a registry.  A registry is just an object where the keys are the module names (like &lt;strong&gt;lodash&lt;/strong&gt;) and the values are the module values (like a function or an object; whatever it is you export from the module).&lt;/p&gt;
+
+&lt;p&gt;With Steal we retain another data structure that lists modules (by their module name) and metadata about them, specifically what their dependencies are. We call this the &lt;strong&gt;dependency graph&lt;/strong&gt;.  It looks something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/custom/element&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;lodash&amp;quot;]
+  },
+  &amp;quot;my/main/app&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;my/custom/element&amp;quot;]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s pretty simple.  Each key is a module name and the value is an object that contains metadata; most importantly is an array of the module&amp;rsquo;s dependencies.&lt;/p&gt;
+
+&lt;h2 id=&#34;file-watcher:25c0b94280c805f269bc8221d9711bc9&#34;&gt;File watcher&lt;/h2&gt;
+
+&lt;p&gt;To know when a module changes we need a server that watches for file changes. This is what happens when you run &lt;code&gt;steal-tools live-reload&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The live-reload server gets the dependency graph of your project and listens for file changes to each module. The dependency graph shown above also has a property called &lt;strong&gt;address&lt;/strong&gt; that is the path to the module&amp;rsquo;s file. We add a file watcher to every file in the graph so that we know when work has been saved.&lt;/p&gt;
+
+&lt;p&gt;When you open a page in your app with the live-reload server running it establishes a connection to that server with a &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API&#34;&gt;WebSocket&lt;/a&gt;. By default it uses port 8012.&lt;/p&gt;
+
+&lt;p&gt;The file watcher will see changes to the files in the dependency graph and send a message through the WebSocket back to the browser with the name of the module that changed.&lt;/p&gt;
+
+&lt;h2 id=&#34;tearing-down-the-graph:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Tearing down the graph&lt;/h2&gt;
+
+&lt;p&gt;Back on the browser side, it receives the WebSocket message with the name of the module that changed. Since the module changed we need to re-import it. But we also need to re-import it&amp;rsquo;s parent modules (the modules that import it) and the parent&amp;rsquo;s then need to import their parents, etc. all the way up the graph.&lt;/p&gt;
+
+&lt;p&gt;This might sound wrong to you; why do you need to re-import the parent modules?  Consider this example:&lt;/p&gt;
+
+&lt;h3 id=&#34;module-a:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module A&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;module.exports = function(){
+  return &amp;quot;foo&amp;quot;;
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;module-b:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module B&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var moduleA = require(&amp;quot;module-a&amp;quot;);
+
+moduleA(); // -&amp;gt; &amp;quot;foo&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then consider that module A changes to this:&lt;/p&gt;
+
+&lt;h3 id=&#34;module-a-1:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module A&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;module.exports = function(){
+  return &amp;quot;bar&amp;quot;;
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we don&amp;rsquo;t re-import Module B then it will continue to have a reference to the old Module A function that returns &amp;ldquo;foo&amp;rdquo;. In JavaScript once you have a reference to an object or a function that reference can never be changed by external code.&lt;/p&gt;
+
+&lt;p&gt;So to solve this we simply walk up the dependency graph and get a list of modules that need to be reloaded. Consider the original example graph:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/util&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/custom/element&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;lodash&amp;quot;, &amp;quot;my/util&amp;quot;]
+  },
+  &amp;quot;my/main/app&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;my/custom/element&amp;quot;]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say my/util changes. Its only has one parent (the modules that depend on it), my/custom/element. However my/main/app depends on my/custom/element so we have to reload that as well. We tear down the graph by removing these modules from the registry. Afterwards the graph looks like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just lodash and jquery remain. We reimport the top-level parent module after walking all the way up the graph, in our case it is my/main/app. By reimporting the top-level parent it will reimport the modules that have been deleted from the registry, here it is my/custom/element and my/util. However any other dependencies, such as jquery and lodash, are not reimported because they are already in the registry.&lt;/p&gt;
+
+&lt;p&gt;Steal contains several optimizations that makes the reloading blazing fast. For most changes you&amp;rsquo;ll see your changes reflected in under 100ms.&lt;/p&gt;
+
+&lt;p&gt;The basic operation of what Steal does to reload modules is quite simple. The hard work comes from plugins and code that use the live-reload APIs. In the future I&amp;rsquo;d like to write a bit more on what these plugins do and how &lt;em&gt;they&lt;/em&gt; work as well.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Building a gist-based blogging tool</title>
+      <link>https://matthewphillips.info/posts/gist-based-blogging.html</link>
+      <pubDate>Thu, 03 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/gist-based-blogging.html</guid>
+      <description>
+
+&lt;h2 id=&#34;motivation:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;Motivation&lt;/h2&gt;
+
+&lt;p&gt;For the past several years I have been using &lt;a href=&#34;http://www.cabinjs.com/&#34;&gt;Cabin&lt;/a&gt; for my personal blog. Cabin works like most other static site generators in the vein of &lt;a href=&#34;http://jekyllrb.com/&#34;&gt;Jekyll&lt;/a&gt;; you write your posts in markdown in a posts folder, your templates in a template folder, run a script and it generates the HTML for your blog. Simple enough.&lt;/p&gt;
+
+&lt;p&gt;The problem I&amp;rsquo;ve always had with this setup is that it has just enough friction that I wind up not blogging as often as I would like. During your &amp;ldquo;draft&amp;rdquo; stage you still have most of the same steps as when you finally deploy. You have to clone your site, create a branch to write a new post in, write, commit and push. When I have inspiration to write I want to just write, not manage a project.&lt;/p&gt;
+
+&lt;p&gt;So what I usually do is write my posts in Gist or Google Docs and then move them to my site project when I&amp;rsquo;m done. I started thinking, what if I could remove the blog engine entirely?&lt;/p&gt;
+
+&lt;p&gt;My first thought was to set up a server that just served Gists directly. To this end I set up an &lt;a href=&#34;http://expressjs.com/&#34;&gt;Express&lt;/a&gt; server that did exactly that.  I had a Gist that I &lt;a href=&#34;https://gist.github.com/matthewp/695b163d39f68ec73678&#34;&gt;used as my index&lt;/a&gt; of all Gists I wanted to be served. The front page was just a list of links to each article with the url containing the Gist id.&lt;/p&gt;
+
+&lt;p&gt;To make this work with my existing posts I needed to convert them to gists. This was more work than I expected. Cabin uses a non-standard front-matter format. Most blog engines use YAML but Cabin uses a JavaScript-like syntax.  I would have expected it to be JSON but it&amp;rsquo;s not, the keys are not strings. To figure out how they did this I had to dig through their source and found it &lt;a href=&#34;https://github.com/CabinJS/grunt-pages/blob/4cd264fce21fb8d90198edadeccb3961b37537bc/tasks/pages.js#L269&#34;&gt;buried in a Grunt task&lt;/a&gt;. It was easy enough to extract this code and reuse it for my needs. Each gist contains the markdown content (minus the front-matter) and a &lt;code&gt;metadata.json&lt;/code&gt; file containing the front-matter (now json).&lt;/p&gt;
+
+&lt;p&gt;This all worked well enough but I felt uneasy about pulling directly from Gist to serve the blog posts. It just felt wasteful, even if I included caching that prevented it from fetching the gists on each requests. Additional it broke my old links. I played around with the idea of having a &amp;ldquo;slug&amp;rdquo; that would serve as the id for a post, but this meant I would need to pull that index gist to find out which gist id the slug referred to. Again, not terrible, just more code than I wanted.&lt;/p&gt;
+
+&lt;h2 id=&#34;one-thing-well:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;One thing well&lt;/h2&gt;
+
+&lt;p&gt;I&amp;rsquo;ve always been a fan of the Unix philosophy of doing one thing well, so I started to think why not construct the posts using basic cli tools already available. You can easily pull down a gist using the GitHub API and then use a series of other tools to generate the html. The full bash script can be seen below, but here&amp;rsquo;s the pseudo-code of what happens:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;curl https://api.github.com/gists/$GIST_ID | \
+jq &#39;.files[.files | keys[0]].content&#39; | \
+marked | hb -i post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s pretty simple, let me explain what easy step does:&lt;/p&gt;
+
+&lt;h3 id=&#34;curl-api-github-com:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;curl api.github.com&lt;/h3&gt;
+
+&lt;p&gt;Luckily pulling down gists is really easy with the GitHub API. Unless you are doing it a lot, and likely programmatically, you don&amp;rsquo;t even need to set up an auth token, but you can do this if you want. It returns a JSON containing a lot of data, but we really just want the post content.&lt;/p&gt;
+
+&lt;h3 id=&#34;jq:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;jq&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stedolan.github.io/jq/&#34;&gt;jq&lt;/a&gt; is an amazing command-line JSON parser. In its simplest form jq can be used as a prettifier, but you can do advanced stuff to extract just the parts that you need.&lt;/p&gt;
+
+&lt;p&gt;Its power is shown here because the gist JSON structure makes it slightly difficult to extract the post content. This is because instead of having an array of &lt;code&gt;files&lt;/code&gt; it has an object where the file name is the key. This is fine for when you know the name of a file, but in my case I just wanted to assume that the first file in a gist is the markdown.&lt;/p&gt;
+
+&lt;p&gt;Lucky jq can easily handle this. Consider the structure is like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+  &amp;quot;files&amp;quot;: {
+    &amp;quot;foo.md&amp;quot;: {
+      &amp;quot;something&amp;quot;: &amp;quot;else&amp;quot;,
+      &amp;quot;content&amp;quot;: &amp;quot;# Title\nsome test\n* a list&amp;quot;
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With jq you can run &lt;code&gt;jq &#39;.files[.files | keys[0]].content&#39;&lt;/code&gt;. This gets &lt;code&gt;.files&lt;/code&gt; and then uses the &lt;code&gt;keys&lt;/code&gt; function to get all of the keys of the files object and uses the key indexed 0 to get the &amp;ldquo;foo.md&amp;rdquo; object and finally we want &lt;code&gt;.content&lt;/code&gt; which is the markdown.&lt;/p&gt;
+
+&lt;h3 id=&#34;marked:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;marked&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/chjj/marked&#34;&gt;marked&lt;/a&gt; is the premier markdown compiler (to html) for JavaScript. Luckily it include a command-line tool that takes markdown from stdin and spits out html to stdout. Perfect.&lt;/p&gt;
+
+&lt;p&gt;One downside is that it doesn&amp;rsquo;t include a way to highlight code. If using the Node.js API you can set options which includes using a highlighter of your choice. I usually use &lt;a href=&#34;https://highlightjs.org/&#34;&gt;hightlight.js&lt;/a&gt;. With that the code would be something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var marked = require(&amp;quot;marked&amp;quot;);
+
+marked.setOptions({
+  highlight: function(){
+    return require(&amp;quot;highlight.js&amp;quot;).highlightAuto(code).value;
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is an &lt;a href=&#34;https://github.com/chjj/marked/issues/110&#34;&gt;open issue&lt;/a&gt; about how this could be used with the cli. My suggestion was to provide a module that exports options. This way you could write the above code as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var marked = require(&amp;quot;marked&amp;quot;);
+
+module.exports = {
+  highlight: function(){
+    return require(&amp;quot;highlight.js&amp;quot;).highlightAuto(code).value;
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And feed that option into the &lt;code&gt;marked&lt;/code&gt; cli.  It becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cat my-post.md | marked --options /path/to/options.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They &lt;a href=&#34;https://github.com/chjj/marked/pull/613&#34;&gt;haven&amp;rsquo;t yet accepted&lt;/a&gt; this change but I do have it working in my own fork.&lt;/p&gt;
+
+&lt;h3 id=&#34;hb:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;hb&lt;/h3&gt;
+
+&lt;p&gt;Having gone from gist into json into markdown into html, the final step is to run the produced html through a template engine so that the article is contained within a full page. Since I&amp;rsquo;m already very familiar with the Mustache syntax in my day job I decided to use &lt;a href=&#34;http://handlebarsjs.com/&#34;&gt;handlebars&lt;/a&gt; for templates. A simple post template can be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-handlebars&#34;&gt;&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;title&amp;gt;{{title}} | My Blog&amp;lt;/title&amp;gt;
+  &amp;lt;link href=&amp;quot;some.css&amp;quot; rel=&amp;quot;stylesheet&amp;quot;&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;article&amp;gt;
+    {{{content}}}
+  &amp;lt;/article&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We just need to feed the generated html through this template to generate a post. I couldn&amp;rsquo;t find a project that did exactly what I need; take json and a template and produce html, so I forked a close-enough project and adjusted it, creating &lt;a href=&#34;https://www.npmjs.com/package/handlebars-render&#34;&gt;handlebars-render&lt;/a&gt; which does this.  You can use it like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;echo &#39;{&amp;quot;foo&amp;quot;: &amp;quot;bar&amp;quot;}&#39; | hb -i page.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output of &lt;strong&gt;marked&lt;/strong&gt; is fed into this script. I use a &lt;code&gt;metadata.json&lt;/code&gt; file in my gist that provices the post date, title, and tags (which I don&amp;rsquo;t currently support, but could in the future).  Usage winds up like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;DATA=&amp;quot;{\&amp;quot;id\&amp;quot;: $ID, \&amp;quot;title\&amp;quot;: $TITLE, \&amp;quot;content\&amp;quot;: $HTML, \&amp;quot;metadata\&amp;quot;: $METADATA, \&amp;quot;date\&amp;quot;: $DATE}&amp;quot;
+echo $DATA | hb -i templates/post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&amp;rsquo;s probably a better way to create a json string (perhaps with jq) but this works well enough for my needs.&lt;/p&gt;
+
+&lt;h2 id=&#34;putting-it-all-together:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;Putting it all together&lt;/h2&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it! With those core scripts I can easily put everything together that generates html. My script is simple:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;#!/bin/bash
+GIST_ID=$1
+
+IFS=&#39;%&#39;
+
+GIST_JSON=`curl -H &amp;quot;Authorization: token $GITHUB_TOKEN&amp;quot; -s https://api.github.com/gists/$GIST_ID`
+
+CONTENT=`echo $GIST_JSON | jq &#39;.files[.files | keys[0]].content&#39;`
+METADATA=`echo $GIST_JSON | jq -r &#39;.files[&amp;quot;metadata.json&amp;quot;].content&#39;`
+HTML=`echo $CONTENT | jq -r &#39;.&#39; | marked --options marked_options.js | jq -s -R &#39;.&#39;`
+
+# Get the title either from metadata.title or .description
+TITLE=`[[ &amp;quot;$METADATA&amp;quot; == &amp;quot;null&amp;quot; ]] &amp;amp;&amp;amp; echo $GIST_JSON | jq &#39;.description&#39; || echo $METADATA | jq &#39;.title&#39;`
+ID=`echo $GIST_JSON | jq &amp;quot;.id&amp;quot;`
+DATE=\&amp;quot;`[[ &amp;quot;$METADATA&amp;quot; == &amp;quot;null&amp;quot; ]] &amp;amp;&amp;amp; echo &amp;quot;foo&amp;quot; || echo $METADATA | jq -r &#39;.date&#39; | xargs -I{} gdate -d {} +%Y-%m-%d`\&amp;quot;
+
+DATA=&amp;quot;{\&amp;quot;id\&amp;quot;: $ID, \&amp;quot;title\&amp;quot;: $TITLE, \&amp;quot;content\&amp;quot;: $HTML, \&amp;quot;metadata\&amp;quot;: $METADATA, \&amp;quot;date\&amp;quot;: $DATE}&amp;quot;
+
+echo $DATA | hb -i templates/post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&amp;rsquo;s some backwards compatible stuff happening in the script or it would be even shorter; but even as it stands I&amp;rsquo;ll take a fairly easy to read 20 LOC script as the basis for my blog any day. All that is needed is a environment variable &lt;code&gt;GITHUB_TOKEN&lt;/code&gt; and a gist id provided as the first parameter and the script will spit out html.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve got other scripts that do things like generate the index.html page and a script that will generate all posts (I keep a &lt;code&gt;posts&lt;/code&gt; file that just lists the gist id and slug for these purposes).&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m relatively happy that I&amp;rsquo;ve been able to create an extremely light weight &amp;ldquo;static site generate&amp;rdquo; that&amp;rsquo;s just scripted small utilities.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using NPM with SystemJS</title>
+      <link>https://matthewphillips.info/posts/using-npm-with-systemjs.html</link>
+      <pubDate>Thu, 23 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/using-npm-with-systemjs.html</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/stealjs/system-npm&#34;&gt;system-npm&lt;/a&gt; is an amazing plugin for SystemJS that enables you to load your NPM dependencies with zero configuration.  Just load system-npm and then load your project; require your NPM dependencies just as if you were in Node.&lt;/p&gt;
+
+&lt;p&gt;To use system-npm with SystemJS you&amp;rsquo;ll first want to install SystemJS into your project.  In this post we&amp;rsquo;re assuming you&amp;rsquo;ve included &lt;code&gt;system.js&lt;/code&gt; and &lt;code&gt;es6-module-loader.js&lt;/code&gt; in a &lt;code&gt;vendor/&lt;/code&gt; folder, but you can place it where-ever you want. Then simply add a script tag to your page to load SystemJS:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&amp;quot;vendor/system.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;installing:af17117141c48fe88e78f51384579396&#34;&gt;Installing&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;system-npm&lt;/strong&gt; is installed through NPM (of course!):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install system-npm --save-dev
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;configuring:af17117141c48fe88e78f51384579396&#34;&gt;Configuring&lt;/h2&gt;
+
+&lt;p&gt;Next you&amp;rsquo;ll want to configure SystemJS to know where to load the plugin. Create a &lt;code&gt;config.js&lt;/code&gt; file and add the appropriate config:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;System.config({
+	map: {
+		&amp;quot;npm&amp;quot;: &amp;quot;system-npm&amp;quot;,
+		&amp;quot;npm-extension&amp;quot;: &amp;quot;system-npm/npm-extension&amp;quot;
+	},
+	paths: {
+		&amp;quot;system-npm/*&amp;quot;: &amp;quot;node_modules/system-npm/*.js&amp;quot;
+	}
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells SystemJS how to load system-npm. Add the configuration script to your page after SystemJS:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&amp;quot;config.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;load-your-app:af17117141c48fe88e78f51384579396&#34;&gt;Load your app&lt;/h2&gt;
+
+&lt;p&gt;Now that it is configured you can load your &lt;code&gt;package.json&lt;/code&gt; using the plugin and then start up your applicaiton:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script&amp;gt;
+	System.import(&amp;quot;package.json!npm&amp;quot;).then(function(){
+		System.import(&amp;quot;app/app&amp;quot;);
+	});
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;develop:af17117141c48fe88e78f51384579396&#34;&gt;Develop&lt;/h2&gt;
+
+&lt;p&gt;From here you can develop as you wish, sharing the same dependencies between Node and the Browser. &lt;strong&gt;system-npm&lt;/strong&gt; will load your package.json and use the metadata. If you want to limit it to only loading your client-side deps, you can specify this in your configuration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;System.config({
+  npmDependencies: [
+    &amp;quot;jquery&amp;quot;,
+    &amp;quot;backbone&amp;quot;
+  ]
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Doing this, system-npm will only load &lt;em&gt;jquery&lt;/em&gt; and &lt;em&gt;backbone&lt;/em&gt; as dependencies.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s that simple. system-npm is a great way to instantly make your SystemJS projects nearly configuration-free.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Organizing your library project with StealJS</title>
+      <link>https://matthewphillips.info/posts/organizing-your-library-project-with-stealjs.html</link>
+      <pubDate>Tue, 31 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/organizing-your-library-project-with-stealjs.html</guid>
+      <description>
+
+&lt;p&gt;With &lt;a href=&#34;http://stealjs.com/&#34;&gt;StealJS&lt;/a&gt; you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;- src
+  - main.js
+  - dep.js
+- test
+  - test.html
+  - test.js
+package.json
+Gruntfile.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In order to keep a shallow folder structure we&amp;rsquo;ve divided the library&amp;rsquo;s source code in &lt;code&gt;src&lt;/code&gt; and its tests in &lt;code&gt;test&lt;/code&gt;. The root directory only contains our &lt;code&gt;package.json&lt;/code&gt; and a &lt;code&gt;Gruntfile.js&lt;/code&gt; for builds.&lt;/p&gt;
+
+&lt;p&gt;With this structure you might try to install your module with NPM:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;npm install my-module --save
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then load it in your project:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;import myModule from &amp;quot;my-module&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However this will fail because your &lt;code&gt;main&lt;/code&gt; is not pointing to right place. Imagine your &lt;code&gt;main.js&lt;/code&gt; look like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;import dep from &amp;quot;my-module/dep&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Steal will look for &lt;code&gt;dep.js&lt;/code&gt; in the project&amp;rsquo;s root folder. To set an alternative root, correctly called the lib folder, set it in the &lt;code&gt;package.json&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;my-module&amp;quot;,
+  &amp;quot;main&amp;quot;: &amp;quot;dist/cjs/main.js&amp;quot;,
+  &amp;quot;system&amp;quot;: {
+    &amp;quot;main&amp;quot;: &amp;quot;main&amp;quot;,
+    &amp;quot;directories&amp;quot;: {
+      &amp;quot;lib&amp;quot;: &amp;quot;src&amp;quot;
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells Steal that your library&amp;rsquo;s code is nested under the &lt;code&gt;src&lt;/code&gt; folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;import myModuleDep from &amp;quot;my-module/dep&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Will correctly load &lt;code&gt;src/dep.js&lt;/code&gt; if that&amp;rsquo;s the module you want to test.&lt;/p&gt;
+
+&lt;h2 id=&#34;building:54829a1cb3a64537a249d84efe4fc1a9&#34;&gt;Building&lt;/h2&gt;
+
+&lt;p&gt;If you&amp;rsquo;re only target Steal you can go ahead and publish your module on NPM. But if you want to reach users of other module loaders you should set up a build script. &lt;a href=&#34;http://stealjs.com/docs/steal-tools.html&#34;&gt;steal-tools&lt;/a&gt; makes this easy. For example if using Grunt:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;grunt.initConfig({
+  &amp;quot;steal-export&amp;quot;: {
+    dist: {
+      system: {
+        config: &amp;quot;package.json!npm&amp;quot;
+      },
+      outputs: {
+        &amp;quot;+cjs&amp;quot;: {},
+        &amp;quot;+amd&amp;quot;: {},
+        &amp;quot;global-js&amp;quot;: {]
+      }
+    }
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then by simply running &lt;code&gt;grunt steal-export&lt;/code&gt; will produce &lt;code&gt;dist/cjs&lt;/code&gt;, &lt;code&gt;dist/amd&lt;/code&gt;, and &lt;code&gt;dist/global&lt;/code&gt; folders containing code that will run in RequireJS, Browserify, and as a browser global. Read &lt;a href=&#34;http://stealjs.com/docs/StealJS.project-exporting.html&#34;&gt;the full guide&lt;/a&gt; on setting up an export for your project for more.&lt;/p&gt;
+
+&lt;p&gt;See &lt;a href=&#34;https://github.com/bitovi-components/bit-tabs&#34;&gt;bit-tabs&lt;/a&gt; for a full example of this directory structure in action.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>I&#39;m Sold on HTML-based Templating</title>
+      <link>https://matthewphillips.info/posts/im-sold-on-html-based-templating.html</link>
+      <pubDate>Tue, 27 Jan 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/im-sold-on-html-based-templating.html</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve finally come around to liking HTML-based templates. I&amp;rsquo;ve been a hold-out for a long time but I&amp;rsquo;m finding it harder and harder to resist the tide and I&amp;rsquo;m officially calling it today; HTML templates have won.&lt;/p&gt;
+
+&lt;p&gt;What am I talking about? If you&amp;rsquo;ve done heavy JavaScript developer since, well the dawn of time, you&amp;rsquo;re probably used to creating templates a lot like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script type=&amp;quot;text/mustache&amp;quot; id=template&amp;quot;&amp;gt;
+  &amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt; {{name}}&amp;lt;/div&amp;gt;
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a hack, always has been. The script tag was never intended to hold arbitrary strings for later processing, but it does, so it&amp;rsquo;s always been a good fit for templates. Then Web Components came around (which I&amp;rsquo;ve written about &lt;a href=&#34;http://dailyjs.com/2014/03/10/components-controls/&#34;&gt;here&lt;/a&gt;) and introduced the &lt;code&gt;&amp;lt;template&amp;gt;&lt;/code&gt; tag. The template tag brought some major benefits; namely that the content is parsed but not executed. This means that a template can have &lt;code&gt;&amp;lt;script&amp;gt;&lt;/code&gt; tags with JavaScript, CSS, etc. and none of it is ran until the template is inserted into the page.&lt;/p&gt;
+
+&lt;p&gt;This is great! This means you can define, for example, a custom element and it&amp;rsquo;s template, then have some JavaScript to execute on insert. Then to activate a template all you have to do is use &lt;code&gt;document.importNode&lt;/code&gt; and insert it anywhere you like and &lt;em&gt;boom&lt;/em&gt;, it&amp;rsquo;s like inserting new HTML into the page.&lt;/p&gt;
+
+&lt;h2 id=&#34;how-things-changed:877b2f6ba80dcf31bf51d654e0e70934&#34;&gt;How Things Changed&lt;/h2&gt;
+
+&lt;p&gt;The problem with templates has always been that they do not define a data-binding strategy. And for obvious reasons they can&amp;rsquo;t. Can you imagine Mozilla, Google, Microsoft, Apple and others all agreeing on, for example, Mustache as the data-binding language for templates? No way! Never going to happen. And because of that we only get basic HTML. The problem is that basic HTML isn&amp;rsquo;t all that great for dynamic creation. It&amp;rsquo;s just XML, and XML just has tags and attributes. That doesn&amp;rsquo;t have the power of a string-concatenation-based templating language like Mustache.&lt;/p&gt;
+
+&lt;p&gt;But it doesn&amp;rsquo;t matter. Angular has shown that HTML-based templating can work. And devs have spoken; we like to put the HTML straight into the page. Adding script tags or importing HTML from a module-loader feels foreign and weird.&lt;/p&gt;
+
+&lt;p&gt;So the question becomes, will there be a standard developed around HTML-based templates? Probably not. But there are certainly a variety of patterns that are emerging, such as &lt;code&gt;for-each=&amp;quot;items&amp;quot;&lt;/code&gt; to iterate a list. One of my colleagues &lt;a href=&#34;https://twitter.com/daffl&#34;&gt;David Luecke&lt;/a&gt; released &lt;a href=&#34;http://daffl.github.io/breezy/&#34;&gt;HTML Breezy&lt;/a&gt; recently, a Virtual-DOM backed HTML based templating engine that runs in both Node and the browser. So me, I&amp;rsquo;m sold. My next templating language will be HTML. The &lt;code&gt;&amp;lt;template&amp;gt;&lt;/code&gt; tag is too compelling to continue to ignore.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>If Books Had Been Invented for the Web</title>
+      <link>https://matthewphillips.info/posts/if-books-had-been-invented-for-the-web.html</link>
+      <pubDate>Wed, 14 Jan 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/if-books-had-been-invented-for-the-web.html</guid>
+      <description>
+
+&lt;p&gt;One of my ongoing curiosities is with how to design books for the web. Although there are many good books available on the web, I haven’t encountered one that is more than just the book contents with some &lt;code&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags intermingled. The web has many unique advantages that makes it ideal for reading, but for whatever reason it hasn’t translated to long-form text (anything longer than a single article) very successfully.&lt;/p&gt;
+
+&lt;h2 id=&#34;scrolling:61511b7706148a5ecd8d6420e16bc75c&#34;&gt;Scrolling&lt;/h2&gt;
+
+&lt;p&gt;Perhaps the web’s most unique characteristic is that documents can scroll, unlike books which are paginated. This is major when it comes to content because there’s a threshold at which scrolling becomes too much. With books you can keep track of your progress easily by which page you are on. Since pages are uniform it’s easy to know how far you’ve gone and to mentally tag how far you want to go.&lt;/p&gt;
+
+&lt;p&gt;With scrolling on the web that breaks down. You can still have chapters (although I’m not sure that you should) but that’s not a great unit for tracking progress. I’ve noticed some designs that keep track of how far you have scrolled down the page as you read; I think that’s a good way to give yourself a mental understanding of your progress. Additionally some sites (and I’ve experimented with this myself) have a badge saying how long it will take to read the article. I don’t think this works well if the time is greater than 10 minutes or so.&lt;/p&gt;
+
+&lt;p&gt;A key with me with web design is not to reject the unique characteristics of the web, but instead embrace them. Scrolling goes hand-in-hand with the web. Figuring this part out is tantamount to any other aspect if you want to nail the reading experience.&lt;/p&gt;
+
+&lt;p&gt;Remember that scrolling is fun. The user should be able to scroll up and down quickly. Keep their place but perhaps only their forward progress.&lt;/p&gt;
+
+&lt;h2 id=&#34;custom-layouts:61511b7706148a5ecd8d6420e16bc75c&#34;&gt;Custom Layouts&lt;/h2&gt;
+
+&lt;p&gt;This is one that is completely overlooked by books on the web that I’ve seen. With the web you have the ability to customize the layout of every page; or even sections within a page. Imagine you were writing a story like Lord of the Rings. Within a single chapter (as the user scrolls) you might have a lighter theme while the heroes are in the land of the elves, then a forest theme for when they are traveling through the woods, and finally a darker theme when they enter Mordor. Parallax scrolling is trendy and overdone, but this could be one place where it works.&lt;/p&gt;
+
+&lt;p&gt;You have ultimate freedom on the web so you can take this as far as you want. Carefully timed music might be appropriate, and animations are a possibility. Of course you want to be careful not to distract from the story, but that’s an issue with any medium. My point is simply that these capabilities are in play and should be used.&lt;/p&gt;
+
+&lt;h2 id=&#34;linkability:61511b7706148a5ecd8d6420e16bc75c&#34;&gt;Linkability&lt;/h2&gt;
+
+&lt;p&gt;Web documents are linkable; in fact they want to be linked. A book written for the web would take advantage of this. An informational book would be full of links to relative resources; there’s no reason to have footnotes when you have the web. If you want to call-out some text a popover would be appropriate for that.&lt;/p&gt;
+
+&lt;p&gt;Links shouldn’t be just out, but within the book as well. If referring to an event that took place several chapters back, link to it!&lt;/p&gt;
+
+&lt;h2 id=&#34;the-web-medium:61511b7706148a5ecd8d6420e16bc75c&#34;&gt;The Web Medium&lt;/h2&gt;
+
+&lt;p&gt;The web is an interesting medium because it’s an amalgam of all the others that have come before it. If we approach writing for the web as an art-form in it’s own right we’ll better be able to craft pages that come to life and make the web reading experience something that people seek out.&lt;/p&gt;
+
+&lt;p&gt;Keeping in mind that the story is most important is key. I wouldn&amp;rsquo;t make a web-based reading experience an &amp;ldquo;app&amp;rdquo;. Any interactivity should be flourishes that support the reading, so I wouldn&amp;rsquo;t be in favor of persistent UI and almost nothing should be clickable (except all of those links of course). Navigation is not something I&amp;rsquo;ve touched on in this article but one that I&amp;rsquo;ve thought a lot about. Since we&amp;rsquo;re keeping track of the users progress we can help them jump to the last place they were; but I haven&amp;rsquo;t come up with a good design for this. A table of contents doesn&amp;rsquo;t make much sense either. When you talk to friends about a book you don&amp;rsquo;t refer to &amp;ldquo;Chapter 12&amp;rdquo;, you refer to &amp;ldquo;that part where the killer was revealed&amp;rdquo;. In that regard perhaps the contents should be grouped by &amp;ldquo;experiences some how&amp;rdquo;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Responsive Computes</title>
+      <link>https://matthewphillips.info/posts/responsive-computes.html</link>
+      <pubDate>Sun, 11 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/responsive-computes.html</guid>
+      <description>
+
+&lt;p&gt;Recently I was working on a template and ran into issues trying to make it responsive purely using CSS media queries. The problem is that the mark-up of the mobile view and that of the desktop were just too different. In fact, the &lt;em&gt;functionality&lt;/em&gt; of the two views were a bit different as well.&lt;/p&gt;
+
+&lt;p&gt;At this point you might give up and just write up two separate templates and use media queries to hide one of them. Bootstrap even &lt;a href=&#34;http://getbootstrap.com/css/#responsive-utilities-classes&#34;&gt;has classes&lt;/a&gt; for just such a case.&lt;/p&gt;
+
+&lt;p&gt;Luckily, however, there is the &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/API/Window.matchMedia&#34;&gt;matchMedia&lt;/a&gt; API that brings the power of media queries to JavaScript. There&amp;rsquo;s fairly broad &lt;a href=&#34;http://caniuse.com/#feat=matchmedia&#34;&gt;browse support&lt;/a&gt; and even &lt;a href=&#34;https://github.com/weblinc/media-match/blob/master/media.match.js&#34;&gt;a polyfill&lt;/a&gt; if you want support in older IE browsers. matchMedia allows you to use the same type of media queries in JavaScript that you can use in CSS, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var mql = matchMedia(&#39;only screen and (max-width: 768px)&#39;);
+mql.matches === true; // true if the screen is &amp;lt;= 768px
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Additionally matchMedia queries include an &lt;code&gt;addListener&lt;/code&gt; function that takes a callback that will be called when the media query&amp;rsquo;s status changes; meaning you can resize the browser and the media query will respond when the screen becomes less than 768px (for example).&lt;/p&gt;
+
+&lt;h2 id=&#34;live-bound-responsive-templates:cbd5bbeacf0ac7aaf34e852d78b9967e&#34;&gt;Live-bound responsive templates&lt;/h2&gt;
+
+&lt;p&gt;If you use CanJS you&amp;rsquo;re familiar with can.computes, but you might not be familiar with the &lt;a href=&#34;http://canjs.com/docs/can.compute.html#sig_can_compute_initialValue__settings__&#34;&gt;2nd signature&lt;/a&gt; which allows you to create a compute from any type of event emitting object. This means we can easily turn our matchMedia query into a compute that can be used in templates:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var mql = matchMedia(&#39;only screen and (max-width: 768px)&#39;);
+
+var mobile = can.compute(mql.matches, {
+  get: function(){
+    return mql.matches;
+  },
+  set: function(){
+    // Do nothing for this one
+  },
+  on: function(updated){
+    mql.addListener(updated);
+  },
+  off: function(updated){
+    mql.removeListener(updated);
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The compute&amp;rsquo;s &lt;code&gt;settings&lt;/code&gt; object describes how to bind the compute to the media query and respond to changes. Now your templates can be responsive in a much more powerful way than what CSS allows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-handlebars&#34;&gt;{{#if mobile}}
+  &amp;lt;div&amp;gt;Hi there phone! Mobile navigation goes here.&amp;lt;/div&amp;gt;
+{{else}}
+  &amp;lt;div&amp;gt;Totally different desktop experience!&amp;lt;/div&amp;gt;
+{{/if}}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The broader lesson here is that &lt;a href=&#34;http://canjs.com/docs/can.compute.html&#34;&gt;can.computes&lt;/a&gt; are crazy powerful. If you&amp;rsquo;re only using them to respond to changes in your business logic you&amp;rsquo;re not unlocking their full potential. The browser provides many APIs, like matchMedia, that can be bound to. Check out the &lt;a href=&#34;http://bitovi.com/blog/2013/04/weekly-widget-compute-slider.html&#34;&gt;video slider&lt;/a&gt; and be inspired.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Fun with Shadow DOM</title>
+      <link>https://matthewphillips.info/posts/fun-with-shadow-dom.html</link>
+      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/fun-with-shadow-dom.html</guid>
+      <description>
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt;: To do this demo you first need to enable experimental web platform features &lt;a href=&#34;chrome://flags/#enable-experimental-web-platform-features&#34;&gt;in chrome://flags&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now that Chrome has shipped Shadow DOM we can start experimenting with what possibilities are going to open up to developers. Consider this a beginner/intermediate post about Shadow DOM. I assume you already know Shadow DOM is a way to &amp;ldquo;hide&amp;rdquo; an element&amp;rsquo;s structure while opening up insertion points to its inner content.&lt;/p&gt;
+
+&lt;p&gt;With that in mind, this is a simple exercise in seeing the weirdness that is Shadow DOM. So open up a text editor and create an HTML file with these contents:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;title&amp;gt;Fun with Shadow&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+&amp;lt;div id=&amp;quot;container&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;
+&amp;lt;template id=&amp;quot;tmpl&amp;quot;&amp;gt;
+  &amp;lt;style&amp;gt;div { color: red; }&amp;lt;/style&amp;gt;
+  &amp;lt;div&amp;gt;Hello &amp;lt;span class=&amp;quot;name&amp;quot;&amp;gt;Matthew&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;
+&amp;lt;/template&amp;gt;
+&amp;lt;template id=&amp;quot;tmpl2&amp;quot;&amp;gt;
+  &amp;lt;div&amp;gt;Welcome to the internet&amp;lt;/div&amp;gt;
+  &amp;lt;shadow&amp;gt;&amp;lt;/shadow&amp;gt;
+&amp;lt;/template&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;From here on the rest of the tutorial is done from Chrome&amp;rsquo;s DevTools. So open your brower and navigate to the page you just created and open the DevTools. This is a simple page with a container div and a couple of templates.&lt;/p&gt;
+
+&lt;p&gt;You should see nothing on your page at this point, but we&amp;rsquo;ll change that. The element &lt;code&gt;&amp;lt;div id=&amp;quot;container&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;&lt;/code&gt; is the root element we&amp;rsquo;re going to play around with so go ahead and get a reference to it.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;c = document.querySelector(&#39;#container&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next we&amp;rsquo;re going to create this div&amp;rsquo;s &lt;a href=&#34;http://www.w3.org/TR/shadow-dom/#dfn-shadow-root&#34;&gt;shadow root&lt;/a&gt;. The shadow root is the place where you can append stuff to the div and not have to worry about the page&amp;rsquo;s styling interfering (among other advantages).&lt;/p&gt;
+
+&lt;p&gt;Before we create the shadow root, type this into the console and hit enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;c.shadowRoot
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It should return &lt;code&gt;null&lt;/code&gt;, as the div doesn&amp;rsquo;t have a shadow root yet. So let&amp;rsquo;s go ahead and change that. Create the shadow root and keep a reference for later:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;root1 = c.createShadowRoot();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Should return (in the console):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#shadow-root
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This also updates &lt;code&gt;c.shadowRoot&lt;/code&gt;. Test it by doing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;root1 === c.shadowRoot
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And you&amp;rsquo;ll get &lt;code&gt;true&lt;/code&gt;. Awesome. Now that you have a shadow root you&amp;rsquo;ll want to add stuff to it. This works like any other element. You can use &lt;code&gt;innerHTML&lt;/code&gt;, &lt;code&gt;appendChild&lt;/code&gt;, &lt;code&gt;insertBefore&lt;/code&gt;, etc. to add content to the shadow. Let&amp;rsquo;s use our first template to attach some content:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;root1.appendChild(document.querySelector(&#39;#tmpl&#39;).content)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The immediate effect you&amp;rsquo;ll see is the words &amp;ldquo;Hello Matthew&amp;rdquo; in red on the page. This is because the template contains a &lt;code&gt;&amp;lt;style&amp;gt;&lt;/code&gt; tag that styles the content within the template.&lt;/p&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also notice that we &lt;em&gt;didn&amp;rsquo;t&lt;/em&gt; append the template, we appended the template&amp;rsquo;s &lt;code&gt;content&lt;/code&gt; property. This is a read-only property containing a document fragment of the template&amp;rsquo;s content.&lt;/p&gt;
+
+&lt;p&gt;If you navigate to the DevTools&amp;rsquo; &lt;strong&gt;Elements&lt;/strong&gt; tab and expand the &lt;code&gt;#container&lt;/code&gt; div you&amp;rsquo;ll see&amp;hellip; nothing at all. This is because shadow root is hidden by default. You can change this by going into Settings -&amp;gt; Elements and selecting &lt;em&gt;Show Shadow DOM&lt;/em&gt;. Now go back to &lt;strong&gt;Elements&lt;/strong&gt; and you&amp;rsquo;ll see a &lt;code&gt;#shadow-root&lt;/code&gt; nested under your div. Yay!&lt;/p&gt;
+
+&lt;h2 id=&#34;deeper-down-the-rabbit-hole:ab0b2cc8ea22be5cc903803301e18c98&#34;&gt;Deeper down the rabbit hole&lt;/h2&gt;
+
+&lt;p&gt;We could stop here and you&amp;rsquo;d have a good idea of what the Shadow DOM allows you to do, and how to use an element&amp;rsquo;s shadow root. But we&amp;rsquo;re going to take it one step further. When we created the shadow root you might have asked yourself why there is a method &lt;code&gt;createShadowRoot&lt;/code&gt; in the first place. Does it mean you can have multiple shadow root&amp;rsquo;s in an element? It does!&lt;/p&gt;
+
+&lt;p&gt;So let&amp;rsquo;s go ahead and create a second shadow root to further our experimentation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;root2 = c.createShadowRoot();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will return a new shadow root. But what you might also notice is that the words &amp;ldquo;Hello Matthew&amp;rdquo; disappeared from the page. What&amp;rsquo;s going on? First use the &lt;strong&gt;Elements&lt;/strong&gt; tab and expand your &lt;code&gt;#container&lt;/code&gt; div and there should now be two shadow roots. The first is &lt;code&gt;root1&lt;/code&gt; and its contents are still there. That&amp;rsquo;s good, but why can&amp;rsquo;t we see it?&lt;/p&gt;
+
+&lt;p&gt;The reason is that the browser only renders the &lt;em&gt;last&lt;/em&gt; shadow tree. The others are still there, you just can&amp;rsquo;t see them. In your console do this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;c.shadowRoot == root1
+c.shadowRoot == root2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, the div&amp;rsquo;s new shadowRoot is now &lt;code&gt;root2&lt;/code&gt;. You might be asking how this is useful&amp;hellip; I&amp;rsquo;ll get to an explanation but it might be better to show you. Go ahead and attach that other template to the new root:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;root2.appendChild(document.querySelector(&#39;#tmpl2&#39;).content);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ah! The first shadow&amp;rsquo;s content is back. This is because &lt;code&gt;#tmpl2&lt;/code&gt; has an insertion point with &lt;code&gt;&amp;lt;shadow&amp;gt;&amp;lt;/shadow&amp;gt;&lt;/code&gt;. This says &amp;ldquo;insert the previous shadow here&amp;rdquo;, more or less. You may also notice that the second template&amp;rsquo;s div is not in red. This is because the &lt;code&gt;&amp;lt;style&amp;gt;&lt;/code&gt; tag in the first template is scoped to only content within that template. This is the beauty of templates.&lt;/p&gt;
+
+&lt;p&gt;Back to the question, how is multiple shadow trees useful anyways? A big part of web components is going to be extending existing components. Shadow DOM provides an excellent way to do that. Let&amp;rsquo;s say I created &lt;code&gt;&amp;lt;super-calendar&amp;gt;&lt;/code&gt; and it was awesome&amp;hellip; but ugly. You might want to come around and create &lt;code&gt;&amp;lt;pretty-calendar&amp;gt;&lt;/code&gt; that modified part of the DOM structure a little bit, applied some prettyier scoped &lt;code&gt;&amp;lt;style&amp;gt;&lt;/code&gt; but left my JavaScript alone. With &lt;code&gt;&amp;lt;shadow&amp;gt;&lt;/code&gt; and &lt;code&gt;select&lt;/code&gt; you can do all of that, keeping just the parts of my ugly calendar that are needed to function.&lt;/p&gt;
+
+&lt;p&gt;Hopefully this has taught you a little bit about what is possible thanks to Shadow DOM. More important, however, is that you see how easy it is to experiment with emerging web technologies thanks to the awesome developer tools Chrome and Firefox provide us.&lt;/p&gt;
+
+&lt;p&gt;Send your thoughts/hacks to &lt;em&gt;matthew@matthewphillips.info&lt;/em&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Test Your Application Entry Point</title>
+      <link>https://matthewphillips.info/posts/test-your-application-entry-point.html</link>
+      <pubDate>Wed, 26 Mar 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/test-your-application-entry-point.html</guid>
+      <description>&lt;p&gt;This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you&amp;rsquo;re going to have an entry point where you set up your world and get everything started. It probably looks something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;define([
+  &#39;xwidget&#39;,
+  &#39;ywidget&#39;,
+  &#39;routing&#39;
+], function(XWidget, YWidget, route){
+  // Load everything!
+
+  // Set up global state!
+  var state = {
+    light: &#39;green&#39;,
+    time: new Date()
+  };
+
+  // Initialize main widget!
+  var main = new XWidget(&#39;body&#39;, {
+    subwidget: new YWidget($(&#39;&amp;lt;div&amp;gt;&amp;lt;/div&amp;gt;&#39;), {}),
+    state: state
+  });
+
+  // Listen for routes
+  route(&#39;/calendar&#39;, function(){
+    // Make some change to `main` probably
+  });
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s very easy to forget that not only is this an important chunk of code, it influences everything else that happens further down the chain in your application. &lt;strong&gt;Test it&lt;/strong&gt; as though it&amp;rsquo;s just as important, because it is.&lt;/p&gt;
+
+&lt;p&gt;When you begin crafting your application as a pyramid of &lt;a href=&#34;http://dailyjs.com/2014/03/10/components-controls/&#34;&gt;web components&lt;/a&gt; this becomes even more critical. Using &lt;a href=&#34;http://canjs.com/guides/Components.html&#34;&gt;can.Component&lt;/a&gt;&amp;rsquo;s scoping rules, data you initialize in your &lt;code&gt;main.js&lt;/code&gt; will trickle down and be used by any component on your page, no matter how deeply nested.&lt;/p&gt;
+
+&lt;p&gt;This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for &lt;code&gt;&amp;lt;x-widget&amp;gt;&lt;/code&gt; are not enough, that top level file might be doing things just slightly differently.&lt;/p&gt;
+
+&lt;p&gt;The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I&amp;rsquo;m currently doing) you&amp;rsquo;ll notice that things break as your entry point file is actually dependent on something in your &lt;code&gt;index.html&lt;/code&gt; file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Markdown Enable Your Blog Comments with Web Components</title>
+      <link>https://matthewphillips.info/posts/markdown-enable-your-blog-comments-with-web-components.html</link>
+      <pubDate>Sat, 01 Mar 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/markdown-enable-your-blog-comments-with-web-components.html</guid>
+      <description>
+
+&lt;p&gt;If you&amp;rsquo;re like me and are excited about getting started using web components today, you might find yourself struggling coming up with practical uses that aren&amp;rsquo;t the typical carousel, calendar, or &lt;a href=&#34;http://matthewphillips.info/posts/building-an-accordion-with-can-component.html&#34;&gt;accordion&lt;/a&gt; widgets that we&amp;rsquo;ve all written a hundred times in plain JavaScript.&lt;/p&gt;
+
+&lt;p&gt;In this article I&amp;rsquo;ll walk you through the process of:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Finding a practical use for web components.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Developing your first iteration.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Refining, deciding when components are needed and when they are just extra fluff.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All of my examples will use &lt;a href=&#34;http://canjs.com/guides/Components.html&#34;&gt;can.Component&lt;/a&gt; because it&amp;rsquo;s available today, is stable, and has really good browser support, but are still applicable no matter what your web component framework of choice is.&lt;/p&gt;
+
+&lt;h1 id=&#34;from-concept-to-code:91190a79664036955176de2fc388a61f&#34;&gt;From Concept to Code&lt;/h1&gt;
+
+&lt;p&gt;If all you&amp;rsquo;re interested in is learning you can pick just about any API on the web and turn it into a web component. Or pick your favorite JavaScript library and wrap a component around it. Web components are primed to be the new jQuery plugin.&lt;/p&gt;
+
+&lt;h2 id=&#34;markdown:91190a79664036955176de2fc388a61f&#34;&gt;Markdown&lt;/h2&gt;
+
+&lt;p&gt;If you&amp;rsquo;re a programmer you probably use markdown (or another markup generator) quite often. I&amp;rsquo;m writing this post in markdown right now. The only downside is I have a Grunt task running in the background that is rerendering the html every time I save the file. What if you could write markdown and have it generate all in the browser? You want to write something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;markdown&amp;gt;
+# Hello world!
+
+* Oh my, **lists**
+&amp;lt;/markdown&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And let a library do the heavy lifting. Luckily there is a &lt;a href=&#34;https://github.com/coreyti/showdown&#34;&gt;Showdown&lt;/a&gt;, a JavaScript library for turning markdown into HTML. It&amp;rsquo;s pretty fantastic. So let&amp;rsquo;s make a component.&lt;/p&gt;
+
+&lt;p&gt;Since Showdown does most of the heavy lifting all we need is a nice wrapper that will allow us to write Markdown inside of a tag and have it render the HTML automatically. Using can.Component we can do that easily, here&amp;rsquo;s a demo:&lt;/p&gt;
+
+&lt;h2 id=&#34;demo:91190a79664036955176de2fc388a61f&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;iframe width=&#34;100%&#34; height=&#34;300&#34; src=&#34;http://jsfiddle.net/TBFp6/3/embedded/&#34; allowfullscreen=&#34;allowfullscreen&#34; frameborder=&#34;0&#34;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;The code should speak for itself. The &lt;code&gt;x-markdown&lt;/code&gt; component (all web components should be namespaced, we use &lt;code&gt;x-&lt;/code&gt; in this example) generates the HTML after it is inserted into the page. We simply listen for the &lt;code&gt;inserted&lt;/code&gt; event and set the &lt;code&gt;&amp;lt;content/&amp;gt;&lt;/code&gt; provided by the user to the &lt;code&gt;markdown&lt;/code&gt; property on the component&amp;rsquo;s Scope.&lt;/p&gt;
+
+&lt;p&gt;The powerful part of this example is the &lt;code&gt;can.compute&lt;/code&gt;. Computes are a type of object that can listen to changes of other objects and automatically recompute themselves. If you&amp;rsquo;ve used &lt;a href=&#34;http://knockoutjs.com/documentation/observables.html&#34;&gt;ko.observable&lt;/a&gt; or Ember &lt;a href=&#34;http://emberjs.com/guides/object-model/computed-properties/&#34;&gt;computed properties&lt;/a&gt; the idea is much the same, but can.computes are a bit more powerful (we&amp;rsquo;ll get to that later).&lt;/p&gt;
+
+&lt;p&gt;The compute simple takes the value of the &lt;code&gt;markdown&lt;/code&gt; property (which is set in the &lt;code&gt;inserted&lt;/code&gt; event) and uses Showdown to generate the html that will be displayed.&lt;/p&gt;
+
+&lt;h1 id=&#34;using-with-blog-comments:91190a79664036955176de2fc388a61f&#34;&gt;Using with Blog Comments&lt;/h1&gt;
+
+&lt;p&gt;While cool, this example isn&amp;rsquo;t that practical. In reality you&amp;rsquo;ll rarely have a scenario where you need to write HTML inside of a web browser, otherwise using a static site generator is probably what you&amp;rsquo;ll be using.&lt;/p&gt;
+
+&lt;p&gt;One place where you would want to generate the HTML on the fly is for blog comments. If your blog is developer-focused it makes sense to allow the reader to write comments in markdown, and have a live preview of what it will look like. So let&amp;rsquo;s refactor &lt;code&gt;&amp;lt;x-markdown&amp;gt;&lt;/code&gt; to be our live preview.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;can.Component.extend({
+  tag: &#39;x-markdown&#39;,
+  template: &#39;&amp;lt;div&amp;gt;{{{html}}}&amp;lt;/div&amp;gt;&#39;,
+  scope: {
+    html: can.compute(function() {
+      var markdown = this.attr(&#39;markdown&#39;);
+      var converter = new Showdown.converter();
+      var html = converter.makeHtml(markdown);
+      return html;
+    }),
+    markdown: &#39;&#39;
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This new version of &lt;code&gt;&amp;lt;x-markdown&amp;gt;&lt;/code&gt; is much more succinct because we&amp;rsquo;ve eliminated the &lt;code&gt;&amp;lt;content/&amp;gt;&lt;/code&gt; portion by getting the raw markdown from a textarea. can.Component allows you to pass data (included complex objects) through an element&amp;rsquo;s attribute tags. We&amp;rsquo;ll use it like such: &lt;code&gt;&amp;lt;x-markdown markdown=&amp;quot;value&amp;quot;&amp;gt;&amp;lt;/x-markdown&amp;gt;&lt;/code&gt; so that the &lt;code&gt;html&lt;/code&gt; compute will be live-bound to the &lt;code&gt;value&lt;/code&gt; object that we pass in.&lt;/p&gt;
+
+&lt;p&gt;Next we need to create a live-bound textarea we&amp;rsquo;ll call &lt;code&gt;&amp;lt;x-textarea&amp;gt;&lt;/code&gt;. The idea that both x-markdown and x-textarea will be live-bound to the same compute object, and any time you type into the textarea the markdown will automatically be rerendered in the preview window. Demo time:&lt;/p&gt;
+
+&lt;h2 id=&#34;demo-1:91190a79664036955176de2fc388a61f&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;iframe width=&#34;100%&#34; height=&#34;300&#34; src=&#34;http://jsfiddle.net/TBFp6/6/embedded/&#34; allowfullscreen=&#34;allowfullscreen&#34; frameborder=&#34;0&#34;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;Try out the fiddle (Click on the &lt;strong&gt;Result&lt;/strong&gt; link) and see for yourself how the preview updates as you type. The secret sauce here is that we are using &lt;code&gt;can-value&lt;/code&gt; to bind the textarea&amp;rsquo;s &lt;code&gt;value&lt;/code&gt; to our scope property also called &lt;code&gt;value&lt;/code&gt;. can-value works on the element&amp;rsquo;s &lt;code&gt;change&lt;/code&gt; event, which for most types of forms is fine, but in our case we need the preview to update as you type, so we&amp;rsquo;ve added a &lt;code&gt;keyup&lt;/code&gt; event that simply triggers the textarea&amp;rsquo;s change event as the user types. Simple!&lt;/p&gt;
+
+&lt;h1 id=&#34;when-not-to-web-component:91190a79664036955176de2fc388a61f&#34;&gt;When not to Web Component&lt;/h1&gt;
+
+&lt;p&gt;Awesome, we&amp;rsquo;ve built a live-bound markdown enabled comment system. In less than 30 lines of code. However you might notice that the &lt;code&gt;&amp;lt;x-textarea&amp;gt;&lt;/code&gt; isn&amp;rsquo;t really doing much at all. It simply turns a normal textarea into a live-bound one.&lt;/p&gt;
+
+&lt;p&gt;However in reality textareas &lt;em&gt;really are&lt;/em&gt; live-bound, they use the normal DOM events to update their values. So all we are using the &lt;code&gt;&amp;lt;x-textarea&amp;gt;&lt;/code&gt; for in practice is to turn the DOM events into can events. Luckily &lt;a href=&#34;http://canjs.com/docs/can.compute.html&#34;&gt;can.compute&lt;/a&gt; already has a way of doing this, so we don&amp;rsquo;t need the &lt;code&gt;x-textarea&lt;/code&gt; at all.&lt;/p&gt;
+
+&lt;p&gt;can.compute can take a set of arguments that includes an element, the property to bind to, and an event to bind to. We&amp;rsquo;ll use it like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var markdown = can.compute(textarea, &#39;value&#39;, &#39;keyup&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This allows us to move our textarea outside of the script tag (since we&amp;rsquo;re getting rid of the component) but still have a live-bound value between the textarea and our &lt;code&gt;x-markdown&lt;/code&gt; preview. See the demo below.&lt;/p&gt;
+
+&lt;h2 id=&#34;demo-2:91190a79664036955176de2fc388a61f&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;iframe width=&#34;100%&#34; height=&#34;300&#34; src=&#34;http://jsfiddle.net/TBFp6/5/embedded/&#34; allowfullscreen=&#34;allowfullscreen&#34; frameborder=&#34;0&#34;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;Hopefully I&amp;rsquo;ve demonstrated the process of coming up with an idea for a component (essentially an encapsulated piece of HTML with JavaScript interactivity) and refining it until you are left with only the bits of code that you need. We&amp;rsquo;ve created a Markdown-enabled blog commenting system is only 18 lines of code. Let it be inspiration for your next component. Can you do better, how about an MDN reference widget?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Building an accordion with can.Component</title>
+      <link>https://matthewphillips.info/posts/building-an-accordion-with-can-component.html</link>
+      <pubDate>Mon, 02 Dec 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/building-an-accordion-with-can-component.html</guid>
+      <description>
+
+&lt;p&gt;I learn best by doing, so in an effort to learn more about &lt;a href=&#34;http://canjs.com/guides/Components.html&#34;&gt;can.Component&lt;/a&gt; I&amp;rsquo;ve been creating common types of components using the new framework. An &lt;strong&gt;accordion&lt;/strong&gt; is one such example and I wanted to write about my experience creating the component. Note that this article doesn&amp;rsquo;t constitute a best practice, I&amp;rsquo;ve only been using can.Component for a few weeks now. Nor is the goal here for the least amount of code (My first couple of iterations used less code actually), rather I wanted to write the component as DRY as possible.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve long been a fan of the &lt;a href=&#34;http://www.w3.org/TR/components-intro/&#34;&gt;Web Components&lt;/a&gt; and was excited at the idea that &lt;a href=&#34;http://canjs.com/index.html&#34;&gt;can&lt;/a&gt; could make it possible to write components today. Components are much different than traditional MVC-style programming, in that much more of your code is spent expressing what a component is rather than listening for DOM events and reacting. To that purpose, when I set out to create an accordion control I started with what I wanted it to look like in the end.&lt;/p&gt;
+
+&lt;p&gt;An accordion is made up of a list of elements, each with a header and content, that when the header is clicked the content collapses and only the header is shown. So in the end, our html should look something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;accordion&amp;gt;
+  &amp;lt;collapsible&amp;gt;...&amp;lt;/collapsible&amp;gt;
+  &amp;lt;collapsible&amp;gt;...&amp;lt;/collapsible&amp;gt;
+  &amp;lt;collapsible&amp;gt;...&amp;lt;/collapsible&amp;gt;
+&amp;lt;/accordion&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that we actually have 2 components here. It&amp;rsquo;s important that the &lt;code&gt;collapsible&lt;/code&gt; component operate independently of being hosted inside of an &lt;code&gt;accordion&lt;/code&gt;. This leads to DRYer code, a &lt;code&gt;collapsible&lt;/code&gt; component is something that can be useful in a lot of places.&lt;/p&gt;
+
+&lt;h2 id=&#34;collapsible:6d66696e91dedbd4096c7a5698258b38&#34;&gt;Collapsible&lt;/h2&gt;
+
+&lt;p&gt;So first to build our &lt;code&gt;collapsible&lt;/code&gt; component. Like I said before, a &lt;code&gt;collapsible&lt;/code&gt; has a header containing a title, and it has a content section. It should look something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;collapsible class=&amp;quot;open&amp;quot;&amp;gt;
+  &amp;lt;header&amp;gt;
+    &amp;lt;h1&amp;gt;This is a title&amp;lt;/h1&amp;gt;
+  &amp;lt;/header&amp;gt;
+  &amp;lt;article&amp;gt;This is content.&amp;lt;/article&amp;gt;
+&amp;lt;/collapsible&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that the collapsible contains a class called &lt;code&gt;open&lt;/code&gt;. This will be used with CSS to control the &lt;code&gt;article&lt;/code&gt;&amp;rsquo;s height. If the collapsible is not open we&amp;rsquo;ll hide it by setting its height to &lt;code&gt;0px&lt;/code&gt; and overflow to &lt;code&gt;none&lt;/code&gt;. Now to the code for this component:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;can.Component.extend({
+  tag: &#39;collapsible&#39;,
+  template: &#39;&amp;lt;header can-click=&amp;quot;toggle&amp;quot;&amp;gt;&amp;lt;h1&amp;gt;{{item.title}}&amp;lt;/h1&amp;gt;&amp;lt;/header&amp;gt;&#39; +
+    &#39;&amp;lt;article&amp;gt;{{item.content}}&amp;lt;/article&amp;gt;&#39;,
+  scope: {
+    item: new can.Map({}),
+    toggle: function(){
+      this.attr(&#39;item.open&#39;, !this.attr(&#39;item.open&#39;));
+    }
+  },
+  events: {
+    &#39;{item} open&#39;: function(context, ev, newVal){
+      this.element[newVal ? &#39;addClass&#39; : &#39;removeClass&#39;](&#39;open&#39;);
+    }
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s pretty straight forward. The &lt;code&gt;can-click=&amp;quot;toggle&amp;quot;&lt;/code&gt; attribute tells can that when the header is clicked, call the &lt;code&gt;toggle&lt;/code&gt; function, which is part of the component&amp;rsquo;s scope. The &lt;code&gt;toggle&lt;/code&gt; function simple toggle the &lt;code&gt;item&lt;/code&gt;&amp;rsquo;s &lt;code&gt;open&lt;/code&gt; flag. Then we have an event that listens for the changes to &lt;code&gt;open&lt;/code&gt; and sets the element&amp;rsquo;s class appropriately. Note that I could have placed the &lt;code&gt;open&lt;/code&gt; class as part of the &lt;code&gt;&amp;lt;article&amp;gt;&lt;/code&gt; element. The advantage to doing it that way is that it could have been included in the template which would have avoided the entire events section of the code. Ultimately I decided that it was more &lt;em&gt;correct&lt;/em&gt; to have the &lt;code&gt;collapsible&lt;/code&gt; itself be either open or not. Either approach is valid. The CSS is straight forward, but if you&amp;rsquo;re a better designer than I you might use transforms or transitions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-css&#34;&gt;collapsible article {
+  overflow: hidden;
+  height; 0px;
+}
+
+collapsible.open article {
+  height: auto;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can try this on your own, using this simple component you have a collapsible header/content panel.&lt;/p&gt;
+
+&lt;h2 id=&#34;accordion:6d66696e91dedbd4096c7a5698258b38&#34;&gt;Accordion&lt;/h2&gt;
+
+&lt;p&gt;An accordion simple wraps a number of &lt;code&gt;collapsible&lt;/code&gt;s and has 1 extra feature: it ensures that only 1 collapsible is open at a time. So in order to create my accordion I really only need a couple of things:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A way to listen for when a collapsible&amp;rsquo;s &lt;code&gt;open&lt;/code&gt; property changes.&lt;/li&gt;
+&lt;li&gt;A way to determine which items need to be set to closed.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Below is the code that creates our accordion, take a look first and then I&amp;rsquo;ll step you through what is happening.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;can.Component.extend({
+  tag: &#39;accordion&#39;,
+  template: &#39;{{#each items}}&amp;lt;collapsible item=&amp;quot;items.{{@index}}&amp;quot;&amp;gt;&#39; +
+    &#39;&amp;lt;/collapsible&amp;gt;{{/each}}&#39;,
+  scope: {
+    items: new can.List([]).
+    selected: &#39;@&#39;,
+    select: function(index){
+      var items = this.attr(&#39;items&#39;);
+      for(var i = 0; i &amp;lt; items.attr(&#39;length&#39;); i++) {
+        var isOpen = i === index;
+        items[i].attr(&#39;open&#39;, isOpen);
+      }
+    }
+  },
+  events: {
+    &#39;inserted&#39;: function(){
+      var selected = +(this.scope.attr(&#39;selected&#39;) || 0);
+      this.scope.select(selected);
+    },
+    &#39;{items} change&#39;: function(list, ev, what, how, newVal){
+      if(~what.indexOf(&#39;open&#39;) &amp;amp;&amp;amp; newVal) {
+        var which = +what.substr(0, what.indexOf(&#39;.&#39;));
+        this.scope.select(which);
+      }
+    }
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first thing you&amp;rsquo;re likely to notice is that we&amp;rsquo;re attaching this to the collapsible: &lt;code&gt;item=&amp;quot;items.{{@index}}&amp;quot;&lt;/code&gt;. We are doing this because the way you pass data to a child component is through its attributes. The attribute&amp;rsquo;s name is the name of the property on the component&amp;rsquo;s scope that we want to set, in this case &lt;code&gt;item&lt;/code&gt;. The attribute value is the name of the parent scope&amp;rsquo;s property that we want to pass in, in this case &lt;code&gt;item.0&lt;/code&gt; (or &lt;code&gt;item.1&lt;/code&gt;, etc. &lt;code&gt;{{@index}}&lt;/code&gt; gets the index inside of our each loop).&lt;/p&gt;
+
+&lt;p&gt;Since the &lt;code&gt;collapsible&lt;/code&gt; controls its own &lt;code&gt;open&lt;/code&gt; state we only need to observe changes that happen to our children items. This is what is happening in the &lt;code&gt;{items} change&lt;/code&gt; event. Any time something changes to one of our items we check to see if it is an open event, and if so we run the scope&amp;rsquo;s &lt;code&gt;select&lt;/code&gt; method which takes the index of the item that is selected and marks all others as closed (by changing their &lt;code&gt;close&lt;/code&gt; property, which automatically prompts an event in the &lt;code&gt;collapsible&lt;/code&gt; component which is what actually removes the class.&lt;/p&gt;
+
+&lt;p&gt;And that&amp;rsquo;s pretty much all there is to an accordion. One other thing you might be unaware of is why the scope has a &lt;code&gt;selected&lt;/code&gt; property with a value of &lt;code&gt;@&lt;/code&gt;. This means that we want to use the value of the attribute rather than an object it refers to. We use this so that you can pass in the default collapsible to open like so: &lt;code&gt;&amp;lt;accordion selected=&amp;quot;2&amp;quot;&amp;gt;&amp;lt;/accordion&amp;gt;&lt;/code&gt; means that the &lt;code&gt;collapsible&lt;/code&gt; with an index of 2 will be open and all others closed.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary:6d66696e91dedbd4096c7a5698258b38&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;As you can see, creating reusable components with can.Component is fairly straight forward. It&amp;rsquo;s just a matter of rethinking how you design a component, to be more declarative. I&amp;rsquo;m hopeful that designing this way will make it more natural to create smaller, more modular components. Your application itself should be merely a declaration of componenents and bindings of data between them.&lt;/p&gt;
+
+&lt;h2 id=&#34;demo:6d66696e91dedbd4096c7a5698258b38&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;iframe width=&#34;100%&#34; height=&#34;300&#34; src=&#34;http://jsfiddle.net/a6r3c/6/embedded/&#34; allowfullscreen=&#34;allowfullscreen&#34; frameborder=&#34;0&#34;&gt;&lt;/iframe&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Functional JavaScript in action</title>
+      <link>https://matthewphillips.info/posts/functional-javascript-in-action.html</link>
+      <pubDate>Thu, 28 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/functional-javascript-in-action.html</guid>
+      <description>&lt;p&gt;Recently came across a &lt;a href=&#34;http://redactweb.com/javascript-to-convert-between-states-and-abbreviations/&#34;&gt;blog post&lt;/a&gt; about a JavaScript function to convert state names to abbreviations (or vice versa) and realized that it&amp;rsquo;s an excellent topic to present the power that can be had from functional programming in JavaScript.&lt;/p&gt;
+
+&lt;p&gt;The premise of the article is that the author needed a function that when given a state name or abbreviation would return the opposite. The author went about it by first finding a PHP function that does the same, then simply converted the code over to JavaScript. While this method surely works for the purpose needed, it also illustrates how powerful functional programming techniques could be used instead which will produce the same result, but also have some reusable code.&lt;/p&gt;
+
+&lt;p&gt;First, let&amp;rsquo;s rewrite the function to get rid of the looping pattern. To do this in a more functional way we can break down what is happening into a few steps. The function is provided two arguments: &lt;code&gt;name&lt;/code&gt; and &lt;code&gt;to&lt;/code&gt;. Name is the value that we are looking up in our array and to is the key that we want to convert to. Given that, in order to find the value we need to know the name of the key of that value. It&amp;rsquo;s the opposite of &lt;code&gt;to&lt;/code&gt;, right? Using the power of Underscore/Lodash &amp;ndash; I prefer &lt;a href=&#34;http://lodash.com/docs&#34;&gt;Lo-Dash&lt;/a&gt; &amp;ndash; this can be done using the &lt;code&gt;_.without&lt;/code&gt; function. Now, keep in mind that for performance it would probably be better to find the &lt;code&gt;from&lt;/code&gt; value using a ternary expression, but for the sake of the article we want to do it in a functional way. So that makes our first expression:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var from = _.without([&#39;name&#39;, &#39;abbrev&#39;], to)[0];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What this does is simply take the array, find the value that matches &lt;code&gt;to&lt;/code&gt; and remove it, leaving only one string which is our &lt;code&gt;from&lt;/code&gt; key.&lt;/p&gt;
+
+&lt;p&gt;Now that we know what our &lt;code&gt;from&lt;/code&gt; key is, we need to look up the &lt;code&gt;name&lt;/code&gt; in our states array. But before we do that let&amp;rsquo;s see how the original blog post is doing the lookup:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;$.each(states, function(index, value){
+  if (to == &#39;name&#39;) {
+    if (value.abbrev.toLowerCase() == name.toLowerCase()){
+      returnthis = value.name;
+      return false;
+    }
+  } else if (to == &#39;abbrev&#39;) {
+    if (value.name.toLowerCase() == name.toLowerCase()){
+      returnthis = value.abbrev.toUpperCase();
+      return false;
+    }
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Simple enough, they are looping over their &lt;code&gt;states&lt;/code&gt; array and finding the value that matches what they want to convert. If they are converting to &lt;code&gt;name&lt;/code&gt;, then they are comparing against the &lt;code&gt;abbrev&lt;/code&gt;, and they are converting to &lt;code&gt;abbrev&lt;/code&gt; they are comparing to &lt;code&gt;name&lt;/code&gt;. When they find the match they assign it to their &lt;code&gt;returnthis&lt;/code&gt; variable and then returning false, which will existing the loop in &lt;code&gt;$.each&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;We can do better. Since we&amp;rsquo;ve already gotten the &lt;code&gt;from&lt;/code&gt; key, we can skip the repetitive if/else block that does the same thing. And instead of using an &lt;code&gt;each&lt;/code&gt; loop let&amp;rsquo;s use the power of functional programming to &lt;code&gt;_.find&lt;/code&gt; that value.&lt;/p&gt;
+
+&lt;p&gt;First, let&amp;rsquo;s construct a regular expression that we can test against values, to prevent the &lt;code&gt;toLowerCase&lt;/code&gt; conversion they are doing.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var exp = new RegExp(&#39;^&#39; + name + &#39;$&#39;, &#39;i&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This simply creates a regular expression that matches for the &lt;code&gt;name&lt;/code&gt;, ignoring case. Now let&amp;rsquo;s find the object that matches the value in our &lt;code&gt;from&lt;/code&gt; key:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var selected = _.find(states, function(st){
+  return exp.test(st[from]);
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perfect, this will find the object we are looking for (&lt;code&gt;RegExp.prototype.test&lt;/code&gt; returns true on a match) and we only need to return the &lt;code&gt;to&lt;/code&gt; key. Full source:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;function convertState(name, to) {
+  var from = _.without([&#39;name&#39;, &#39;abbrev&#39;], to)[0];
+  var exp = new RegExp(&#39;^&#39; + name + &#39;$&#39;, &#39;i&#39;);
+   
+  var selected = _.find(states, function(st) {
+    return exp.test(st[from]);
+  });
+   
+  return selected[to];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But wait, we&amp;rsquo;ve uncovered a pattern here. This is where functional programming becomes most useful. When you write a bit of code, note that there&amp;rsquo;s a pattern, and abstract out that pattern so that you can reuse the code whenever the pattern is discovered. In our case, what are we really doing? We&amp;rsquo;re operating on an array of objects, each containing 2 keys. We look up the value from one key and return the other. Simple, right?&lt;/p&gt;
+
+&lt;p&gt;So what we can and should do is create a function that does all of this for you automatically. It returns a functional that operates on that set of rules using the array you provide it. First we need to replace this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var from = _.without([&#39;name&#39;, &#39;abbrev&#39;], to)[0];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To get rid of the hard coded string array. Instead we want to pass in our &amp;ldquo;array of objects&amp;rdquo; and have the function find the fields. We can do that like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var fields = _.keys(array[0]);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then we simply need to return a function that takes &lt;code&gt;name&lt;/code&gt; (for value lookup) and &lt;code&gt;to&lt;/code&gt; arguments. With that we&amp;rsquo;ve created a &lt;strong&gt;&lt;em&gt;higher order function&lt;/em&gt;&lt;/strong&gt; that makes it easy any time we have a situation with the same pattern. Full source and examples below.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;function makeSwappable(array) {
+  var fields = _.keys(array[0]);
+  return function(name, to) {
+    var from = _.without(fields, to)[0];
+    var exp = new RegExp(&#39;^&#39; + name + &#39;$&#39;, &#39;i&#39;);
+     
+    var selected = _.find(array, function(item) {
+      return exp.test(item[from]);
+    });
+     
+    return selected[to];
+  };
+}
+ 
+var convertState = makeSwappable(states);
+
+convertState(&#39;Kentucky&#39;, &#39;abbrev&#39;); // -&amp;gt; &#39;KY&#39;
+convertState(&#39;CA&#39;, &#39;name&#39;); // -&amp;gt; &#39;California&#39;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Beware the Creeper</title>
+      <link>https://matthewphillips.info/posts/beware-the-creeper.html</link>
+      <pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/beware-the-creeper.html</guid>
+      <description>&lt;p&gt;&lt;em&gt;By Jason Hall&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Art by Cliff Chiang&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I have an affinity for The Creeper which dates back to Steve Niles&amp;rsquo; brief run. Niles&amp;rsquo; &lt;em&gt;30 Days of Night&lt;/em&gt; series was one of the books that got me into comics. So given that, and the fabulous cover to the graphic novel, the chances of me not liking this book were close to zero. No need to worry though, my bias cannot be blamed for this one, as this has to be the definitive Creeper story ever told. Hall&amp;rsquo;s convinced me that Creeper is a character that belongs in 1925 Paris and that will color all interpretations that I read going forward.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s interesting that this is the case, because about half way through the book it became apparent to me that Jason Hall really just wanted to write about the surrealism and the bohemian movement in France during the early 20th century. I&amp;rsquo;m rather glad that he found the excuse because with the few short acts of &lt;strong&gt;Beware the Creeper&lt;/strong&gt; he was able to craft together a world that really feels lived in. That he managed to throw in a classic DC villain into the mix without making it feel the slightest bit ridiculous is commendable. In fact I wonder if this book was concepted around The Creeper or if The Creeper was only selected after Hall had decided that he wanted to do a book about French surrealism.&lt;/p&gt;
+
+&lt;p&gt;Structurally the book is not breaking any new territory. In the first act we are introduced to the characters, ending in Judith Benoir&amp;rsquo;s rape and (seemingly) transformation into The Creeper. Act two is the escalation and what happens to Paris as a result of The Creeper coming on to the scene. At first they openly embrace him/her as she/he seems to represent the surrealist rejection of the ordinary. By the end of the second act, however, the feeling is that The Creeper has gone too far (having been accused of a couple of murders) and so we see that despite their embellishments the people of Paris have some, frankly, normal values as well. Act three is where we find out that things are not what they seem; I&amp;rsquo;ll not spoil that particular reveal but instead just say that the hints are all over the book and not something you&amp;rsquo;ll have trouble putting together yourself.&lt;/p&gt;
+
+&lt;p&gt;I always question trickery of the sort in a non-detective book. The questions I ask is if the twist is necessary and if it detracts from the themes of the book. Examining this I have to wonder what it is that the twist is supposed to reveal. Something about Paris or about the characters? For it&amp;rsquo;s many strengths, &lt;strong&gt;Beware the Creeper&lt;/strong&gt; is not particularly a character piece. Aside from that of the Creeper&amp;rsquo;s secret identity, the rest are fairly ordinary characters who could have been plucked from any other story written in a similar structure. The characters are not the focal point and that&amp;rsquo;s why I think it works. The Creeper is not a product of events that occurred as much as he/she is a product of surrealism itself. That someone can go inside is nothing novel; that they go insane and turn into&amp;hellip; this, well that can only happen in the setting in which this lives.&lt;/p&gt;
+
+&lt;p&gt;Ultimately that&amp;rsquo;s why this book is so successful. Hall has recreated Paris 1925 in a way that we all feel we are there ourselves. The story is merely an excuse to visit this world for an hour (or so). Here&amp;rsquo;s hoping Hall allows us to revisit this world some day.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Batman: The Long Halloween</title>
+      <link>https://matthewphillips.info/posts/batman-the-long-halloween.html</link>
+      <pubDate>Thu, 29 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/batman-the-long-halloween.html</guid>
+      <description>&lt;p&gt;&lt;em&gt;By Jeph Loeb&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;By the time I flipped to the last page of The Long Halloween I had already decided that it was one of the best detective stories I had ever read. I had concluded that, in fact, it should be read in literature classes. Even after a couple of weeks to sit on it I can&amp;rsquo;t really back down from either of those statements. If any medium needs a signature piece, a piece to illustrate what makes the medium worthwhile, comics do, and Batman The Long Halloween could be that. This sounds hyperbolic, I know, and I do not mean to say that The Long Halloween is the best the medium has to offer; rather I am saying that it follows a familiar genre; one known in practically all fictional mediums, and it does so as well as the best of any other. And because of that it serves an exemplary comic book. That when you have a story as entralling as this, with art that perfectly complements it, you cannot put it down.&lt;/p&gt;
+
+&lt;p&gt;At it&amp;rsquo;s core Batman The Long Halloween is a three act detective story. In the first act there is the setup. Batman, who needs little introduction. The crime families of Gotham; The Falcones and the Maronis. Harvey Dent, district attourney. Catwoman. The commissioner, Jim Gordon. The second act comes quickly, as members of the crime families begin to be picked off. The third act comes unexpectedly at the end of the book, throwing a curveball at the reader.&lt;/p&gt;
+
+&lt;p&gt;The pace of the book is relentless. Each issue (except for a couple) revolves around a holiday and after the first couple the reader realizes that there will be a murder in each. This creates a rather intense sort of anxiety in the reader, who knows a murder is coming within only a handful of pages. If I were to criticize the pacing at all it is that the pacing, which no doubt was done to fit with the theme of each issue representing a separate holiday, makes it more difficult to appreciate Batman as a detective. There aren&amp;rsquo;t enough pages to contain both the movement of the plot forward, the profoundly interesting supporting case, and Batman making progress on the case.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not sure that it matters, however, as this is a whodunnit where you don&amp;rsquo;t care so much about whodunnit. That might be the least interesting part about The Long Halloween. What makes this a defining piece of comic book literature is the world building done by Loeb right from the beginning. From the beginning it feels like you are dropped into Godfather, except with tights and psychotic characters. And at the same time it&amp;rsquo;s as noir as a comic book gets. That Loeb was able to pull those three genres together; noir, gangster, and superhero, together into a seemless, liveable, world is particularly amazing. It&amp;rsquo;s the thing that keeps you glued from the beginning to the end.&lt;/p&gt;
+
+&lt;p&gt;As great as the book is, it&amp;rsquo;s not quite perfect. There are elements that didn&amp;rsquo;t have me on the edge of my seat. For example, although the crime family drama was interesting, I can&amp;rsquo;t point to any of the characters that I found particularly interesting on their own. In fact, I can&amp;rsquo;t really remember much about the characters at all. This doesn&amp;rsquo;t, I don&amp;rsquo;t think, point to any weakness of the characters, but probably rather that I&amp;rsquo;m just not that big of a fan of the crime family genre. For many this won&amp;rsquo;t be an issue, but for me it meant I had to keep notes in order to keep track of what was going on, and who might be Holiday.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve read many who think that Tim Sale&amp;rsquo;s artwork in this book is an example of a book that thrives despite subpar art, but I couldn&amp;rsquo;t disagree more. There is definitely a lack of symmetry in the art, but I don&amp;rsquo;t consider that to be a weakness at all. It is fitting with the gritty narrative. A polished looking character doesn&amp;rsquo;t belong in the world Loeb has created here. There still is an incredible amount of detail in the art. It&amp;rsquo;s just a little crooked, that&amp;rsquo;s all.&lt;/p&gt;
+
+&lt;p&gt;Being one of the only Batman classics I&amp;rsquo;ve read, I don&amp;rsquo;t have the perspective to talk about Harvey Dent&amp;rsquo;s transformation in the light of the history of the character. So I have to approach it as though it is his origin story (although I know that it is not). But from that perspective it&amp;rsquo;s still a fascinating look at a character who breaks down at the weight of events that surround him. Harvey is part of the triumvirate of Batman, Gordon, and himself. He feels the pressure to live up to his peers, and at the same time he is the public face for what is happening in Gotham. He feels a religious need to bring order to a city that has lost it. And it is that pressure that, or so we are led to believe, causes him to snap and become Holiday. The truth, as we find out, is that Harvey isn&amp;rsquo;t Holiday. Or at least, he&amp;rsquo;s not Holiday all on his own. He also had his wife paying a role as well.&lt;/p&gt;
+
+&lt;p&gt;I have trouble coming to terms with his wife as being in on the act. We are not given a reason for her to become a killer. It feels, rather, that Loeb wanted a good twist and this provided one. Dent was a suspect from the early chapters and it would be too easy to have him be the lone perpetrator. Never the less, these are all minor quibbles. The book succeeds due to it&amp;rsquo;s amazing pacing, wide and layered cast, and world building. As a representative of the best of comic books it would make great learning material in schools, and as a comic fan it&amp;rsquo;s something you are missing out on if you haven&amp;rsquo;t read.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>State of Developing on a Chromebook</title>
+      <link>https://matthewphillips.info/posts/state-of-developing-on-a-chromebook.html</link>
+      <pubDate>Thu, 29 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/state-of-developing-on-a-chromebook.html</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve been developing on a Chromebook for quite a while so I feel I have a pretty good grasp on the strengths and weaknesses as they exist today. The tldr; is that, yes, you can develop on Chromebook and depending on what you consider to be &amp;ldquo;developing on a Chromebook&amp;rdquo; the experience can either be on-par with other computers or a tad&amp;hellip; funky.&lt;/p&gt;
+
+&lt;p&gt;To start, I want to clearly define what it means to &amp;ldquo;develop on a Chromebook&amp;rdquo; because it&amp;rsquo;s important to the conversation. There are 4 routes that you can go. I won&amp;rsquo;t spend a lot of time on the first 3 as they are obvious and less interesting to discuss, but the 4th is where the meat of this post belongs. Without further ado the four methods are:&lt;/p&gt;
+
+&lt;h2 id=&#34;crouton-https-github-com-dnschneid-crouton:911d10bbf97485beabbee5a9040c69e4&#34;&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/dnschneid/crouton&#34;&gt;Crouton&lt;/a&gt;&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;This gives you a chroot environment with which you can install Ubuntu and do whatever you want. Some people really like doing this. Which is fine, but at this point you&amp;rsquo;re not really using ChromeOS to develop on, even if you do dual-boot.&lt;/p&gt;
+
+&lt;h2 id=&#34;ssh:911d10bbf97485beabbee5a9040c69e4&#34;&gt;&lt;strong&gt;SSH&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;Using &lt;a href=&#34;https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?hl=en&#34;&gt;Secure Shell&lt;/a&gt;, a Native Client enabled SSH client, you can login into a remote computer and work using usual command-line tools like Tmux and Vim. This is currently the primary way I code on a Chromebook. While it works rather well, it&amp;rsquo;s not always ideal as, for example, it&amp;rsquo;s difficult to develop Chrome packaged apps this way. Getting the &lt;code&gt;crx&lt;/code&gt; file from your server to your Chromebook is tricky.&lt;/p&gt;
+
+&lt;p&gt;The best way to work this way is to use &lt;a href=&#34;http://www.lbreda.com/grive/start&#34;&gt;Grive&lt;/a&gt;, a Google Drive sync client for Linux. Once you&amp;rsquo;ve created the &lt;code&gt;crx&lt;/code&gt; simply copy it to a folder in Drive. From there you can open the file in Chrome&amp;rsquo;s File Manager and it will prompt to be installed. Still, this is a slow process, as the file has to be uploaded to Drive, then downloaded back down from Drive on the Chromebook and installed.&lt;/p&gt;
+
+&lt;p&gt;But for certain types of programmers, particularly system programmers, who are always programming from an ssh session anyways, this works out as well as any other computer. Perhaps even better, Secure Shell is a very slick &amp;ldquo;terminal emulator&amp;rdquo; (for the lack of a better term).&lt;/p&gt;
+
+&lt;h2 id=&#34;web-ide:911d10bbf97485beabbee5a9040c69e4&#34;&gt;Web IDE&lt;/h2&gt;
+
+&lt;p&gt;This is the first &lt;em&gt;real&lt;/em&gt; way to program on a Chromebook. For a lot of people this works nicely. There are a lot of choices out there, two that stand out are &lt;a href=&#34;https://c9.io/&#34;&gt;Cloud9&lt;/a&gt; and &lt;a href=&#34;https://www.nitrous.io&#34;&gt;Nitrous.io&lt;/a&gt;. I have used Cloud9 a bit and it works rather nicely. For people who are used to using desktop IDE&amp;rsquo;s like Eclipse then this might work well for you. My only complaint is that when you use a SaaS client you kind of have to use it for everything. That&amp;rsquo;s just not my style though. I prefer a seperate application for each task, that way I can swap out the pieces I don&amp;rsquo;t like. With a Web IDE if you don&amp;rsquo;t like any one piece your own recourse is to switch to an entirely different IDE.&lt;/p&gt;
+
+&lt;h2 id=&#34;working-locally:911d10bbf97485beabbee5a9040c69e4&#34;&gt;Working locally&lt;/h2&gt;
+
+&lt;p&gt;Which brings me to the last way to work, the most interesting way to work, and the most frustrating way to work on a Chromebook. Despite the complaints that are to follow I want to make it clear that the future looks bright for this category. There are many applications and APIs under development (as I&amp;rsquo;ll discuss) that are going to dramatically improve the experience of developing locally on a Chromebook.&lt;/p&gt;
+
+&lt;p&gt;Since packaged apps are still in their young days there aren&amp;rsquo;t a million options for text editors, but there are already a few. The best of which is probably Google&amp;rsquo;s own &lt;a href=&#34;https://chrome.google.com/webstore/detail/text/mmfbcljfglbokpmkimbfghdkjmjhdgbg?hl=en&#34;&gt;Text&lt;/a&gt; (of which I&amp;rsquo;m an inactive contributor). It&amp;rsquo;s not great, but it&amp;rsquo;s just fine for the earlier stages of things.&lt;/p&gt;
+
+&lt;p&gt;However, you run into trouble when you start thinking about workflow. This is the area that Chrome needs to round out with better APIs. Let&amp;rsquo;s say you are starting a new project on your Chromebook, where do you store it? Well, on many Chromebooks there is little hard drive space so having a lot of development projects on it might be a bad idea (my Chromebook considers it&amp;rsquo;s entire hard drive to be a &amp;ldquo;Downloads&amp;rdquo; folder, indicating that it is intended for temporary storage only). The alternative is to use Google Drive, which is probably the best option for now. You can even mark files as available offline in Drive and not have to worry about losing an internet connection.&lt;/p&gt;
+
+&lt;p&gt;This is still not quite ideal, though. Drive is limited, you have to manage how much stuff you keep there. And perhaps your work uses Dropbox. There is no way to use Dropbox (besides the web app) on a Chromebook. This is why I&amp;rsquo;ve long wanted an API for filesystems, so that WebDAV or Dropbox or whatever can live right beside Google Drive in the File Manager and file picker menus. Luckily there has been some movement on this issue lately with some Googlers &lt;a href=&#34;https://docs.google.com/document/d/1VkaRYDP3RMESygl6Po0ajimXqijejZNF2p9rCszYEew/edit&#34;&gt;discussing the idea&lt;/a&gt;. It&amp;rsquo;s not evidence that it will be coming soon, it&amp;rsquo;s just a positive sign that they are thinking about the same things.&lt;/p&gt;
+
+&lt;p&gt;Even if you are able to develop locally how do you share that code? How do you use source control? This is one area where things look positive. The developer Tim Caswell has been working on &lt;a href=&#34;https://github.com/creationix/js-git&#34;&gt;js-git&lt;/a&gt;, a reimplementation of &lt;code&gt;git&lt;/code&gt; in JavaScript (including the use of Chrome socket APIs) for the past few months. Although still in early stages I can see this project becoming very usable in the near term.&lt;/p&gt;
+
+&lt;p&gt;Suddenly the workflow starts to look a bit nicer. Imagine have a Git web-app (powered by &lt;code&gt;js-git&lt;/code&gt;) that manages a git repo, then doing developing with Text or another editor, then going back to the git app to commit and push. What would be even better is if a git repo could become a &amp;ldquo;filesystem&amp;rdquo; that sits in the filepicker. That way it could be always connected (perhaps a save operation prompted a commit) and therefore always up to date in the cloud.&lt;/p&gt;
+
+&lt;p&gt;This just leaves out one area of a developer&amp;rsquo;s workflow; testing. If you&amp;rsquo;re developing for the browser you&amp;rsquo;re in luck ;) There&amp;rsquo;s a nice one sitting in front of your face. For everyone else&amp;hellip; perhaps a Chromebook isn&amp;rsquo;t what you need. Still, it might be possible in the future to compile a small linux environment like busy box down to a JavaScript blob and even install things like Python on it. I&amp;rsquo;m getting a bit a head of myself, and those things would (likely) never be very fast, but it&amp;rsquo;s something we can see happening. Certainly languages that compile to JavaScript are already flourishing, and most have the ability to compile within a browser, so as long as you are using browser APIs you&amp;rsquo;re set.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

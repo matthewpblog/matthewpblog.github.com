@@ -1,4 +1,4 @@
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "https://matthewphillips.info/"
 languageCode = "en-us"
 title = "Matthew Phillips"
 theme = "hyde"

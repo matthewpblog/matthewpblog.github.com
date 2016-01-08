@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Javascript Canjs Can.Compute on Matthew Phillips</title>
+    <link>https://matthewphillips.info/categories/javascript-canjs-can.compute</link>
+    <description>Recent content in Javascript Canjs Can.Compute on Matthew Phillips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 11 May 2014 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://matthewphillips.info/categories/javascript-canjs-can.compute.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Responsive Computes</title>
+      <link>https://matthewphillips.info/posts/responsive-computes.html</link>
+      <pubDate>Sun, 11 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/responsive-computes.html</guid>
+      <description>
+
+&lt;p&gt;Recently I was working on a template and ran into issues trying to make it responsive purely using CSS media queries. The problem is that the mark-up of the mobile view and that of the desktop were just too different. In fact, the &lt;em&gt;functionality&lt;/em&gt; of the two views were a bit different as well.&lt;/p&gt;
+
+&lt;p&gt;At this point you might give up and just write up two separate templates and use media queries to hide one of them. Bootstrap even &lt;a href=&#34;http://getbootstrap.com/css/#responsive-utilities-classes&#34;&gt;has classes&lt;/a&gt; for just such a case.&lt;/p&gt;
+
+&lt;p&gt;Luckily, however, there is the &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/API/Window.matchMedia&#34;&gt;matchMedia&lt;/a&gt; API that brings the power of media queries to JavaScript. There&amp;rsquo;s fairly broad &lt;a href=&#34;http://caniuse.com/#feat=matchmedia&#34;&gt;browse support&lt;/a&gt; and even &lt;a href=&#34;https://github.com/weblinc/media-match/blob/master/media.match.js&#34;&gt;a polyfill&lt;/a&gt; if you want support in older IE browsers. matchMedia allows you to use the same type of media queries in JavaScript that you can use in CSS, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var mql = matchMedia(&#39;only screen and (max-width: 768px)&#39;);
+mql.matches === true; // true if the screen is &amp;lt;= 768px
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Additionally matchMedia queries include an &lt;code&gt;addListener&lt;/code&gt; function that takes a callback that will be called when the media query&amp;rsquo;s status changes; meaning you can resize the browser and the media query will respond when the screen becomes less than 768px (for example).&lt;/p&gt;
+
+&lt;h2 id=&#34;live-bound-responsive-templates:cbd5bbeacf0ac7aaf34e852d78b9967e&#34;&gt;Live-bound responsive templates&lt;/h2&gt;
+
+&lt;p&gt;If you use CanJS you&amp;rsquo;re familiar with can.computes, but you might not be familiar with the &lt;a href=&#34;http://canjs.com/docs/can.compute.html#sig_can_compute_initialValue__settings__&#34;&gt;2nd signature&lt;/a&gt; which allows you to create a compute from any type of event emitting object. This means we can easily turn our matchMedia query into a compute that can be used in templates:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var mql = matchMedia(&#39;only screen and (max-width: 768px)&#39;);
+
+var mobile = can.compute(mql.matches, {
+  get: function(){
+    return mql.matches;
+  },
+  set: function(){
+    // Do nothing for this one
+  },
+  on: function(updated){
+    mql.addListener(updated);
+  },
+  off: function(updated){
+    mql.removeListener(updated);
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The compute&amp;rsquo;s &lt;code&gt;settings&lt;/code&gt; object describes how to bind the compute to the media query and respond to changes. Now your templates can be responsive in a much more powerful way than what CSS allows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-handlebars&#34;&gt;{{#if mobile}}
+  &amp;lt;div&amp;gt;Hi there phone! Mobile navigation goes here.&amp;lt;/div&amp;gt;
+{{else}}
+  &amp;lt;div&amp;gt;Totally different desktop experience!&amp;lt;/div&amp;gt;
+{{/if}}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The broader lesson here is that &lt;a href=&#34;http://canjs.com/docs/can.compute.html&#34;&gt;can.computes&lt;/a&gt; are crazy powerful. If you&amp;rsquo;re only using them to respond to changes in your business logic you&amp;rsquo;re not unlocking their full potential. The browser provides many APIs, like matchMedia, that can be bound to. Check out the &lt;a href=&#34;http://bitovi.com/blog/2013/04/weekly-widget-compute-slider.html&#34;&gt;video slider&lt;/a&gt; and be inspired.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

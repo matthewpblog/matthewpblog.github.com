@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogging on Matthew Phillips</title>
+    <link>https://matthewphillips.info/categories/blogging.html</link>
+    <description>Recent content in Blogging on Matthew Phillips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 03 Sep 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://matthewphillips.info/categories/blogging.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Building a gist-based blogging tool</title>
+      <link>https://matthewphillips.info/posts/gist-based-blogging.html</link>
+      <pubDate>Thu, 03 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/gist-based-blogging.html</guid>
+      <description>
+
+&lt;h2 id=&#34;motivation:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;Motivation&lt;/h2&gt;
+
+&lt;p&gt;For the past several years I have been using &lt;a href=&#34;http://www.cabinjs.com/&#34;&gt;Cabin&lt;/a&gt; for my personal blog. Cabin works like most other static site generators in the vein of &lt;a href=&#34;http://jekyllrb.com/&#34;&gt;Jekyll&lt;/a&gt;; you write your posts in markdown in a posts folder, your templates in a template folder, run a script and it generates the HTML for your blog. Simple enough.&lt;/p&gt;
+
+&lt;p&gt;The problem I&amp;rsquo;ve always had with this setup is that it has just enough friction that I wind up not blogging as often as I would like. During your &amp;ldquo;draft&amp;rdquo; stage you still have most of the same steps as when you finally deploy. You have to clone your site, create a branch to write a new post in, write, commit and push. When I have inspiration to write I want to just write, not manage a project.&lt;/p&gt;
+
+&lt;p&gt;So what I usually do is write my posts in Gist or Google Docs and then move them to my site project when I&amp;rsquo;m done. I started thinking, what if I could remove the blog engine entirely?&lt;/p&gt;
+
+&lt;p&gt;My first thought was to set up a server that just served Gists directly. To this end I set up an &lt;a href=&#34;http://expressjs.com/&#34;&gt;Express&lt;/a&gt; server that did exactly that.  I had a Gist that I &lt;a href=&#34;https://gist.github.com/matthewp/695b163d39f68ec73678&#34;&gt;used as my index&lt;/a&gt; of all Gists I wanted to be served. The front page was just a list of links to each article with the url containing the Gist id.&lt;/p&gt;
+
+&lt;p&gt;To make this work with my existing posts I needed to convert them to gists. This was more work than I expected. Cabin uses a non-standard front-matter format. Most blog engines use YAML but Cabin uses a JavaScript-like syntax.  I would have expected it to be JSON but it&amp;rsquo;s not, the keys are not strings. To figure out how they did this I had to dig through their source and found it &lt;a href=&#34;https://github.com/CabinJS/grunt-pages/blob/4cd264fce21fb8d90198edadeccb3961b37537bc/tasks/pages.js#L269&#34;&gt;buried in a Grunt task&lt;/a&gt;. It was easy enough to extract this code and reuse it for my needs. Each gist contains the markdown content (minus the front-matter) and a &lt;code&gt;metadata.json&lt;/code&gt; file containing the front-matter (now json).&lt;/p&gt;
+
+&lt;p&gt;This all worked well enough but I felt uneasy about pulling directly from Gist to serve the blog posts. It just felt wasteful, even if I included caching that prevented it from fetching the gists on each requests. Additional it broke my old links. I played around with the idea of having a &amp;ldquo;slug&amp;rdquo; that would serve as the id for a post, but this meant I would need to pull that index gist to find out which gist id the slug referred to. Again, not terrible, just more code than I wanted.&lt;/p&gt;
+
+&lt;h2 id=&#34;one-thing-well:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;One thing well&lt;/h2&gt;
+
+&lt;p&gt;I&amp;rsquo;ve always been a fan of the Unix philosophy of doing one thing well, so I started to think why not construct the posts using basic cli tools already available. You can easily pull down a gist using the GitHub API and then use a series of other tools to generate the html. The full bash script can be seen below, but here&amp;rsquo;s the pseudo-code of what happens:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;curl https://api.github.com/gists/$GIST_ID | \
+jq &#39;.files[.files | keys[0]].content&#39; | \
+marked | hb -i post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s pretty simple, let me explain what easy step does:&lt;/p&gt;
+
+&lt;h3 id=&#34;curl-api-github-com:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;curl api.github.com&lt;/h3&gt;
+
+&lt;p&gt;Luckily pulling down gists is really easy with the GitHub API. Unless you are doing it a lot, and likely programmatically, you don&amp;rsquo;t even need to set up an auth token, but you can do this if you want. It returns a JSON containing a lot of data, but we really just want the post content.&lt;/p&gt;
+
+&lt;h3 id=&#34;jq:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;jq&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stedolan.github.io/jq/&#34;&gt;jq&lt;/a&gt; is an amazing command-line JSON parser. In its simplest form jq can be used as a prettifier, but you can do advanced stuff to extract just the parts that you need.&lt;/p&gt;
+
+&lt;p&gt;Its power is shown here because the gist JSON structure makes it slightly difficult to extract the post content. This is because instead of having an array of &lt;code&gt;files&lt;/code&gt; it has an object where the file name is the key. This is fine for when you know the name of a file, but in my case I just wanted to assume that the first file in a gist is the markdown.&lt;/p&gt;
+
+&lt;p&gt;Lucky jq can easily handle this. Consider the structure is like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+  &amp;quot;files&amp;quot;: {
+    &amp;quot;foo.md&amp;quot;: {
+      &amp;quot;something&amp;quot;: &amp;quot;else&amp;quot;,
+      &amp;quot;content&amp;quot;: &amp;quot;# Title\nsome test\n* a list&amp;quot;
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With jq you can run &lt;code&gt;jq &#39;.files[.files | keys[0]].content&#39;&lt;/code&gt;. This gets &lt;code&gt;.files&lt;/code&gt; and then uses the &lt;code&gt;keys&lt;/code&gt; function to get all of the keys of the files object and uses the key indexed 0 to get the &amp;ldquo;foo.md&amp;rdquo; object and finally we want &lt;code&gt;.content&lt;/code&gt; which is the markdown.&lt;/p&gt;
+
+&lt;h3 id=&#34;marked:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;marked&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/chjj/marked&#34;&gt;marked&lt;/a&gt; is the premier markdown compiler (to html) for JavaScript. Luckily it include a command-line tool that takes markdown from stdin and spits out html to stdout. Perfect.&lt;/p&gt;
+
+&lt;p&gt;One downside is that it doesn&amp;rsquo;t include a way to highlight code. If using the Node.js API you can set options which includes using a highlighter of your choice. I usually use &lt;a href=&#34;https://highlightjs.org/&#34;&gt;hightlight.js&lt;/a&gt;. With that the code would be something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var marked = require(&amp;quot;marked&amp;quot;);
+
+marked.setOptions({
+  highlight: function(){
+    return require(&amp;quot;highlight.js&amp;quot;).highlightAuto(code).value;
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is an &lt;a href=&#34;https://github.com/chjj/marked/issues/110&#34;&gt;open issue&lt;/a&gt; about how this could be used with the cli. My suggestion was to provide a module that exports options. This way you could write the above code as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var marked = require(&amp;quot;marked&amp;quot;);
+
+module.exports = {
+  highlight: function(){
+    return require(&amp;quot;highlight.js&amp;quot;).highlightAuto(code).value;
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And feed that option into the &lt;code&gt;marked&lt;/code&gt; cli.  It becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cat my-post.md | marked --options /path/to/options.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They &lt;a href=&#34;https://github.com/chjj/marked/pull/613&#34;&gt;haven&amp;rsquo;t yet accepted&lt;/a&gt; this change but I do have it working in my own fork.&lt;/p&gt;
+
+&lt;h3 id=&#34;hb:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;hb&lt;/h3&gt;
+
+&lt;p&gt;Having gone from gist into json into markdown into html, the final step is to run the produced html through a template engine so that the article is contained within a full page. Since I&amp;rsquo;m already very familiar with the Mustache syntax in my day job I decided to use &lt;a href=&#34;http://handlebarsjs.com/&#34;&gt;handlebars&lt;/a&gt; for templates. A simple post template can be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-handlebars&#34;&gt;&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;title&amp;gt;{{title}} | My Blog&amp;lt;/title&amp;gt;
+  &amp;lt;link href=&amp;quot;some.css&amp;quot; rel=&amp;quot;stylesheet&amp;quot;&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;article&amp;gt;
+    {{{content}}}
+  &amp;lt;/article&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We just need to feed the generated html through this template to generate a post. I couldn&amp;rsquo;t find a project that did exactly what I need; take json and a template and produce html, so I forked a close-enough project and adjusted it, creating &lt;a href=&#34;https://www.npmjs.com/package/handlebars-render&#34;&gt;handlebars-render&lt;/a&gt; which does this.  You can use it like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;echo &#39;{&amp;quot;foo&amp;quot;: &amp;quot;bar&amp;quot;}&#39; | hb -i page.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output of &lt;strong&gt;marked&lt;/strong&gt; is fed into this script. I use a &lt;code&gt;metadata.json&lt;/code&gt; file in my gist that provices the post date, title, and tags (which I don&amp;rsquo;t currently support, but could in the future).  Usage winds up like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;DATA=&amp;quot;{\&amp;quot;id\&amp;quot;: $ID, \&amp;quot;title\&amp;quot;: $TITLE, \&amp;quot;content\&amp;quot;: $HTML, \&amp;quot;metadata\&amp;quot;: $METADATA, \&amp;quot;date\&amp;quot;: $DATE}&amp;quot;
+echo $DATA | hb -i templates/post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&amp;rsquo;s probably a better way to create a json string (perhaps with jq) but this works well enough for my needs.&lt;/p&gt;
+
+&lt;h2 id=&#34;putting-it-all-together:8e640688c7cd28ded2c6b3d7a1f5d66d&#34;&gt;Putting it all together&lt;/h2&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it! With those core scripts I can easily put everything together that generates html. My script is simple:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;#!/bin/bash
+GIST_ID=$1
+
+IFS=&#39;%&#39;
+
+GIST_JSON=`curl -H &amp;quot;Authorization: token $GITHUB_TOKEN&amp;quot; -s https://api.github.com/gists/$GIST_ID`
+
+CONTENT=`echo $GIST_JSON | jq &#39;.files[.files | keys[0]].content&#39;`
+METADATA=`echo $GIST_JSON | jq -r &#39;.files[&amp;quot;metadata.json&amp;quot;].content&#39;`
+HTML=`echo $CONTENT | jq -r &#39;.&#39; | marked --options marked_options.js | jq -s -R &#39;.&#39;`
+
+# Get the title either from metadata.title or .description
+TITLE=`[[ &amp;quot;$METADATA&amp;quot; == &amp;quot;null&amp;quot; ]] &amp;amp;&amp;amp; echo $GIST_JSON | jq &#39;.description&#39; || echo $METADATA | jq &#39;.title&#39;`
+ID=`echo $GIST_JSON | jq &amp;quot;.id&amp;quot;`
+DATE=\&amp;quot;`[[ &amp;quot;$METADATA&amp;quot; == &amp;quot;null&amp;quot; ]] &amp;amp;&amp;amp; echo &amp;quot;foo&amp;quot; || echo $METADATA | jq -r &#39;.date&#39; | xargs -I{} gdate -d {} +%Y-%m-%d`\&amp;quot;
+
+DATA=&amp;quot;{\&amp;quot;id\&amp;quot;: $ID, \&amp;quot;title\&amp;quot;: $TITLE, \&amp;quot;content\&amp;quot;: $HTML, \&amp;quot;metadata\&amp;quot;: $METADATA, \&amp;quot;date\&amp;quot;: $DATE}&amp;quot;
+
+echo $DATA | hb -i templates/post.handlebars
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&amp;rsquo;s some backwards compatible stuff happening in the script or it would be even shorter; but even as it stands I&amp;rsquo;ll take a fairly easy to read 20 LOC script as the basis for my blog any day. All that is needed is a environment variable &lt;code&gt;GITHUB_TOKEN&lt;/code&gt; and a gist id provided as the first parameter and the script will spit out html.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve got other scripts that do things like generate the index.html page and a script that will generate all posts (I keep a &lt;code&gt;posts&lt;/code&gt; file that just lists the gist id and slug for these purposes).&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m relatively happy that I&amp;rsquo;ve been able to create an extremely light weight &amp;ldquo;static site generate&amp;rdquo; that&amp;rsquo;s just scripted small utilities.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

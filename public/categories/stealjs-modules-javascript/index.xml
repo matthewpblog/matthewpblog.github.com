@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Stealjs Modules Javascript on Matthew Phillips</title>
+    <link>https://matthewphillips.info/categories/stealjs-modules-javascript.html</link>
+    <description>Recent content in Stealjs Modules Javascript on Matthew Phillips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 08 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://matthewphillips.info/categories/stealjs-modules-javascript.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How hot module swapping works</title>
+      <link>https://matthewphillips.info/posts/how-hot-swapping-works.html</link>
+      <pubDate>Thu, 08 Oct 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/how-hot-swapping-works.html</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;http://stealjs.com/&#34;&gt;Steal&lt;/a&gt; added hot module swapping (aka live reload, aka hot module replacement) about 6 months ago, but how it works isn&amp;rsquo;t obvious, so I thought I&amp;rsquo;d write about it. You can read more about the feature and how to use it &lt;a href=&#34;http://blog.bitovi.com/hot-module-replacement-comes-to-stealjs/&#34;&gt;here&lt;/a&gt;.  This article is more technical and explains what happens under the hood. Don&amp;rsquo;t worry, there&amp;rsquo;s nothing overly complex here and it&amp;rsquo;s rather easy to understand once you understand dependency graphs.&lt;/p&gt;
+
+&lt;h2 id=&#34;dependency-graph:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Dependency graph&lt;/h2&gt;
+
+&lt;p&gt;When you load your app using Steal (or any other module loader) it saves the modules in a registry.  A registry is just an object where the keys are the module names (like &lt;strong&gt;lodash&lt;/strong&gt;) and the values are the module values (like a function or an object; whatever it is you export from the module).&lt;/p&gt;
+
+&lt;p&gt;With Steal we retain another data structure that lists modules (by their module name) and metadata about them, specifically what their dependencies are. We call this the &lt;strong&gt;dependency graph&lt;/strong&gt;.  It looks something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/custom/element&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;lodash&amp;quot;]
+  },
+  &amp;quot;my/main/app&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;my/custom/element&amp;quot;]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s pretty simple.  Each key is a module name and the value is an object that contains metadata; most importantly is an array of the module&amp;rsquo;s dependencies.&lt;/p&gt;
+
+&lt;h2 id=&#34;file-watcher:25c0b94280c805f269bc8221d9711bc9&#34;&gt;File watcher&lt;/h2&gt;
+
+&lt;p&gt;To know when a module changes we need a server that watches for file changes. This is what happens when you run &lt;code&gt;steal-tools live-reload&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The live-reload server gets the dependency graph of your project and listens for file changes to each module. The dependency graph shown above also has a property called &lt;strong&gt;address&lt;/strong&gt; that is the path to the module&amp;rsquo;s file. We add a file watcher to every file in the graph so that we know when work has been saved.&lt;/p&gt;
+
+&lt;p&gt;When you open a page in your app with the live-reload server running it establishes a connection to that server with a &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API&#34;&gt;WebSocket&lt;/a&gt;. By default it uses port 8012.&lt;/p&gt;
+
+&lt;p&gt;The file watcher will see changes to the files in the dependency graph and send a message through the WebSocket back to the browser with the name of the module that changed.&lt;/p&gt;
+
+&lt;h2 id=&#34;tearing-down-the-graph:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Tearing down the graph&lt;/h2&gt;
+
+&lt;p&gt;Back on the browser side, it receives the WebSocket message with the name of the module that changed. Since the module changed we need to re-import it. But we also need to re-import it&amp;rsquo;s parent modules (the modules that import it) and the parent&amp;rsquo;s then need to import their parents, etc. all the way up the graph.&lt;/p&gt;
+
+&lt;p&gt;This might sound wrong to you; why do you need to re-import the parent modules?  Consider this example:&lt;/p&gt;
+
+&lt;h3 id=&#34;module-a:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module A&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;module.exports = function(){
+  return &amp;quot;foo&amp;quot;;
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;module-b:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module B&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;var moduleA = require(&amp;quot;module-a&amp;quot;);
+
+moduleA(); // -&amp;gt; &amp;quot;foo&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then consider that module A changes to this:&lt;/p&gt;
+
+&lt;h3 id=&#34;module-a-1:25c0b94280c805f269bc8221d9711bc9&#34;&gt;Module A&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;module.exports = function(){
+  return &amp;quot;bar&amp;quot;;
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we don&amp;rsquo;t re-import Module B then it will continue to have a reference to the old Module A function that returns &amp;ldquo;foo&amp;rdquo;. In JavaScript once you have a reference to an object or a function that reference can never be changed by external code.&lt;/p&gt;
+
+&lt;p&gt;So to solve this we simply walk up the dependency graph and get a list of modules that need to be reloaded. Consider the original example graph:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/util&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;my/custom/element&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;lodash&amp;quot;, &amp;quot;my/util&amp;quot;]
+  },
+  &amp;quot;my/main/app&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: [&amp;quot;jquery&amp;quot;, &amp;quot;my/custom/element&amp;quot;]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say my/util changes. Its only has one parent (the modules that depend on it), my/custom/element. However my/main/app depends on my/custom/element so we have to reload that as well. We tear down the graph by removing these modules from the registry. Afterwards the graph looks like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{
+  &amp;quot;lodash&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  },
+  &amp;quot;jquery&amp;quot;: {
+    &amp;quot;dependencies&amp;quot;: []
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just lodash and jquery remain. We reimport the top-level parent module after walking all the way up the graph, in our case it is my/main/app. By reimporting the top-level parent it will reimport the modules that have been deleted from the registry, here it is my/custom/element and my/util. However any other dependencies, such as jquery and lodash, are not reimported because they are already in the registry.&lt;/p&gt;
+
+&lt;p&gt;Steal contains several optimizations that makes the reloading blazing fast. For most changes you&amp;rsquo;ll see your changes reflected in under 100ms.&lt;/p&gt;
+
+&lt;p&gt;The basic operation of what Steal does to reload modules is quite simple. The hard work comes from plugins and code that use the live-reload APIs. In the future I&amp;rsquo;d like to write a bit more on what these plugins do and how &lt;em&gt;they&lt;/em&gt; work as well.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

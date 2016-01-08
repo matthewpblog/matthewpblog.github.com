@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://matthewphillips.info/</loc>
+    <lastmod>2015-10-08T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/how-hot-swapping-works.html</loc>
+    <lastmod>2015-10-08T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/gist-based-blogging.html</loc>
+    <lastmod>2015-09-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/using-npm-with-systemjs.html</loc>
+    <lastmod>2015-04-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/organizing-your-library-project-with-stealjs.html</loc>
+    <lastmod>2015-03-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/im-sold-on-html-based-templating.html</loc>
+    <lastmod>2015-01-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/if-books-had-been-invented-for-the-web.html</loc>
+    <lastmod>2015-01-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/responsive-computes.html</loc>
+    <lastmod>2014-05-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/fun-with-shadow-dom.html</loc>
+    <lastmod>2014-04-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/test-your-application-entry-point.html</loc>
+    <lastmod>2014-03-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/markdown-enable-your-blog-comments-with-web-components.html</loc>
+    <lastmod>2014-03-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/building-an-accordion-with-can-component.html</loc>
+    <lastmod>2013-12-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/functional-javascript-in-action.html</loc>
+    <lastmod>2013-11-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/beware-the-creeper.html</loc>
+    <lastmod>2013-09-17T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/batman-the-long-halloween.html</loc>
+    <lastmod>2013-08-29T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/state-of-developing-on-a-chromebook.html</loc>
+    <lastmod>2013-08-29T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/using-cloud-drives-on-chromebooks.html</loc>
+    <lastmod>2013-08-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://matthewphillips.info/posts/catwoman-volume-2-no-easy-way-down.html</loc>
+    <lastmod>2013-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+</urlset>

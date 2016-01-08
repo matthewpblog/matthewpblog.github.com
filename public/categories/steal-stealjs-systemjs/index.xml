@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Steal Stealjs Systemjs on Matthew Phillips</title>
+    <link>https://matthewphillips.info/categories/steal-stealjs-systemjs.html</link>
+    <description>Recent content in Steal Stealjs Systemjs on Matthew Phillips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 23 Apr 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://matthewphillips.info/categories/steal-stealjs-systemjs.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using NPM with SystemJS</title>
+      <link>https://matthewphillips.info/posts/using-npm-with-systemjs.html</link>
+      <pubDate>Thu, 23 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/using-npm-with-systemjs.html</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/stealjs/system-npm&#34;&gt;system-npm&lt;/a&gt; is an amazing plugin for SystemJS that enables you to load your NPM dependencies with zero configuration.  Just load system-npm and then load your project; require your NPM dependencies just as if you were in Node.&lt;/p&gt;
+
+&lt;p&gt;To use system-npm with SystemJS you&amp;rsquo;ll first want to install SystemJS into your project.  In this post we&amp;rsquo;re assuming you&amp;rsquo;ve included &lt;code&gt;system.js&lt;/code&gt; and &lt;code&gt;es6-module-loader.js&lt;/code&gt; in a &lt;code&gt;vendor/&lt;/code&gt; folder, but you can place it where-ever you want. Then simply add a script tag to your page to load SystemJS:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&amp;quot;vendor/system.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;installing:af17117141c48fe88e78f51384579396&#34;&gt;Installing&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;system-npm&lt;/strong&gt; is installed through NPM (of course!):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install system-npm --save-dev
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;configuring:af17117141c48fe88e78f51384579396&#34;&gt;Configuring&lt;/h2&gt;
+
+&lt;p&gt;Next you&amp;rsquo;ll want to configure SystemJS to know where to load the plugin. Create a &lt;code&gt;config.js&lt;/code&gt; file and add the appropriate config:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;System.config({
+	map: {
+		&amp;quot;npm&amp;quot;: &amp;quot;system-npm&amp;quot;,
+		&amp;quot;npm-extension&amp;quot;: &amp;quot;system-npm/npm-extension&amp;quot;
+	},
+	paths: {
+		&amp;quot;system-npm/*&amp;quot;: &amp;quot;node_modules/system-npm/*.js&amp;quot;
+	}
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells SystemJS how to load system-npm. Add the configuration script to your page after SystemJS:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&amp;quot;config.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;load-your-app:af17117141c48fe88e78f51384579396&#34;&gt;Load your app&lt;/h2&gt;
+
+&lt;p&gt;Now that it is configured you can load your &lt;code&gt;package.json&lt;/code&gt; using the plugin and then start up your applicaiton:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script&amp;gt;
+	System.import(&amp;quot;package.json!npm&amp;quot;).then(function(){
+		System.import(&amp;quot;app/app&amp;quot;);
+	});
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;develop:af17117141c48fe88e78f51384579396&#34;&gt;Develop&lt;/h2&gt;
+
+&lt;p&gt;From here you can develop as you wish, sharing the same dependencies between Node and the Browser. &lt;strong&gt;system-npm&lt;/strong&gt; will load your package.json and use the metadata. If you want to limit it to only loading your client-side deps, you can specify this in your configuration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;System.config({
+  npmDependencies: [
+    &amp;quot;jquery&amp;quot;,
+    &amp;quot;backbone&amp;quot;
+  ]
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Doing this, system-npm will only load &lt;em&gt;jquery&lt;/em&gt; and &lt;em&gt;backbone&lt;/em&gt; as dependencies.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s that simple. system-npm is a great way to instantly make your SystemJS projects nearly configuration-free.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

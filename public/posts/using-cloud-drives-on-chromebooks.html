@@ -1,0 +1,109 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Using Cloud Drives on Chromebooks &middot; Matthew Phillips </title>
+
+  
+  <link rel="stylesheet" href="https://matthewphillips.info/css/poole.css">
+  <link rel="stylesheet" href="https://matthewphillips.info/css/syntax.css">
+  <link rel="stylesheet" href="https://matthewphillips.info/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Matthew Phillips" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://matthewphillips.info/"><h1>Matthew Phillips</h1></a>
+      <p class="lead">
+       Home on the World Wide Web 
+      </p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><a href="/">Home</a> </li>
+      
+    </ul>
+
+    <p>&copy; 2016. All rights reserved. </p>
+  </div>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>Using Cloud Drives on Chromebooks</h1>
+			  <span class="post-date">Mon, Aug 26, 2013</span>
+			      
+
+<p>tldr; you can&rsquo;t. However what you can do is use an old computer to sync between Google Drive and your other cloud drives, providing (close to) the same effect. I set up a Raspberry Pi, which was previously setting in my basement looking pretty and acting as a Cloud Print server but nothing else, as a WebDAV server which has worked out rather nicely. The one downside is that Chromebooks only support Google Drive as a cloud drive service.</p>
+
+<p>It&rsquo;s rather nice how well Drive is integrated into ChromeOS. And eventually, hopefully, they&rsquo;ll open up an API that allows other cloud services to have similar integration. That would really change the way you think about ChromeOS, pulling it a few steps closer to &ldquo;real computer&rdquo; territory.</p>
+
+<p>Alas that&rsquo;s not the case today, but what you can do is take an old computer, or raspberry pi, and have it act as a synchronization server between your services. This will work with Dropbox, SkyDrive, Ubuntu One, or any provider that supports WebDAV.</p>
+
+<h1 id="syncing-google-drive-to-your-server:55c0cb67e60b298358e0a5730bf39d71">Syncing Google Drive to your server</h1>
+
+<p>I won&rsquo;t get into how to set up your other cloud services to sync, most either have first or third party clients that are easy enough to set up. As is the case with Google Drive. First there is the proprietary app <a href="https://www.insynchq.com/">Insync</a> that works pretty well and has added features such as multiple account support. If your needs are simpler then <a href="http://www.lbreda.com/grive/start">Grive</a> should do the trick, and it is what I use.</p>
+
+<p>On a Raspberry Pi setting everything up was somewhat complicated as it requires several dev packages (strangely including QT4). <a href="http://www.stuffaboutcode.com/2013/03/raspberry-pi-google-drive-grive.html">This guide</a> does a good job of walking you through the process, although I had to apply the fix shown in <a href="https://github.com/Grive/grive/issues/168">this issue</a> to get it to finally compile.</p>
+
+<p>Once install <code>grive</code> is still a little strange to use. It requires that its binary be stored in the root of Google Drive, and it must be run from within that directory. So just remember that when you want to sync Drive to do <code>cd ~/googledrive &amp;&amp; ./grive</code> or just create a script that does that for you.</p>
+
+<p>Since <code>grive</code> only syncs when you run it you&rsquo;ll want to set up a cron job to do it periodically. Type <code>crontab -e</code> and do something like this:</p>
+
+<pre><code>*/5 * * * * ~/update-grive.sh &gt;&gt; ~/log/grive.log
+</code></pre>
+
+<p>This tells cron to run the script every 5 minutes. Doing it a little more often probably isn&rsquo;t a problem, I&rsquo;m just being conservative for now.</p>
+
+<h1 id="syncing-with-other-cloud-provider:55c0cb67e60b298358e0a5730bf39d71">Syncing with other cloud provider</h1>
+
+<p>First a word of warning; anything you choose to sync with Drive will exist in Drive; meaning it will count against your storage. For this reason I only sync text files. But it&rsquo;s your storage, do with it what you want.</p>
+
+<p>Once you&rsquo;ve set up sync with your other cloud provider you should have a folder on your server with it&rsquo;s contents. It would be nice if a simple symlink did the trick, but alas grive won&rsquo;t sync down changes from Drive that propogate to the symlink&rsquo;s destination.</p>
+
+<p>Instead I&rsquo;d recommend the handly utility <a href="http://www.cis.upenn.edu/~bcpierce/unison/">Unison</a> for two-way sync. So any changes you make to one drive will be merged over into the other. I&rsquo;m not sure how it handles conflicts, but more than likely you won&rsquo;t be editing the same file in two different services at the same time anyways.</p>
+
+<p>Once you&rsquo;ve installed Unison you&rsquo;ll want to go through the process of running it through the ui the first time:</p>
+
+<pre><code>unison ~/webdav/reviews ~/googledrive/webdav_stuff
+</code></pre>
+
+<p>Remember that there is no source and destination here so it doesn&rsquo;t matter which you list first. After the first synchronization you&rsquo;ll want to run unison silently so that it doesn&rsquo;t prompt you for instructions. You can achieve this with the <code>-batch</code> flag:</p>
+
+<pre><code>unison -batch ~/webdav/reviews ~/googledrive/webdav_stuff
+</code></pre>
+
+<p>Add this to cron the same way you did previously with grive:</p>
+
+<pre><code>*/5 * * * * ~/sync-folders.sh &gt;&gt; ~/log/unison.log
+</code></pre>
+
+<p>And that&rsquo;s it! From now on you can work on your files no matter what computer you&rsquo;re on. When I&rsquo;m on a traditional PC I edit files on my WebDAV drive, and when on a Chromebook I use Google Drive (which is how I&rsquo;m writing this article now).</p>
+
+<h2 id="conclusion:55c0cb67e60b298358e0a5730bf39d71">Conclusion</h2>
+
+<p>The recent updates to Chromebooks and the new packaged apps 2.0 is opening a lot of the possibilities to the platform. Additionally it is showing some of the warts, such as the inability to work on files from <em>other</em> sources. Although I think these holes will eventually be filled, in the mean time we need to do workarounds such as this in order to work the way we want to work. I plan on writing about more of these tricks as I use the platform.</p>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>
