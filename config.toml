@@ -1,0 +1,8 @@
+baseurl = "http://replace-this-with-your-hugo-site.com/"
+languageCode = "en-us"
+title = "Matthew Phillips"
+theme = "hyde"
+uglyURLs = true
+
+[params]
+  description = "Home on the World Wide Web"

@@ -1,0 +1,42 @@
++++
+categories = "comics DC"
+cover = "no-easy-way-down.jpg"
+date = "2013-08-04T00:00:00.000Z"
+title = "Catwoman Volume 2: No Easy Way Down"
+
++++
+
+
+_By Ed Brubaker_
+
+I originally picked up this trade on a whim, seeing it on the shelf at my LCS. I have long liked the Catwoman character, but in all the times when I tried out her ongoing I usually found it to be wanting. I suppose I had written off the series as being too low-priority for DC. Boy was I wrong. Had I known how fantastic this series would be I would have probably picked up the first trade before going for volume 2. Not to worry, I now have that one as well.
+
+Brubaker has a much different take on the character than anything I've read or seen before. Your typical Catwoman is that of clever thief with a heart-of-gold who you can never quite trust completely. It's that characteristic, that she's going to screw you in the end, that has followed the character around. For me at least it's gotten a little stale; and because of that I can understand why some people feel like Catwoman isn't a character that much can be done with. Lucky Brubaker puts that opinion to rest for good. This is a different Catwoman. There is no heart-of-gold here, she's a geniunely good person who has a certain perspective that allows her to do bad things to people of a certain affluence and power. But to her peeps, those who grew up on the street like her, she's somewhat of a Robin Hood figure.
+
+In this series we see a half-reformed Catwoman. One who has turned to a life of charity and giving back to the place that made her who she is. But she always has one foot back in the life of anti-heroism, as she seeks to protect her neighborhood. That's what makes the dynamic of this book so intriguing. We know that she's going to remain Catwoman yet the woman that we see as Selina Kyle isn't capable of becoming an out-and-out criminal. So she has to tip-toe the line. She is a vigilante, but a respectable one.
+
+## Black Mask
+
+This is the first time I've read a __Black Mask__ story, not being aware of the character at all before picking up this trade. First thought was that he looks almost exactly like Red Skull, one of Captain America's rogues, but the internet seems to suggest the characters aren't much related aside from their looks. Black Mask is a crime boss, and that's the gist of what I know about the character.
+
+Unfortunately this series doesn't get too much into his background or motivation. In one of the very last issues of the trade we get a little back story about what happened to him. It's a creepy vignette about being tortured and how surviving it led him to embrace the mask and see torture as an art form.
+
+Not to worry though, this story is about Catwoman and how her past follows her into her present. Selina finds that a childhood friend, Sylvia Sinclair, has made her way back to Gotham, seemingly helping kids stay out of trouble. Later we found out that she is working for Black Mask; being used actually because she is one of the only people that know the true identity of Catwoman.
+
+Catwoman is getting in Black Mask's way, it's as simple as that. However, it's an interesting exploration into how Catwoman deals with the fact that her past causes hardship in her present, and how it affects those around her. Selina's sister is badly traumatized in this storyline (her husband is tortured and murdered) and that follows the rest of the trade.
+
+## Selina and Holly Road Trip It
+
+The trade drags a little after the Black Mask story completes with Selina, her sister, and Slam (who is an awesome character by the way) deal with the events that occurred in the previous story. There's some good stuff here, and Slam and Selina's relationship is revealing about both of their personalities; Selina wants a distraction whereas Slam wants something to anchor him to the real world. Ultimately though, aside from the gorgeous art, I felt that this middle section could have been left out.
+
+After, however, we get a series of wonderful stories involving Selina and Holly going on a road trip and the adventures that follow from that. Wildcat makes an appearance and becomes Holly's trainer. Catwoman and Holly stumbling upon a robbery in a diner is my favorite.
+
+This is what I really want from a Catwoman series, I've decided. The 1 or 2 issue story arcs work well for the character as they allow her to explore the many sides of her personality, better. I'm hoping that the 3rd trade continues with that, at least for a while.
+
+## Conclusion
+
+This trade did exactly what a good trade is supposed to do; left me wanting more, but feeling satisfied for what I got. To that end I've picked up volume 1, which features Brubaker along with Darwyn Cooke (who I've liked in nearly everything he's done).
+
+Although it stumbled just a little after the conclusion of the Black Mask story, it eventually turned into a series of smaller fun stories. I could have an ongoing of these types of Catwoman stories and you'd get no complaints out of me.
+
+Catwoman Volume 2 has made me rethink what is possible with characters who are seemingly one-dimensional. Brubaker tapped into the 60s aesthetic his artists gave him and used it to paint a wonderful tapestry of Selina Kyle living with his past and struggling to embrace the present. Is there any better compliment a writer can get?
