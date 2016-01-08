@@ -1,3 +1,0 @@
-#!/bin/bash
-
-scripts/index-json | hb -i templates/index.handlebars

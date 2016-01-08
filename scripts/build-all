@@ -1,7 +1,0 @@
-#!/bin/bash
-while read id file
-do
-
-  scripts/gist-html $id $file > dist/posts/$file\.html
-
-done < posts
