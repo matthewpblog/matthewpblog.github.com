@@ -24,7 +24,16 @@
 
 &lt;p&gt;In development mode especially (but also in production) it is nice to be able to make changes to your View Model in your browser&amp;rsquo;s devtools and see how it affects the page.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;appvm.gif&#34; alt=&#34;This is an image&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;You can now do that with done-autorender 0.6.1 To see your application&amp;rsquo;s View Model type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;$(&amp;quot;html&amp;quot;).viewModel();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Into your console. This returns the can.Map instance which you can manipulate like any other can.Map.&lt;/p&gt;
+
+&lt;p&gt;See below as I change the &lt;strong&gt;page&lt;/strong&gt; and &lt;strong&gt;title&lt;/strong&gt; in the donejs-chat application.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://matthewphillips.info/appvm.gif&#34; alt=&#34;This is how you do it&#34; /&gt;&lt;/p&gt;
 </description>
     </item>
     
