@@ -6,8 +6,27 @@
     <description>Recent content in Posts on Matthew Phillips</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 05 Feb 2016 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://matthewphillips.info/posts.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Debugging your application&#39;s View Model</title>
+      <link>https://matthewphillips.info/posts/done-autorender-viewmodel.html</link>
+      <pubDate>Fri, 05 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://matthewphillips.info/posts/done-autorender-viewmodel.html</guid>
+      <description>&lt;p&gt;In the newly released version of &lt;a href=&#34;https://github.com/donejs/autorender&#34;&gt;done-autorender&lt;/a&gt; you now have access to your application&amp;rsquo;s View Model globally.&lt;/p&gt;
+
+&lt;p&gt;The View Model I am referring to is the one that applies to your &lt;code&gt;index.stache&lt;/code&gt; template. In the &lt;a href=&#34;http://donejs.com/Guide.html#section=section_Addittothepage&#34;&gt;DoneJS chat&lt;/a&gt; example app is this part:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;can-import from=&amp;quot;donejs-chat/app&amp;quot; export-as=&amp;quot;viewModel&amp;quot; /&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In development mode especially (but also in production) it is nice to be able to make changes to your View Model in your browser&amp;rsquo;s devtools and see how it affects the page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;appvm.gif&#34; alt=&#34;This is an image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>How hot module swapping works</title>
@@ -1081,52 +1100,6 @@ convertState(&#39;CA&#39;, &#39;name&#39;); // -&amp;gt; &#39;California&#39;
 &lt;p&gt;Being one of the only Batman classics I&amp;rsquo;ve read, I don&amp;rsquo;t have the perspective to talk about Harvey Dent&amp;rsquo;s transformation in the light of the history of the character. So I have to approach it as though it is his origin story (although I know that it is not). But from that perspective it&amp;rsquo;s still a fascinating look at a character who breaks down at the weight of events that surround him. Harvey is part of the triumvirate of Batman, Gordon, and himself. He feels the pressure to live up to his peers, and at the same time he is the public face for what is happening in Gotham. He feels a religious need to bring order to a city that has lost it. And it is that pressure that, or so we are led to believe, causes him to snap and become Holiday. The truth, as we find out, is that Harvey isn&amp;rsquo;t Holiday. Or at least, he&amp;rsquo;s not Holiday all on his own. He also had his wife paying a role as well.&lt;/p&gt;
 
 &lt;p&gt;I have trouble coming to terms with his wife as being in on the act. We are not given a reason for her to become a killer. It feels, rather, that Loeb wanted a good twist and this provided one. Dent was a suspect from the early chapters and it would be too easy to have him be the lone perpetrator. Never the less, these are all minor quibbles. The book succeeds due to it&amp;rsquo;s amazing pacing, wide and layered cast, and world building. As a representative of the best of comic books it would make great learning material in schools, and as a comic fan it&amp;rsquo;s something you are missing out on if you haven&amp;rsquo;t read.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>State of Developing on a Chromebook</title>
-      <link>https://matthewphillips.info/posts/state-of-developing-on-a-chromebook.html</link>
-      <pubDate>Thu, 29 Aug 2013 00:00:00 +0000</pubDate>
-      
-      <guid>https://matthewphillips.info/posts/state-of-developing-on-a-chromebook.html</guid>
-      <description>
-
-&lt;p&gt;I&amp;rsquo;ve been developing on a Chromebook for quite a while so I feel I have a pretty good grasp on the strengths and weaknesses as they exist today. The tldr; is that, yes, you can develop on Chromebook and depending on what you consider to be &amp;ldquo;developing on a Chromebook&amp;rdquo; the experience can either be on-par with other computers or a tad&amp;hellip; funky.&lt;/p&gt;
-
-&lt;p&gt;To start, I want to clearly define what it means to &amp;ldquo;develop on a Chromebook&amp;rdquo; because it&amp;rsquo;s important to the conversation. There are 4 routes that you can go. I won&amp;rsquo;t spend a lot of time on the first 3 as they are obvious and less interesting to discuss, but the 4th is where the meat of this post belongs. Without further ado the four methods are:&lt;/p&gt;
-
-&lt;h2 id=&#34;crouton-https-github-com-dnschneid-crouton:911d10bbf97485beabbee5a9040c69e4&#34;&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/dnschneid/crouton&#34;&gt;Crouton&lt;/a&gt;&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;This gives you a chroot environment with which you can install Ubuntu and do whatever you want. Some people really like doing this. Which is fine, but at this point you&amp;rsquo;re not really using ChromeOS to develop on, even if you do dual-boot.&lt;/p&gt;
-
-&lt;h2 id=&#34;ssh:911d10bbf97485beabbee5a9040c69e4&#34;&gt;&lt;strong&gt;SSH&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;Using &lt;a href=&#34;https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?hl=en&#34;&gt;Secure Shell&lt;/a&gt;, a Native Client enabled SSH client, you can login into a remote computer and work using usual command-line tools like Tmux and Vim. This is currently the primary way I code on a Chromebook. While it works rather well, it&amp;rsquo;s not always ideal as, for example, it&amp;rsquo;s difficult to develop Chrome packaged apps this way. Getting the &lt;code&gt;crx&lt;/code&gt; file from your server to your Chromebook is tricky.&lt;/p&gt;
-
-&lt;p&gt;The best way to work this way is to use &lt;a href=&#34;http://www.lbreda.com/grive/start&#34;&gt;Grive&lt;/a&gt;, a Google Drive sync client for Linux. Once you&amp;rsquo;ve created the &lt;code&gt;crx&lt;/code&gt; simply copy it to a folder in Drive. From there you can open the file in Chrome&amp;rsquo;s File Manager and it will prompt to be installed. Still, this is a slow process, as the file has to be uploaded to Drive, then downloaded back down from Drive on the Chromebook and installed.&lt;/p&gt;
-
-&lt;p&gt;But for certain types of programmers, particularly system programmers, who are always programming from an ssh session anyways, this works out as well as any other computer. Perhaps even better, Secure Shell is a very slick &amp;ldquo;terminal emulator&amp;rdquo; (for the lack of a better term).&lt;/p&gt;
-
-&lt;h2 id=&#34;web-ide:911d10bbf97485beabbee5a9040c69e4&#34;&gt;Web IDE&lt;/h2&gt;
-
-&lt;p&gt;This is the first &lt;em&gt;real&lt;/em&gt; way to program on a Chromebook. For a lot of people this works nicely. There are a lot of choices out there, two that stand out are &lt;a href=&#34;https://c9.io/&#34;&gt;Cloud9&lt;/a&gt; and &lt;a href=&#34;https://www.nitrous.io&#34;&gt;Nitrous.io&lt;/a&gt;. I have used Cloud9 a bit and it works rather nicely. For people who are used to using desktop IDE&amp;rsquo;s like Eclipse then this might work well for you. My only complaint is that when you use a SaaS client you kind of have to use it for everything. That&amp;rsquo;s just not my style though. I prefer a seperate application for each task, that way I can swap out the pieces I don&amp;rsquo;t like. With a Web IDE if you don&amp;rsquo;t like any one piece your own recourse is to switch to an entirely different IDE.&lt;/p&gt;
-
-&lt;h2 id=&#34;working-locally:911d10bbf97485beabbee5a9040c69e4&#34;&gt;Working locally&lt;/h2&gt;
-
-&lt;p&gt;Which brings me to the last way to work, the most interesting way to work, and the most frustrating way to work on a Chromebook. Despite the complaints that are to follow I want to make it clear that the future looks bright for this category. There are many applications and APIs under development (as I&amp;rsquo;ll discuss) that are going to dramatically improve the experience of developing locally on a Chromebook.&lt;/p&gt;
-
-&lt;p&gt;Since packaged apps are still in their young days there aren&amp;rsquo;t a million options for text editors, but there are already a few. The best of which is probably Google&amp;rsquo;s own &lt;a href=&#34;https://chrome.google.com/webstore/detail/text/mmfbcljfglbokpmkimbfghdkjmjhdgbg?hl=en&#34;&gt;Text&lt;/a&gt; (of which I&amp;rsquo;m an inactive contributor). It&amp;rsquo;s not great, but it&amp;rsquo;s just fine for the earlier stages of things.&lt;/p&gt;
-
-&lt;p&gt;However, you run into trouble when you start thinking about workflow. This is the area that Chrome needs to round out with better APIs. Let&amp;rsquo;s say you are starting a new project on your Chromebook, where do you store it? Well, on many Chromebooks there is little hard drive space so having a lot of development projects on it might be a bad idea (my Chromebook considers it&amp;rsquo;s entire hard drive to be a &amp;ldquo;Downloads&amp;rdquo; folder, indicating that it is intended for temporary storage only). The alternative is to use Google Drive, which is probably the best option for now. You can even mark files as available offline in Drive and not have to worry about losing an internet connection.&lt;/p&gt;
-
-&lt;p&gt;This is still not quite ideal, though. Drive is limited, you have to manage how much stuff you keep there. And perhaps your work uses Dropbox. There is no way to use Dropbox (besides the web app) on a Chromebook. This is why I&amp;rsquo;ve long wanted an API for filesystems, so that WebDAV or Dropbox or whatever can live right beside Google Drive in the File Manager and file picker menus. Luckily there has been some movement on this issue lately with some Googlers &lt;a href=&#34;https://docs.google.com/document/d/1VkaRYDP3RMESygl6Po0ajimXqijejZNF2p9rCszYEew/edit&#34;&gt;discussing the idea&lt;/a&gt;. It&amp;rsquo;s not evidence that it will be coming soon, it&amp;rsquo;s just a positive sign that they are thinking about the same things.&lt;/p&gt;
-
-&lt;p&gt;Even if you are able to develop locally how do you share that code? How do you use source control? This is one area where things look positive. The developer Tim Caswell has been working on &lt;a href=&#34;https://github.com/creationix/js-git&#34;&gt;js-git&lt;/a&gt;, a reimplementation of &lt;code&gt;git&lt;/code&gt; in JavaScript (including the use of Chrome socket APIs) for the past few months. Although still in early stages I can see this project becoming very usable in the near term.&lt;/p&gt;
-
-&lt;p&gt;Suddenly the workflow starts to look a bit nicer. Imagine have a Git web-app (powered by &lt;code&gt;js-git&lt;/code&gt;) that manages a git repo, then doing developing with Text or another editor, then going back to the git app to commit and push. What would be even better is if a git repo could become a &amp;ldquo;filesystem&amp;rdquo; that sits in the filepicker. That way it could be always connected (perhaps a save operation prompted a commit) and therefore always up to date in the cloud.&lt;/p&gt;
-
-&lt;p&gt;This just leaves out one area of a developer&amp;rsquo;s workflow; testing. If you&amp;rsquo;re developing for the browser you&amp;rsquo;re in luck ;) There&amp;rsquo;s a nice one sitting in front of your face. For everyone else&amp;hellip; perhaps a Chromebook isn&amp;rsquo;t what you need. Still, it might be possible in the future to compile a small linux environment like busy box down to a JavaScript blob and even install things like Python on it. I&amp;rsquo;m getting a bit a head of myself, and those things would (likely) never be very fast, but it&amp;rsquo;s something we can see happening. Certainly languages that compile to JavaScript are already flourishing, and most have the ability to compile within a browser, so as long as you are using browser APIs you&amp;rsquo;re set.&lt;/p&gt;
 </description>
     </item>
     

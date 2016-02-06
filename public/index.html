@@ -52,6 +52,28 @@
       
   <div class="post">
     <h1 class="post-title">
+      <a href="https://matthewphillips.info/posts/done-autorender-viewmodel.html">
+        Debugging your application&#39;s View Model
+      </a>
+    </h1>
+
+    <span class="post-date">Fri, Feb 5, 2016</span>
+
+    <p>In the newly released version of <a href="https://github.com/donejs/autorender">done-autorender</a> you now have access to your application&rsquo;s View Model globally.</p>
+
+<p>The View Model I am referring to is the one that applies to your <code>index.stache</code> template. In the <a href="http://donejs.com/Guide.html#section=section_Addittothepage">DoneJS chat</a> example app is this part:</p>
+
+<pre><code class="language-html">&lt;can-import from=&quot;donejs-chat/app&quot; export-as=&quot;viewModel&quot; /&gt;
+</code></pre>
+
+<p>In development mode especially (but also in production) it is nice to be able to make changes to your View Model in your browser&rsquo;s devtools and see how it affects the page.</p>
+
+<p><img src="appvm.gif" alt="This is an image" /></p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
       <a href="https://matthewphillips.info/posts/how-hot-swapping-works.html">
         How hot module swapping works
       </a>
