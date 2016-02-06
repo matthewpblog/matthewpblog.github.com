@@ -25,4 +25,4 @@ Into your console. This returns the can.Map instance which you can manipulate li
 
 See below as I change the **page** and **title** in the donejs-chat application.
 
-![This is how you do it](../appvm.gif)
+![This is how you do it](/appvm.gif)
