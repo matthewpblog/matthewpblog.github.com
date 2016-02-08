@@ -7,7 +7,7 @@ title = "Debugging your application's View Model"
 
 In the newly released version of [done-autorender](https://github.com/donejs/autorender) you now have access to your application's View Model globally.
 
-The View Model I am referring to is the one that applies to your `index.stache` template. In the [DoneJS chat](http://donejs.com/Guide.html#section=section_Addittothepage) example app is this part:
+The View Model I am referring to is the one that applies to your `index.stache` template. In the [DoneJS chat](http://donejs.com/Guide.html#section=section_Addittothepage) example app we import the View Model like so:
 
 ```html
 <can-import from="donejs-chat/app" export-as="viewModel" />

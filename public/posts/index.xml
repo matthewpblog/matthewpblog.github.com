@@ -17,7 +17,7 @@
       <guid>https://matthewphillips.info/posts/done-autorender-viewmodel.html</guid>
       <description>&lt;p&gt;In the newly released version of &lt;a href=&#34;https://github.com/donejs/autorender&#34;&gt;done-autorender&lt;/a&gt; you now have access to your application&amp;rsquo;s View Model globally.&lt;/p&gt;
 
-&lt;p&gt;The View Model I am referring to is the one that applies to your &lt;code&gt;index.stache&lt;/code&gt; template. In the &lt;a href=&#34;http://donejs.com/Guide.html#section=section_Addittothepage&#34;&gt;DoneJS chat&lt;/a&gt; example app is this part:&lt;/p&gt;
+&lt;p&gt;The View Model I am referring to is the one that applies to your &lt;code&gt;index.stache&lt;/code&gt; template. In the &lt;a href=&#34;http://donejs.com/Guide.html#section=section_Addittothepage&#34;&gt;DoneJS chat&lt;/a&gt; example app we import the View Model like so:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;can-import from=&amp;quot;donejs-chat/app&amp;quot; export-as=&amp;quot;viewModel&amp;quot; /&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
