@@ -1,8 +1,0 @@
-baseurl = "https://matthewphillips.info/"
-languageCode = "en-us"
-title = "Matthew Phillips"
-theme = "hyde"
-uglyURLs = true
-
-[params]
-  description = "Home on the World Wide Web"
