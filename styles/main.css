@@ -57,6 +57,10 @@ h2 {
 	margin: 50px 0 20px;
 }
 
+main img {
+  max-width: 100%;
+}
+
 p {
 	color: #000;
 	max-width: none;
