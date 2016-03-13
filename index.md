@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [test post](test.md)
 * [Handling the next Stream in the Pipe Queue](/posts/handling-next-stream)
 * [Debugging your application's View Model](/posts/done-autorender-viewmodel)
 * [How hot module swapping works](/posts/how-hot-swapping-works)
