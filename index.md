@@ -5,7 +5,6 @@ title: Matthew's Home on the World Wide Web
 ## Posts
 
 * [Handling the next Stream in the Pipe Queue](/posts/handling-next-stream)
-* [Stream Interface](/posts/start)
 * [Debugging your application's View Model](/posts/done-autorender-viewmodel)
 * [How hot module swapping works](/posts/how-hot-swapping-works)
 * [Building a gist-based blogging tool](/posts/gist-based-blogging)
