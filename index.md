@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [Removing a Folder on Windows](/posts/rimraf-windows)
 * [JavaScript Debugging Tips from the Trenches](/posts/js-debugging)
 * [Handling the next Stream in the Pipe Queue](/posts/handling-next-stream)
 * [Debugging your application's View Model](/posts/done-autorender-viewmodel)
