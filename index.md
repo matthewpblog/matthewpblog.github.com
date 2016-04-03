@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [What the Func](/posts/js-what-the-func)
 * [Removing a Folder on Windows](/posts/rimraf-windows)
 * [JavaScript Debugging Tips from the Trenches](/posts/js-debugging)
 * [Handling the next Stream in the Pipe Queue](/posts/handling-next-stream)
