@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [Loading a Modern Application with &lt;script type=module&gt;](/posts/loading-app-with-script-module)
 * [What the Func](/posts/js-what-the-func)
 * [Removing a Folder on Windows](/posts/rimraf-windows)
 * [JavaScript Debugging Tips from the Trenches](/posts/js-debugging)
