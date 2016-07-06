@@ -26,7 +26,7 @@ You would receive an error. As the [spec explains](https://html.spec.whatwg.org/
 
 > This restriction is in place so that in the future we can allow custom module loaders to give special meaning to "bare" import specifiers, like import "jquery" or import "web/crypto". For now any such imports will fail, instead of being treated as relative URLs.
 
-The custom module loaders this is referring to would be defined in the [WhatWG Loader](http://whatwg.github.io/loader/) specification. It's been in development for a while but probably (in my estimation) won't be implemented in any browsers for quite a while.
+The custom module loaders this is referring to would be defined in the [WHATWG Loader](http://whatwg.github.io/loader/) specification. It's been in development for a while but probably (in my estimation) won't be implemented in any browsers for quite a while.
 
 # Loading a real app
 
@@ -43,7 +43,7 @@ There's a lot more that you probably *want* like the ability to import CSS but I
 
 # Hooks
 
-In order to load "bare" import specifiers like `lodash` we need some hooks into the module loading process so that we can say that "lodash" resolves to `node_modules/lodash/lodash.js` (and to do various other things). The WhatWG Loader gives us these hooks, but we don't have the WhatWG Loader so what can we do with only &lt;script type=module&gt; ?
+In order to load "bare" import specifiers like `lodash` we need some hooks into the module loading process so that we can say that "lodash" resolves to `node_modules/lodash/lodash.js` (and to do various other things). The WHATWG Loader gives us these hooks, but we don't have the WHATWG Loader so what can we do with only &lt;script type=module&gt; ?
 
 ## Service Workers to the rescue
 
@@ -143,12 +143,12 @@ IMPORT = function(src){
 };
 ```
 
-And that's really it. We have no way to execute modules ourselves (this capable is part of the WhatWG Loader though), but we can (hopefully) inject type=module scripts into the page dynamically and that's all we really need.
+And that's really it. We have no way to execute modules ourselves (this capable is part of the WHATWG Loader though), but we can (hopefully) inject type=module scripts into the page dynamically and that's all we really need.
 
 # Caveats with a dash of hope
 
 Note that the basis for all of this is the fetch hook provided by Service Workers. To do more advanced things than outlined above you would want hooks before a module gets executed (maybe you want to set up some globals for example) and &lt;script type=module&gt; just doesn't provide that at all. I don't think you could load CommonJS modules for this reason. But I think some of these issues could be worked around by rewriting the src; CommonJS modules (of which almost all npm dependencies are) could be rewritten in `import` syntax.
 
-With that being said there's some hope here. The fact that &lt;script type=module&gt; is so simple is both a blessing and a curse. It doesn't provide us the power that the WhatWG Loader does, but it's also a lot simpler to understand and most importantly will be available soon. And you really *can* do [a lot](https://github.com/bahmutov/babel-service) with just fetch.
+With that being said there's some hope here. The fact that &lt;script type=module&gt; is so simple is both a blessing and a curse. It doesn't provide us the power that the WHATWG Loader does, but it's also a lot simpler to understand and most importantly will be available soon. And you really *can* do [a lot](https://github.com/bahmutov/babel-service) with just fetch.
 
 The web has always been the easiest platform to develop for because all you really need is a text editor and a web browser. To "recompile" you just refresh your browser. In the last few years we've kind of lost that and running complex build scripts during development has become the norm. Now with &lt;script type=module&gt; and Service Workers, I'm hopefully we'll get our refresh mojo back.
