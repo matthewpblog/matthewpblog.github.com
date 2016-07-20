@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [The Future of Modularity on the Web](/posts/future-of-modules-on-the-web)
 * [In Defense of var](/posts/in-defense-of-var)
 * [Loading a Modern Application with &lt;script type=module&gt;](/posts/loading-app-with-script-module)
 * [What the Func](/posts/js-what-the-func)
