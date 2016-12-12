@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [Thoughts on Worker Rendering](/posts/about-worker-rendering)
 * [How Build Processes Hinder Development](/posts/no-build)
 * [The Future of Modularity on the Web](/posts/future-of-modules-on-the-web)
 * [In Defense of var](/posts/in-defense-of-var)
