@@ -4,6 +4,7 @@ title: Matthew's Home on the World Wide Web
 
 ## Posts
 
+* [Leni - A small library for worker communication](/posts/leni-intro)
 * [Flora - Streaming templates for Node.js](/posts/flora-intro)
 * [Thoughts on Worker Rendering](/posts/about-worker-rendering)
 * [How Build Processes Hinder Development](/posts/no-build)
