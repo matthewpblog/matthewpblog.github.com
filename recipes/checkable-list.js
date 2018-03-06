@@ -54,11 +54,6 @@
   }
 
   class CheckableList extends HTMLElement {
-    constructor() {
-      super();
-      this._checks = 0;
-    }
-
     connectedCallback() {
       injectStyles();
       this.addCheckboxes();
@@ -75,7 +70,7 @@
       if(el.dataset.checkable) {
         return;
       }
-      let id = `checkable-${this._checks++}`;
+      let id = `checkable-${CheckableList._checks++}`;
       let input = document.createElement('input');
       input.id = id;
       input.type= "checkbox";
@@ -90,6 +85,8 @@
       el.dataset.checkable = '';
     }
   }
+
+  CheckableList._checks = 0;
 
   customElements.define('checkable-list', CheckableList);
 
