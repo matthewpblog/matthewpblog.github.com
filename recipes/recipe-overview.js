@@ -97,6 +97,14 @@
       figure svg {
         width: 40px;
       }
+
+      figcaption {
+        font-size: 11px;
+      }
+
+      .value {
+        font-size: 13px;
+      }
     }
   `;
 
