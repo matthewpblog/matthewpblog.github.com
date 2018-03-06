@@ -12,7 +12,6 @@
 
     checkable-list li > label {
       position: relative;
-      display: inline-block;
       padding-left: 30px;
     }
 
@@ -54,6 +53,11 @@
   }
 
   class CheckableList extends HTMLElement {
+    constructor() {
+      super();
+      this._checks = 0;
+    }
+
     connectedCallback() {
       injectStyles();
       this.addCheckboxes();

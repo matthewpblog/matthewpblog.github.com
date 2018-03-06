@@ -26,10 +26,6 @@ body > section {
   margin-top: 4em;
 }
 
-checkable-list li {
-  line-height: 25px;
-}
-
 .ingredients > checkable-list {
   display: block;
 }
@@ -38,6 +34,26 @@ checkable-list li {
   list-style-type: none;
   padding: 0;
   display: inline-block;
+}
+
+.preparation {
+  margin-bottom: 10em;
+}
+
+.preparation checkable-list ol {
+  list-style-type: none;
+}
+
+.preparation checkable-list li {
+  counter-increment: step-counter;
+  line-height: 30px;
+}
+
+.preparation checkable-list li::before {
+  content: "Step " counter(step-counter);
+  margin-right: 8px;
+  font-weight: 500;
+  font-size: 20px;
 }
 
 .preparation a, .preparation a:visited {
