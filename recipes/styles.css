@@ -1,0 +1,37 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  width: 900px;
+  margin: auto;
+}
+
+@media (max-width: 599px) {
+  body {
+    width: calc(100% - 40px);
+    padding: 0 20px;
+  }
+}
+
+body > h1,
+body > section > h2 {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+body > h1 {
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+}
+
+body > section {
+  margin-top: 4em;
+}
+
+.ingredients > checkable-list {
+  display: block;
+}
+
+.ingredients > checkable-list ul {
+  list-style-type: none;
+  padding: 0;
+  display: inline-block;
+}
