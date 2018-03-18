@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/handling-next-stream.html';
+</script>

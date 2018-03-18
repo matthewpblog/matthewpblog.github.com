@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Using NPM with SystemJS</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Using NPM with SystemJS</h1>
+    </header>
+    <main>
+      <p><a href="https://github.com/stealjs/system-npm">system-npm</a> is an amazing plugin for SystemJS that enables you to load your NPM dependencies with zero configuration.  Just load system-npm and then load your project; require your NPM dependencies just as if you were in Node.</p>
+
+<p>To use system-npm with SystemJS you'll first want to install SystemJS into your project.  In this post we're assuming you've included <code>system.js</code> and <code>es6-module-loader.js</code> in a <code>vendor/</code> folder, but you can place it where-ever you want. Then simply add a script tag to your page to load SystemJS:</p>
+
+<pre><code>&lt;script src=&quot;vendor/system.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<h2>Installing</h2>
+
+<p><strong>system-npm</strong> is installed through NPM (of course!):</p>
+
+<pre><code>npm install system-npm --save-dev
+</code></pre>
+
+<h2>Configuring</h2>
+
+<p>Next you'll want to configure SystemJS to know where to load the plugin. Create a <code>config.js</code> file and add the appropriate config:</p>
+
+<pre><code>System.config({
+	map: {
+		&quot;npm&quot;: &quot;system-npm&quot;,
+		&quot;npm-extension&quot;: &quot;system-npm/npm-extension&quot;
+	},
+	paths: {
+		&quot;system-npm/*&quot;: &quot;node_modules/system-npm/*.js&quot;
+	}
+});
+</code></pre>
+
+<p>This tells SystemJS how to load system-npm. Add the configuration script to your page after SystemJS:</p>
+
+<pre><code>&lt;script src=&quot;config.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<h2>Load your app</h2>
+
+<p>Now that it is configured you can load your <code>package.json</code> using the plugin and then start up your applicaiton:</p>
+
+<pre><code>&lt;script&gt;
+	System.import(&quot;package.json!npm&quot;).then(function(){
+		System.import(&quot;app/app&quot;);
+	});
+&lt;/script&gt;
+</code></pre>
+
+<h2>Develop</h2>
+
+<p>From here you can develop as you wish, sharing the same dependencies between Node and the Browser. <strong>system-npm</strong> will load your package.json and use the metadata. If you want to limit it to only loading your client-side deps, you can specify this in your configuration:</p>
+
+<pre><code>System.config({
+  npmDependencies: [
+    &quot;jquery&quot;,
+    &quot;backbone&quot;
+  ]
+});
+</code></pre>
+
+<p>Doing this, system-npm will only load <em>jquery</em> and <em>backbone</em> as dependencies.</p>
+
+<p>It's that simple. system-npm is a great way to instantly make your SystemJS projects nearly configuration-free.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Leni - A small library for worker communication</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Leni - A small library for worker communication</h1>
+    </header>
+    <main>
+      <blockquote>
+<p><strong>tdlr;</strong> check out <a href="https://github.com/matthewp/leni">leni</a>, a low-level tool for communicating with web workers.</p>
+</blockquote>
+
+<p>Web Workers are one of the most underused features on the web. There's a strong chance that if you're reading this you're an experienced JavaScript developer. There's an equally strong chance that you've never used Web Workers. I barely have, and I go out of my way to look for reasons to use them 😅!</p>
+
+<p>One of the problems with Workers is that they are weird to communicate with; a single event <code>message</code> is how all communication is done. If you want your Worker to do more than just 1 thing, this means clumsy code like:</p>
+
+<p><strong>app.js</strong></p>
+
+<pre><code class="language-js">let worker = new Worker('./worker.js');
+
+worker.postMessage({
+  type: 'ADD_ONE',
+  value: 3
+});
+</code></pre>
+
+<p><strong>worker.js</strong></p>
+
+<pre><code class="language-js">self.addEventListener('message', function(ev){
+  let msg = ev.data;
+
+  switch(msg.type) {
+    case 'ADD_ONE':
+      addOne(msg.value);
+      break;
+  }
+});
+
+function addOne(num) {
+  let value = 1 + num;
+  postMessage({
+    type: 'ADD_ONE_RESULT',
+    value
+  });
+}
+</code></pre>
+
+<p>These sort of switches are then required on both sides.</p>
+
+<p>What is this really doing, though? These are just events, right? You listen to events and emit events.</p>
+
+<h2>Leni</h2>
+
+<p>A new library I wrote called <a href="https://github.com/matthewp/leni">leni</a> removes all of this boilerplate, and lets you more easily save state within a worker.</p>
+
+<p>It does this by providing a string <em>tag</em>. You can think of a tag as just an identifier for a particular event emitter that you want to be created on the other side.</p>
+
+<p>This helps you organize a set of functionality around a given <em>tag</em>. It works like this:</p>
+
+<p><strong>app.js</strong></p>
+
+<pre><code class="language-js">import { connect } from 'https://unpkg.com/leni/leni.js';
+
+let worker = new Worker('./worker.js');
+let ee = connect('calculator', worker);
+
+ee.addEventListener('value', val =&gt; {
+  // val is 7
+})
+
+ee.post('state', 3);
+
+ee.post('add', 4);
+</code></pre>
+
+<p><strong>worker.js</strong></p>
+
+<pre><code class="language-js">importScripts('https://unpkg.com/leni/leni.js');
+
+function makeCalc(ee) {
+  let state;
+
+  ee.addEventListener('state', val =&gt; {
+    state = val;
+  });
+
+  ee.addEventListener('add', function(num){
+    state += num;
+    ee.post('value', state);
+  });
+}
+
+leni.subscribe('calculator', makeCalc);
+</code></pre>
+
+<p>As you can see from the above, leni is very low-level, and only handles creating instances of event emitters. Every time you call <code>connect(tag, worker)</code> a new emitter will be created both in the main thread and within the worker.</p>
+
+<p>Given this, we can add more abstractions on top. I can imagine using proxies to make these events feel more like direct method calls:</p>
+
+<pre><code class="language-js">import { connect } from 'https://unpkg.com/leni/leni.js';
+
+function proxyToWorker(emitter) {
+  return new Proxy({}, {
+    get(target, key) {
+      return new Proxy(function(){}, {
+        apply(target, thisArg, args) {
+          return new Promise(resolve =&gt; {
+            emitter.addEventListener(`${key}-response`, resolve);
+            emitter.emit(key, args);
+          });
+        }
+      });
+    }
+  })
+}
+
+async function startApp() {
+  let worker = new Worker('./worker.js');
+  let ee = connect('calculator', worker);
+
+  let calc = proxyToWorker(ee);
+
+  let value = await calc.addOne(3);
+}
+
+startApp();
+</code></pre>
+
+<p>Please check out Leni and let me know what you think. You can find me on Twitter as <a href="https://twitter.com/matthewcp">matthewcp</a>.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

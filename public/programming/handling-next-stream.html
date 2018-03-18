@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Handling the next Stream in the Pipe Queue</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Handling the next Stream in the Pipe Queue</h1>
+    </header>
+    <main>
+      <p>While working on <a href="https://github.com/donejs/done-ssr">done-ssr</a> I wanted to make a simple API where a <a href="https://nodejs.org/api/stream.html">Stream</a> is created for each request and piped into the response. The API should be as simple as:</p>
+
+<pre><code class="language-js">var http = require('http');
+var render = require('done-ssr')();
+
+var server = http.createServer(function(request, response){
+  render(request).pipe(response);
+});
+
+server.listen(8080);
+</code></pre>
+
+<p>This describes the intent verbatim. You want to <em>render</em> the <em>request</em> and <em>pipe</em> the result into the <em>response</em>. It says exactly what it does.</p>
+
+<p>A problem with this approach is that <a href="https://nodejs.org/api/stream.html#stream_class_stream_writable">Writable streams</a> (for which an HTTP Response is) only receive in a Buffer, which in our case is the rendered HTML. A complete response needs more than just the body, however, such as the headers and the statusCode. I wanted done-ssr to be able to handle everything needed to complete the response.</p>
+
+<p>It turns out you can do this with streams. I learned the trick from the <a href="https://github.com/mikeal/response">response module</a>. Since a Stream is a constructor function, <code>pipe</code> can be implemented to keep track of the response(s) being piped to. With that my Readable stream the code looks like:</p>
+
+<pre><code class="language-js">var Readable = require('stream').Readable;
+var inherits = require('util').inherits;
+
+var RenderStream = function(){
+  Readable.call(this);
+
+  this.responses = [];
+};
+
+inherits(RenderStream, Readable);
+
+RenderStream.prototype.pipe = function(response){
+  this.responses.push(response);
+  return Readable.prototype.pipe.call(this, response);
+};
+</code></pre>
+
+<p>This might seem obvious but if you primarily use Streams with third party modules like <a href="https://www.npmjs.com/package/through2">through2</a> it's easy to forget that they are constructors.</p>
+
+<p>In this example you can see that I am keeping an array of responses that my RenderStream is being piped into. This means when I have the statusCode I can simply loop over my array and set the status on the object. Same goes for headers or anything else.</p>
+
+<pre><code class="language-js">RenderStream.prototype._read = function(){
+  // Do whatever to push into the stream
+  this.responses.forEach(function(response){
+    response.statusCode = 200;
+  });
+};
+</code></pre>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

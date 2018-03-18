@@ -1,6 +1,1 @@
 localhost:5050
-markdown / {
-  css /styles/main.css
-  template templates/main.html
-}
-ext .md

@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Debugging your application's View Model</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Debugging your application's View Model</h1>
+    </header>
+    <main>
+      <p>In the newly released version of <a href="https://github.com/donejs/autorender">done-autorender</a> you now have access to your application's View Model globally.</p>
+
+<p>The View Model I am referring to is the one that applies to your <code>index.stache</code> template. In the <a href="http://donejs.com/Guide.html#section=section_Addittothepage">DoneJS chat</a> example app we import the View Model like so:</p>
+
+<pre><code class="language-html">&lt;can-import from=&quot;donejs-chat/app&quot; export-as=&quot;viewModel&quot; /&gt;
+</code></pre>
+
+<p>In development mode especially (but also in production) it is nice to be able to make changes to your View Model in your browser's devtools and see how it affects the page.</p>
+
+<p>You can now do that with done-autorender 0.6.1 To see your application's View Model type:</p>
+
+<pre><code class="language-js">$(&quot;html&quot;).viewModel();
+</code></pre>
+
+<p>Into your console. This returns the can.Map instance which you can manipulate like any other can.Map.</p>
+
+<p>See below as I change the <strong>page</strong> and <strong>title</strong> in the donejs-chat application.</p>
+
+<p><img src="../images/appvm.gif" alt="This is how you do it"></p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

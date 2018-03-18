@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>JavaScript Debugging Tips from the Trenches</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>JavaScript Debugging Tips from the Trenches</h1>
+    </header>
+    <main>
+      <p>JavaScript. The combination of dynamic typing, liberal use of state mutation, closures, and asynchronousity can lead to bugs that are frightening to try and fix. I'm by no means a debugging Jedi, but over the years I <em>have</em> accumulated a number of techniques that help me find the source of even the nastiest bugs eventually.</p>
+
+<p>If you're a veteran debugger some of these probably sound obvious to you, but I think there's benefit to being reminded of these from time-to-time.</p>
+
+<h2>Stack traces: there be dragons</h2>
+
+<p><img src="/images/js-debug/stack-trace.png" alt="frightening stack trace"></p>
+
+<p>Seeing a stack trace in your console (whether with Node or in a Browser) that spills out dozens of lines of code from a deeply nested library can be quite intimidating. I think most people struggle a little bit reading other people's code.</p>
+
+<p>The first, and probably most important, lesson in debugging is to love stack traces. The most important thing about stack traces is that <strong><em>they exist</em></strong>. Bugs where your app fails silently are far more daunting. Stack traces at least give you a starting point from which you can work backwards.</p>
+
+<p>Stack traces can tell you a few key things about your bug:</p>
+
+<ol>
+<li>The names of functions being called.</li>
+<li>Line and column numbers, so you can refer to the code in question.</li>
+<li>Often -- not always but often -- you'll find some of your <em>own</em> code within the stack trace. This is huge! It gives you a familiar frame of reference and somewhere that you can begin your investigation.</li>
+</ol>
+
+<p>So instead of panicking when you encounter a stack trace, take a deep breath and see what clues are hidden within it.</p>
+
+<h2>Setters are your friend</h2>
+
+<p>A common bug in stateful code is that some property on an object has an unexpected value. These could be caused by code within the closure changing the value, or if that object is exposed to the outside world it could be coming from just about anywhere.</p>
+
+<p>Setters provide a way to debug this. Here's something I often do:</p>
+
+<pre><code class="language-js">var _val = someObject.prop;
+Object.defineProperty(someObject, 'prop', {
+  get: function() { return _val; },
+  set: function(val) {
+    if(val !== 'expected value') {
+      try {
+        throw new Error('Why you do that?');
+      } catch(err) {
+        console.log(err.stack);
+      }
+    }
+
+    _val = val;
+  }
+});
+</code></pre>
+
+<p>This will display a stack trace whenever the object's property changes to a value that you're not expecting it to be. Now that you love stack traces you should be happy to see one.</p>
+
+<p>The same trick works with functions, but instead of a setter, wrap their value so you have a place to set a <code>debugger;</code> when things aren't as they should be:</p>
+
+<pre><code class="language-js">var fn = someObject.fn;
+someObject.fn = function(){
+  // Why is this getting called?
+  debugger;
+  return fn.apply(this, arguments);
+};
+</code></pre>
+
+<p>Which brings us to:</p>
+
+<h2>Learn to love the debug tools</h2>
+
+<p>In a lot of languages you can get by with logging values to the console/terminal. This certainly works in JavaScript as well; back in the old days we even had to do <code>alert(value)</code> because it was all we had.</p>
+
+<p>Long gone are those days and browsers (and even Node) have excellent debugging tools. Nevertheless I still run into developers who aren't comfortable using them. While you can get by with <code>console.log</code>, in a stateful application nothing beats being able to examine code within a breakpoint.</p>
+
+<p>Get used to using:</p>
+
+<ul>
+<li>A <code>debugger;</code> statement that has been carefully placed (perhaps using the setter tip from above).</li>
+<li>The Console tab as a playground to inspect values once you have hit a breakpoint.</li>
+<li>Buttons/shortcuts for stepping into, over, and out of function calls.</li>
+<li>The stack trace (which you now love) which displays all of the function calls that have gotten you where you are. It sucks a bit when you are within an asynchronous call, but browsers are improving the experience here, especially with native Promises.</li>
+</ul>
+
+<p>These are just the basics, you can do everything from inspect cookie values to do a memory dump with your tools. The key is getting comfortable using them and you'll find yourself much more productive.</p>
+
+<h2>Use counters</h2>
+
+<p>This is an easy one; if you ever encounter a function that is frustratingly being called more times than expected, use a counter to provide a place to debug. Combine this with the wrapping technique from earlier:</p>
+
+<pre><code class="language-js">var counter = 0;
+
+var fn = someObject.fn;
+someObject.fn = function(){
+  counter++;
+
+  // This function should have been called no more than 3 times
+  if(counter &gt; 3) {
+    debugger;
+  }
+
+  return fn.apply(this, arguments);
+};
+</code></pre>
+
+<p>As usually, once you hit a breakpoint the stack trace displayed gives you a place to work backwards.</p>
+
+<h2>Work backwards</h2>
+
+<p>I can't stress this enough, start with what you know and work backwards from there. If there's a value that's not right, a function that called too many times, or one that's not called at all, find the point in time within the application where you know you're in a bad state. Use the tools in your toolbox to find that next spot backwards where you can test whether things are what you would expect them to. Eventually you'll reach the point at which the state is correct. At that point you can start <em>working forwards</em>.</p>
+
+<p>The combination of working backwards followed by working forwards will let you condense down a bug to only a few lines of code. At that point it's a good idea to break into a <strong>minimal test case</strong>. Whether it's your code or open source code, file a bug on the bug tracker and someone more knowledgable might be able to help. If not you at least have something small enough to work with yourself.</p>
+
+<h2>Divide and conquer</h2>
+
+<p>When all else fails you can always remove code. Start with a file that you know is part of the problem and remove everything. If the bug has gone away you can then insert some of the code back; only half at a time. Eventually you'll be able to reduce the bug down to only a few lines of code, at which point the other tricks outlined in this article can take you to the next step.</p>
+
+<h2>Don't fret</h2>
+
+<p>Debugging JavaScript is hard. You're not alone in your frustration. But little can be as satifying as when you finally find the cause of a bug you spent 2 hours on. So there <em>is</em> reward for the pain. If you learn to use your tools, reduce the noise (by eliminating code) and learn to love stack traces, there are no bugs you can't overcome.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

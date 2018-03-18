@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/im-sold-on-html-based-templating.html';
+</script>

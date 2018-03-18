@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Building an accordion with can.Component</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Building an accordion with can.Component</h1>
+    </header>
+    <main>
+      <p>I learn best by doing, so in an effort to learn more about <a href="http://canjs.com/guides/Components.html">can.Component</a> I've been creating common types of components using the new framework. An <strong>accordion</strong> is one such example and I wanted to write about my experience creating the component. Note that this article doesn't constitute a best practice, I've only been using can.Component for a few weeks now. Nor is the goal here for the least amount of code (My first couple of iterations used less code actually), rather I wanted to write the component as DRY as possible.</p>
+
+<p>I've long been a fan of the <a href="http://www.w3.org/TR/components-intro/">Web Components</a> and was excited at the idea that <a href="http://canjs.com/index.html">can</a> could make it possible to write components today. Components are much different than traditional MVC-style programming, in that much more of your code is spent expressing what a component is rather than listening for DOM events and reacting. To that purpose, when I set out to create an accordion control I started with what I wanted it to look like in the end.</p>
+
+<p>An accordion is made up of a list of elements, each with a header and content, that when the header is clicked the content collapses and only the header is shown. So in the end, our html should look something like:</p>
+
+<pre><code class="language-html">&lt;accordion&gt;
+  &lt;collapsible&gt;...&lt;/collapsible&gt;
+  &lt;collapsible&gt;...&lt;/collapsible&gt;
+  &lt;collapsible&gt;...&lt;/collapsible&gt;
+&lt;/accordion&gt;
+</code></pre>
+
+<p>Note that we actually have 2 components here. It's important that the <code>collapsible</code> component operate independently of being hosted inside of an <code>accordion</code>. This leads to DRYer code, a <code>collapsible</code> component is something that can be useful in a lot of places.</p>
+
+<h2>Collapsible</h2>
+
+<p>So first to build our <code>collapsible</code> component. Like I said before, a <code>collapsible</code> has a header containing a title, and it has a content section. It should look something like:</p>
+
+<pre><code class="language-html">&lt;collapsible class=&quot;open&quot;&gt;
+  &lt;header&gt;
+    &lt;h1&gt;This is a title&lt;/h1&gt;
+  &lt;/header&gt;
+  &lt;article&gt;This is content.&lt;/article&gt;
+&lt;/collapsible&gt;
+</code></pre>
+
+<p>Note that the collapsible contains a class called <code>open</code>. This will be used with CSS to control the <code>article</code>'s height. If the collapsible is not open we'll hide it by setting its height to <code>0px</code> and overflow to <code>none</code>. Now to the code for this component:</p>
+
+<pre><code class="language-javascript">can.Component.extend({
+  tag: 'collapsible',
+  template: '&lt;header can-click=&quot;toggle&quot;&gt;&lt;h1&gt;{{item.title}}&lt;/h1&gt;&lt;/header&gt;' +
+    '&lt;article&gt;{{item.content}}&lt;/article&gt;',
+  scope: {
+    item: new can.Map({}),
+    toggle: function(){
+      this.attr('item.open', !this.attr('item.open'));
+    }
+  },
+  events: {
+    '{item} open': function(context, ev, newVal){
+      this.element[newVal ? 'addClass' : 'removeClass']('open');
+    }
+  }
+});
+</code></pre>
+
+<p>It's pretty straight forward. The <code>can-click=&quot;toggle&quot;</code> attribute tells can that when the header is clicked, call the <code>toggle</code> function, which is part of the component's scope. The <code>toggle</code> function simple toggle the <code>item</code>'s <code>open</code> flag. Then we have an event that listens for the changes to <code>open</code> and sets the element's class appropriately. Note that I could have placed the <code>open</code> class as part of the <code>&lt;article&gt;</code> element. The advantage to doing it that way is that it could have been included in the template which would have avoided the entire events section of the code. Ultimately I decided that it was more <em>correct</em> to have the <code>collapsible</code> itself be either open or not. Either approach is valid. The CSS is straight forward, but if you're a better designer than I you might use transforms or transitions.</p>
+
+<pre><code class="language-css">collapsible article {
+  overflow: hidden;
+  height; 0px;
+}
+
+collapsible.open article {
+  height: auto;
+}
+</code></pre>
+
+<p>You can try this on your own, using this simple component you have a collapsible header/content panel.</p>
+
+<h2>Accordion</h2>
+
+<p>An accordion simple wraps a number of <code>collapsible</code>s and has 1 extra feature: it ensures that only 1 collapsible is open at a time. So in order to create my accordion I really only need a couple of things:</p>
+
+<ol>
+<li>A way to listen for when a collapsible's <code>open</code> property changes.</li>
+<li>A way to determine which items need to be set to closed.</li>
+</ol>
+
+<p>Below is the code that creates our accordion, take a look first and then I'll step you through what is happening.</p>
+
+<pre><code class="language-javascript">can.Component.extend({
+  tag: 'accordion',
+  template: '{{#each items}}&lt;collapsible item=&quot;items.{{@index}}&quot;&gt;' +
+    '&lt;/collapsible&gt;{{/each}}',
+  scope: {
+    items: new can.List([]).
+    selected: '@',
+    select: function(index){
+      var items = this.attr('items');
+      for(var i = 0; i &lt; items.attr('length'); i++) {
+        var isOpen = i === index;
+        items[i].attr('open', isOpen);
+      }
+    }
+  },
+  events: {
+    'inserted': function(){
+      var selected = +(this.scope.attr('selected') || 0);
+      this.scope.select(selected);
+    },
+    '{items} change': function(list, ev, what, how, newVal){
+      if(~what.indexOf('open') &amp;&amp; newVal) {
+        var which = +what.substr(0, what.indexOf('.'));
+        this.scope.select(which);
+      }
+    }
+  }
+});
+</code></pre>
+
+<p>The first thing you're likely to notice is that we're attaching this to the collapsible: <code>item=&quot;items.{{@index}}&quot;</code>. We are doing this because the way you pass data to a child component is through its attributes. The attribute's name is the name of the property on the component's scope that we want to set, in this case <code>item</code>. The attribute value is the name of the parent scope's property that we want to pass in, in this case <code>item.0</code> (or <code>item.1</code>, etc. <code>{{@index}}</code> gets the index inside of our each loop).</p>
+
+<p>Since the <code>collapsible</code> controls its own <code>open</code> state we only need to observe changes that happen to our children items. This is what is happening in the <code>{items} change</code> event. Any time something changes to one of our items we check to see if it is an open event, and if so we run the scope's <code>select</code> method which takes the index of the item that is selected and marks all others as closed (by changing their <code>close</code> property, which automatically prompts an event in the <code>collapsible</code> component which is what actually removes the class.</p>
+
+<p>And that's pretty much all there is to an accordion. One other thing you might be unaware of is why the scope has a <code>selected</code> property with a value of <code>@</code>. This means that we want to use the value of the attribute rather than an object it refers to. We use this so that you can pass in the default collapsible to open like so: <code>&lt;accordion selected=&quot;2&quot;&gt;&lt;/accordion&gt;</code> means that the <code>collapsible</code> with an index of 2 will be open and all others closed.</p>
+
+<h2>Summary</h2>
+
+<p>As you can see, creating reusable components with can.Component is fairly straight forward. It's just a matter of rethinking how you design a component, to be more declarative. I'm hopeful that designing this way will make it more natural to create smaller, more modular components. Your application itself should be merely a declaration of componenents and bindings of data between them.</p>
+
+<h2>Demo</h2>
+
+<iframe width="100%" height="300" src="http://jsfiddle.net/a6r3c/6/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

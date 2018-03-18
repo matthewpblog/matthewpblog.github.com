@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Responsive Computes</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Responsive Computes</h1>
+    </header>
+    <main>
+      <p>Recently I was working on a template and ran into issues trying to make it responsive purely using CSS media queries. The problem is that the mark-up of the mobile view and that of the desktop were just too different. In fact, the <em>functionality</em> of the two views were a bit different as well.</p>
+
+<p>At this point you might give up and just write up two separate templates and use media queries to hide one of them. Bootstrap even <a href="http://getbootstrap.com/css/#responsive-utilities-classes">has classes</a> for just such a case.</p>
+
+<p>Luckily, however, there is the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window.matchMedia">matchMedia</a> API that brings the power of media queries to JavaScript. There's fairly broad <a href="http://caniuse.com/#feat=matchmedia">browse support</a> and even <a href="https://github.com/weblinc/media-match/blob/master/media.match.js">a polyfill</a> if you want support in older IE browsers. matchMedia allows you to use the same type of media queries in JavaScript that you can use in CSS, for example:</p>
+
+<pre><code class="language-javascript">var mql = matchMedia('only screen and (max-width: 768px)');
+mql.matches === true; // true if the screen is &lt;= 768px
+</code></pre>
+
+<p>Additionally matchMedia queries include an <code>addListener</code> function that takes a callback that will be called when the media query's status changes; meaning you can resize the browser and the media query will respond when the screen becomes less than 768px (for example).</p>
+
+<h2>Live-bound responsive templates</h2>
+
+<p>If you use CanJS you're familiar with can.computes, but you might not be familiar with the <a href="http://canjs.com/docs/can.compute.html#sig_can_compute_initialValue__settings__">2nd signature</a> which allows you to create a compute from any type of event emitting object. This means we can easily turn our matchMedia query into a compute that can be used in templates:</p>
+
+<pre><code class="language-javascript">var mql = matchMedia('only screen and (max-width: 768px)');
+
+var mobile = can.compute(mql.matches, {
+  get: function(){
+    return mql.matches;
+  },
+  set: function(){
+    // Do nothing for this one
+  },
+  on: function(updated){
+    mql.addListener(updated);
+  },
+  off: function(updated){
+    mql.removeListener(updated);
+  }
+});
+</code></pre>
+
+<p>The compute's <code>settings</code> object describes how to bind the compute to the media query and respond to changes. Now your templates can be responsive in a much more powerful way than what CSS allows:</p>
+
+<pre><code class="language-handlebars">{{#if mobile}}
+  &lt;div&gt;Hi there phone! Mobile navigation goes here.&lt;/div&gt;
+{{else}}
+  &lt;div&gt;Totally different desktop experience!&lt;/div&gt;
+{{/if}}
+</code></pre>
+
+<p>The broader lesson here is that <a href="http://canjs.com/docs/can.compute.html">can.computes</a> are crazy powerful. If you're only using them to respond to changes in your business logic you're not unlocking their full potential. The browser provides many APIs, like matchMedia, that can be bound to. Check out the <a href="http://bitovi.com/blog/2013/04/weekly-widget-compute-slider.html">video slider</a> and be inspired.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

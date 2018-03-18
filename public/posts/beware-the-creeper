@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../books/beware-the-creeper.html';
+</script>

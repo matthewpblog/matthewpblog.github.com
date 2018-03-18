@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Organizing your library project with StealJS</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Organizing your library project with StealJS</h1>
+    </header>
+    <main>
+      <p>With <a href="http://stealjs.com/">StealJS</a> you can easily set up an open-source library that fits with the way you like to organize your code. A common directory structure might look like this:</p>
+
+<pre><code>- src
+  - main.js
+  - dep.js
+- test
+  - test.html
+  - test.js
+package.json
+Gruntfile.js
+</code></pre>
+
+<p>In order to keep a shallow folder structure we've divided the library's source code in <code>src</code> and its tests in <code>test</code>. The root directory only contains our <code>package.json</code> and a <code>Gruntfile.js</code> for builds.</p>
+
+<p>With this structure you might try to install your module with NPM:</p>
+
+<pre><code class="language-shell">npm install my-module --save
+</code></pre>
+
+<p>And then load it in your project:</p>
+
+<pre><code class="language-js">import myModule from &quot;my-module&quot;;
+</code></pre>
+
+<p>However this will fail because your <code>main</code> is not pointing to right place. Imagine your <code>main.js</code> look like:</p>
+
+<pre><code class="language-js">import dep from &quot;my-module/dep&quot;;
+</code></pre>
+
+<p>Steal will look for <code>dep.js</code> in the project's root folder. To set an alternative root, correctly called the lib folder, set it in the <code>package.json</code>:</p>
+
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;my-module&quot;,
+  &quot;main&quot;: &quot;dist/cjs/main.js&quot;,
+  &quot;system&quot;: {
+    &quot;main&quot;: &quot;main&quot;,
+    &quot;directories&quot;: {
+      &quot;lib&quot;: &quot;src&quot;
+    }
+  }
+}
+</code></pre>
+
+<p>This tells Steal that your library's code is nested under the <code>src</code> folder. This makes it easy to refer to your module by name in its internal code. With your test do the same thing:</p>
+
+<pre><code class="language-js">import myModuleDep from &quot;my-module/dep&quot;;
+</code></pre>
+
+<p>Will correctly load <code>src/dep.js</code> if that's the module you want to test.</p>
+
+<h2>Building</h2>
+
+<p>If you're only target Steal you can go ahead and publish your module on NPM. But if you want to reach users of other module loaders you should set up a build script. <a href="http://stealjs.com/docs/steal-tools.html">steal-tools</a> makes this easy. For example if using Grunt:</p>
+
+<pre><code class="language-js">grunt.initConfig({
+  &quot;steal-export&quot;: {
+    dist: {
+      system: {
+        config: &quot;package.json!npm&quot;
+      },
+      outputs: {
+        &quot;+cjs&quot;: {},
+        &quot;+amd&quot;: {},
+        &quot;global-js&quot;: {]
+      }
+    }
+  }
+});
+</code></pre>
+
+<p>Then by simply running <code>grunt steal-export</code> will produce <code>dist/cjs</code>, <code>dist/amd</code>, and <code>dist/global</code> folders containing code that will run in RequireJS, Browserify, and as a browser global. Read <a href="http://stealjs.com/docs/StealJS.project-exporting.html">the full guide</a> on setting up an export for your project for more.</p>
+
+<p>See <a href="https://github.com/bitovi-components/bit-tabs">bit-tabs</a> for a full example of this directory structure in action.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

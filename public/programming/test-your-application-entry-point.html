@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test Your Application Entry Point</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Test Your Application Entry Point</h1>
+    </header>
+    <main>
+      <p>This will be short and sweet. When working on a large JavaScript application (or a small one, for that matter) you're going to have an entry point where you set up your world and get everything started. It probably looks something like this:</p>
+
+<pre><code class="language-javascript">define([
+  'xwidget',
+  'ywidget',
+  'routing'
+], function(XWidget, YWidget, route){
+  // Load everything!
+
+  // Set up global state!
+  var state = {
+    light: 'green',
+    time: new Date()
+  };
+
+  // Initialize main widget!
+  var main = new XWidget('body', {
+    subwidget: new YWidget($('&lt;div&gt;&lt;/div&gt;'), {}),
+    state: state
+  });
+
+  // Listen for routes
+  route('/calendar', function(){
+    // Make some change to `main` probably
+  });
+});
+</code></pre>
+
+<p>It's very easy to forget that not only is this an important chunk of code, it influences everything else that happens further down the chain in your application. <strong>Test it</strong> as though it's just as important, because it is.</p>
+
+<p>When you begin crafting your application as a pyramid of <a href="http://dailyjs.com/2014/03/10/components-controls/">web components</a> this becomes even more critical. Using <a href="http://canjs.com/guides/Components.html">can.Component</a>'s scoping rules, data you initialize in your <code>main.js</code> will trickle down and be used by any component on your page, no matter how deeply nested.</p>
+
+<p>This is amazing in terms of crafting components that glue well together, but the downside is that the tests you created for <code>&lt;x-widget&gt;</code> are not enough, that top level file might be doing things just slightly differently.</p>
+
+<p>The benefits of writing tests first hold as well for your application entry point. If you try writing tests after-the-fact (as I'm currently doing) you'll notice that things break as your entry point file is actually dependent on something in your <code>index.html</code> file (as an example). Tests first will force you to make sure everything is as maximally modular as can be.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

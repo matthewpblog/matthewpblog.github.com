@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>The Future of Modularity on the Web</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>The Future of Modularity on the Web</h1>
+    </header>
+    <main>
+      <p>Today, modularity on the web is completely broken. The web, in fact, doesn't support modules at all. Since modularity is such an important part of building large applications we have various work-arounds for having modules on the web; module loaders and module bundlers being the big two.</p>
+
+<p>The result of the lack of native module support has led to an ecosystem where the web is mostly an afterthought; a compilation target that you build for. Having worked on a module loader, <a href="http://stealjs.com/">Steal</a>, that attempts to support modules on <a href="https://www.npmjs.com/">npm</a> I have seen first-hand how the web has become an afterthought. Aside from the module syntaxes that the web doesn't support (like <code>import</code> and <code>require()</code>) a suprisingly large amount of libraries in the JavaScript ecosystem <strong>depend</strong> on Node.js APIs like <code>process</code> and <code>Buffer</code> and <code>EventEmitter</code> to even run. Popular libraries like <a href="https://lodash.com">lodash</a> and <a href="https://facebook.github.io/react/">React</a> even have these types of dependencies, it's not just outliers or backend-focused libraries.</p>
+
+<p>Indeed, you could even argue that the web is no longer JavaScript's primary platform, Node is. As bleak as things seem today, I think the web will regain its position once native module loading is supported.</p>
+
+<h2>script[type=module]</h2>
+
+<p>I've written about <a href="loading-app-with-script-module">script[type=module] before</a>, but as a refresher this is an upcoming browser feature that allows you to write JavaScript that imports other JavaScript like:</p>
+
+<h3>app.js</h3>
+
+<pre><code class="language-js">import foo from './foo.js';
+</code></pre>
+
+<p>and then import it into your html like:</p>
+
+<pre><code>&lt;script type=&quot;module&quot; src=&quot;app.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Which will load and execute the entire dependency tree, finally giving you native module support in the browser. For the first time ever you won't need a build process or a heavy module loader to use modules in the browser.</p>
+
+<p>I think this is going to be huge for the community. Once bundlers and loaders aren't <em>requirements</em> they will quickly lose their appeal for a lot of developers. They'll lose their appeal for me.</p>
+
+<h3>Package management</h3>
+
+<p>One thing that script[type=module] doesn't do is tell you how to acquire libraries for use in your application; it just loads modules from urls you point to. This means we still will need package managers to provide the ability to share modules with others.</p>
+
+<p>npm is the most popular package manager for web development today. However, most modules on npm will not load in the browser without a build step. Even if you were to change all of the <code>require()</code> statements to <code>import</code> they would still not load for a variety of reasons including:</p>
+
+<ul>
+<li>Use of Node-specific APIs like <code>process</code> and <code>EventEmitter</code>.</li>
+<li>Not including the extension in imports like: <code>import foo from './foo';</code>. This can't be loaded by script[type=module] because while Node can try several different extensions to find the module (it will try <code>./foo.js</code> then <code>./foo/index.js</code> at the very least), the browser can't.</li>
+</ul>
+
+<p>To that end, I think we need browser-focused tooling in this area. Since npm is so large I don't think it makes sense to build a new package manager from scratch the way <a href="http://jspm.io/">jspm</a> does, nor do I think it makes sense to support every Node.js quirk in the browser the way we do today with <a href="http://stealjs.com/">StealJS</a>.</p>
+
+<p>Instead what we really need is a tool that integrates with the npm repository to:</p>
+
+<ul>
+<li>Put modules in a folder structure that makes sense for the web (it needs to be flat).</li>
+<li>Rewrites CommonJS <code>require()</code> syntax to ES <code>import</code> syntax (Over time this feature can go away and more and more modules convert to <code>import</code>).</li>
+<li>Rewrites import statement identifiers to point to where the modules actually are; meaning if the identifier is <code>./foo</code> change that to <code>./foo.js</code>. If the identifier is <code>jquery</code> change that to <code>../path/to/jquery/jquery.js</code>.</li>
+<li>Resolves semver conflicts and give the user a chance to deal with them (I'm not exactly sure how so some handy-waveyness here).</li>
+</ul>
+
+<p>This type of tool would be non-trivial to create, but the investment will be worth it because once users regain the ability to ctrl/cmd+f5 to refresh, they won't want to go back to the old, bulky ways of module loading.</p>
+
+<h2>HTML imports</h2>
+
+<p>HTML imports are a feature that have come out of Web Components. They allow you to import HTML into your page like:</p>
+
+<pre><code>&lt;link rel=&quot;import href=&quot;./foo.html&quot;&gt;
+</code></pre>
+
+<p>Think of this as the HTML equivalent of script[type=module]. The primary purpose of an HTML import is to allow you to package up a template, CSS, and JavaScript together so that users of your widget only need to load your distributed html file.</p>
+
+<p>We try to simulate this today with bundlers/loaders that support things like <code>require('./styles.css')</code>. These plugins will load CSS and instead of executing it as JavaScript they will inject the CSS into the page. While useful this is a bit of a hack.</p>
+
+<p>HTML imports get things more correct; HTML already has mechanisms for loading JavaScript (<code>&lt;script&gt;</code>) and CSS (<code>&lt;link rel=&quot;stylesheet&quot;&gt;</code> or just <code>&lt;style&gt;</code> tags) so it's the natural <em>entry point</em> for loading a widget. A widget, <strong>tabs.html</strong>, might look like:</p>
+
+<pre><code class="language-html">&lt;template&gt;
+  &lt;ul class=&quot;tabs&quot;&gt;
+   &lt;li class=&quot;tab&quot;&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;./tabs.css&quot;&gt;
+&lt;script type=&quot;module&quot;&gt;
+import util from '../util.js';
+
+// Make your tabs widget here
+&lt;/script&gt;
+</code></pre>
+
+<p>Unfortunately only Chrome and Opera currently support HTML Imports. Other browsers are waiting to see what happens with ES Modules before looking into HTML; hopefully they will quickly realize that the two go well together and implement HTML Imports, or something like it.</p>
+
+<h2>Opportunity</h2>
+
+<p>When the web finally catches up with other platforms and provides a native way to load modules (whether they be JavaScript or HTML) it will open up opportunities to tooling authors. I already talked about package managers and how they will need to become more focused on the web browser as being the loading mechanism.</p>
+
+<p>Additionally I can see opportunity for:</p>
+
+<ul>
+<li>Service Workers which do things like aggressively pre-fetch resources that you know are needed for a page.</li>
+<li>Build tools that analyze the dependency graph and creates seperate bundles that can be loaded in production by script[type=module] to reduce the number of network requests.</li>
+<li>Tools that will analyze the dependency graph and provide metadata that an HTTP2 server can use in order to HTTP Push all resources needed for a page.</li>
+<li>Service Workers that transpile code written in another language to JavaScript before it is executed by the browser's module system.</li>
+</ul>
+
+<h2>Regaining focus</h2>
+
+<p>At the beginning of the article I stated that the web has lost its position in the JavaScript community. Not in terms of users or even developers, but in terms of <em>focus</em>.</p>
+
+<p>When native module support lands in browsers it will bring such a drastically simplified workflow that we'll see an explosion in interest in web development. No longer will new developers give up when they can't figure out how to configure WebPack, or when they aren't sure what Babel plugins to install.</p>
+
+<p>This will provide more potential users for all web library authors.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

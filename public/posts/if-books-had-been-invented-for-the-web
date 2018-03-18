@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/if-books-had-been-invented-for-the-web.html';
+</script>

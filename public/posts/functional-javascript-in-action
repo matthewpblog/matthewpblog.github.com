@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/functional-javascript-in-action.html';
+</script>

@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fun with Shadow DOM</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Fun with Shadow DOM</h1>
+    </header>
+    <main>
+      <p><strong>Update</strong>: To do this demo you first need to enable experimental web platform features <a href="chrome://flags/#enable-experimental-web-platform-features">in chrome://flags</a>.</p>
+
+<p>Now that Chrome has shipped Shadow DOM we can start experimenting with what possibilities are going to open up to developers. Consider this a beginner/intermediate post about Shadow DOM. I assume you already know Shadow DOM is a way to &quot;hide&quot; an element's structure while opening up insertion points to its inner content.</p>
+
+<p>With that in mind, this is a simple exercise in seeing the weirdness that is Shadow DOM. So open up a text editor and create an HTML file with these contents:</p>
+
+<pre><code class="language-html">&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Fun with Shadow&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;container&quot;&gt;&lt;/div&gt;
+&lt;template id=&quot;tmpl&quot;&gt;
+  &lt;style&gt;div { color: red; }&lt;/style&gt;
+  &lt;div&gt;Hello &lt;span class=&quot;name&quot;&gt;Matthew&lt;/span&gt;&lt;/div&gt;
+&lt;/template&gt;
+&lt;template id=&quot;tmpl2&quot;&gt;
+  &lt;div&gt;Welcome to the internet&lt;/div&gt;
+  &lt;shadow&gt;&lt;/shadow&gt;
+&lt;/template&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>From here on the rest of the tutorial is done from Chrome's DevTools. So open your brower and navigate to the page you just created and open the DevTools. This is a simple page with a container div and a couple of templates.</p>
+
+<p>You should see nothing on your page at this point, but we'll change that. The element <code>&lt;div id=&quot;container&quot;&gt;&lt;/div&gt;</code> is the root element we're going to play around with so go ahead and get a reference to it.</p>
+
+<pre><code class="language-javascript">c = document.querySelector('#container');
+</code></pre>
+
+<p>Next we're going to create this div's <a href="http://www.w3.org/TR/shadow-dom/#dfn-shadow-root">shadow root</a>. The shadow root is the place where you can append stuff to the div and not have to worry about the page's styling interfering (among other advantages).</p>
+
+<p>Before we create the shadow root, type this into the console and hit enter:</p>
+
+<pre><code class="language-javascript">c.shadowRoot
+</code></pre>
+
+<p>It should return <code>null</code>, as the div doesn't have a shadow root yet. So let's go ahead and change that. Create the shadow root and keep a reference for later:</p>
+
+<pre><code class="language-javascript">root1 = c.createShadowRoot();
+</code></pre>
+
+<p>Should return (in the console):</p>
+
+<pre><code>#shadow-root
+</code></pre>
+
+<p>This also updates <code>c.shadowRoot</code>. Test it by doing:</p>
+
+<pre><code class="language-javascript">root1 === c.shadowRoot
+</code></pre>
+
+<p>And you'll get <code>true</code>. Awesome. Now that you have a shadow root you'll want to add stuff to it. This works like any other element. You can use <code>innerHTML</code>, <code>appendChild</code>, <code>insertBefore</code>, etc. to add content to the shadow. Let's use our first template to attach some content:</p>
+
+<pre><code class="language-javascript">root1.appendChild(document.querySelector('#tmpl').content)
+</code></pre>
+
+<p>The immediate effect you'll see is the words &quot;Hello Matthew&quot; in red on the page. This is because the template contains a <code>&lt;style&gt;</code> tag that styles the content within the template.</p>
+
+<p>You'll also notice that we <em>didn't</em> append the template, we appended the template's <code>content</code> property. This is a read-only property containing a document fragment of the template's content.</p>
+
+<p>If you navigate to the DevTools' <strong>Elements</strong> tab and expand the <code>#container</code> div you'll see... nothing at all. This is because shadow root is hidden by default. You can change this by going into Settings -&gt; Elements and selecting <em>Show Shadow DOM</em>. Now go back to <strong>Elements</strong> and you'll see a <code>#shadow-root</code> nested under your div. Yay!</p>
+
+<h2>Deeper down the rabbit hole</h2>
+
+<p>We could stop here and you'd have a good idea of what the Shadow DOM allows you to do, and how to use an element's shadow root. But we're going to take it one step further. When we created the shadow root you might have asked yourself why there is a method <code>createShadowRoot</code> in the first place. Does it mean you can have multiple shadow root's in an element? It does!</p>
+
+<p>So let's go ahead and create a second shadow root to further our experimentation:</p>
+
+<pre><code class="language-javascript">root2 = c.createShadowRoot();
+</code></pre>
+
+<p>This will return a new shadow root. But what you might also notice is that the words &quot;Hello Matthew&quot; disappeared from the page. What's going on? First use the <strong>Elements</strong> tab and expand your <code>#container</code> div and there should now be two shadow roots. The first is <code>root1</code> and its contents are still there. That's good, but why can't we see it?</p>
+
+<p>The reason is that the browser only renders the <em>last</em> shadow tree. The others are still there, you just can't see them. In your console do this:</p>
+
+<pre><code class="language-javascript">c.shadowRoot == root1
+c.shadowRoot == root2
+</code></pre>
+
+<p>As you can see, the div's new shadowRoot is now <code>root2</code>. You might be asking how this is useful... I'll get to an explanation but it might be better to show you. Go ahead and attach that other template to the new root:</p>
+
+<pre><code class="language-javascript">root2.appendChild(document.querySelector('#tmpl2').content);
+</code></pre>
+
+<p>Ah! The first shadow's content is back. This is because <code>#tmpl2</code> has an insertion point with <code>&lt;shadow&gt;&lt;/shadow&gt;</code>. This says &quot;insert the previous shadow here&quot;, more or less. You may also notice that the second template's div is not in red. This is because the <code>&lt;style&gt;</code> tag in the first template is scoped to only content within that template. This is the beauty of templates.</p>
+
+<p>Back to the question, how is multiple shadow trees useful anyways? A big part of web components is going to be extending existing components. Shadow DOM provides an excellent way to do that. Let's say I created <code>&lt;super-calendar&gt;</code> and it was awesome... but ugly. You might want to come around and create <code>&lt;pretty-calendar&gt;</code> that modified part of the DOM structure a little bit, applied some prettyier scoped <code>&lt;style&gt;</code> but left my JavaScript alone. With <code>&lt;shadow&gt;</code> and <code>select</code> you can do all of that, keeping just the parts of my ugly calendar that are needed to function.</p>
+
+<p>Hopefully this has taught you a little bit about what is possible thanks to Shadow DOM. More important, however, is that you see how easy it is to experiment with emerging web technologies thanks to the awesome developer tools Chrome and Firefox provide us.</p>
+
+<p>Send your thoughts/hacks to <em>matthew@matthewphillips.info</em>.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

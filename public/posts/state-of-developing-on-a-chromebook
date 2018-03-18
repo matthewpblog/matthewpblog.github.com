@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/state-of-developing-on-a-chromebook.html';
+</script>

@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Flora - Streaming templates for Node.js</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Flora - Streaming templates for Node.js</h1>
+    </header>
+    <main>
+      <blockquote>
+<p><strong>tdlr;</strong> check out <a href="https://github.com/matthewp/flora">flora</a>, a templating engine that allows you to stream HTML.</p>
+</blockquote>
+
+<p>A greatly under-appreciated feature of HTML is that it can be streamed. The browser can begin parsing and displaying part of the page while the rest is still being downloaded.</p>
+
+<p>However most server-side frameworks and template engines assume that creating HTML is done synchronously. This means if you need to do anything slow, like make a database request, your users won't start seeing content until <em>all of that is done</em>. This is a travesty!</p>
+
+<p>Think about this; you display the user's name on the page and you need to make a database request to get the name. While you are making that request you <em>could be</em> sending this HTML:</p>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;title&gt;My app!&lt;/title&gt;
+  &lt;link href=&quot;/styles/site.css&quot;&gt;
+  &lt;script src=&quot;/scripts/app.js&quot; async&gt;&lt;/script&gt;
+&lt;body&gt;
+  &lt;nav class=&quot;navbar&quot;&gt; ... &lt;/nav&gt;
+  &lt;header&gt; ... &lt;/header&gt;
+</code></pre>
+
+<p>All of the above HTML <em>does not</em> depend on the database request. This means that, while the request is in flight your user could be:</p>
+
+<ul>
+<li>Downloading the CSS the page is going to need.</li>
+<li>Downloading the scripts that will later run.</li>
+<li>Seeing the site's &quot;skeleton&quot;, stuff like a navigation bar, some heading elements.</li>
+<li>Maybe more! You can, of course, design your site to take advantage of streaming, by deferring loading stuff if you don't want to block.</li>
+</ul>
+
+<p>Node.js' support for streaming is <strong>awesome</strong>. The <em>response</em> object in a request is a writable stream. You can write data to it incrementally.</p>
+
+<p><em>However</em> Node's ecosystem support for streaming HTML is, frankly, terrible. Now we see the major frameworks competing to see who can have the best async/await approach. But async is the <em>wrong model</em> for web servers. Web server should <em>never</em> block rendering of HTML. Only block when you absolutely have to. I'll save this rant for a future article.</p>
+
+<h1>Enter flora</h1>
+
+<p><a href="https://github.com/matthewp/flora">flora</a> is a library I've been working on that allows you to stream HTML. It allows you to provide promises and streams as data to the template. This allows it to <em>flush out</em> any HTML that is not waiting on these promises and streams, making sure your HTML is as fast possible. It looks like this:</p>
+
+<pre><code class="language-js">const {html} = require('flora-tmpl');
+
+function template({name}) {
+  return html`
+    &lt;!doctype html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+    &lt;title&gt;My app!&lt;/title&gt;
+    &lt;link href=&quot;/styles/site.css&quot;&gt;
+    &lt;script src=&quot;/scripts/app.js&quot; async&gt;&lt;/script&gt;
+
+    &lt;nav class=&quot;navbar&quot;&gt; ... &lt;/nav&gt;
+    &lt;header&gt; ... &lt;/header&gt;
+    &lt;div class=&quot;user&quot;&gt;${name}&lt;/div&gt;
+  `;
+}
+
+async function getUserName() {
+  let user = await db.getUser();
+  return user.name;
+}
+
+require('http').createServer(function(request, response){
+  let name = getUserName();
+
+  template({ name }).pipe(response);
+}).listen(8080);
+</code></pre>
+
+<p>What is happening here is:</p>
+
+<ul>
+<li>When we get a request we asynchronously make our database call with <code>getUserName()</code>.</li>
+<li>We pass the promise into the template as the <code>name</code> property.</li>
+<li>Using the <code>html</code> tagged template function to render the HTML. It returns a <a href="https://nodejs.org/api/stream.html#stream_readable_streams">readable stream</a> that can be directly piped into the response (or any other writable stream).</li>
+</ul>
+
+<h1>Native JavaScript templates</h1>
+
+<p>I spent quite a bit of time going back-and-forth deciding on a templating syntax for flora before I realized that I didn't need to create one; JavaScript has templates baked in through tagged template functions. This was quite a revelation for me!</p>
+
+<p>Instead of learning a new template language you can just use normal JavaScript template interpolation.</p>
+
+<p>Flora includes a special <code>map</code> function which takes a stream and a callback, allowing you to produce HTML for each item that comes through the stream. It looks like this:</p>
+
+<pre><code class="language-js">const {html, map} = require('flora-tmpl');
+
+function template({stream}) {
+  return html`
+    &lt;!doctype html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+    &lt;title&gt;Todo list&lt;/title&gt;
+    &lt;main&gt;
+      &lt;h1&gt;Todo list&lt;/h1&gt;
+      &lt;ul&gt;
+        ${map(stream, item =&gt; (
+          html`
+            &lt;li&gt;${item}&lt;/li&gt;
+          `
+        ))}
+      &lt;/ul&gt;
+    &lt;/main&gt;
+  `;
+}
+
+template({stream: getTodos()}).pipe(process.stdout);
+</code></pre>
+
+<p>Producing this:</p>
+
+<p><img src="https://user-images.githubusercontent.com/361671/32578154-2abd05a6-c4aa-11e7-95bd-1dc39729c8fc.gif" alt="Streaming HTML"></p>
+
+<p>Please check out <a href="https://github.com/matthewp/flora">flora</a> and tell me what you think. And next time you write a back-end the same old blocking way, know that there is a better way, with streams!</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

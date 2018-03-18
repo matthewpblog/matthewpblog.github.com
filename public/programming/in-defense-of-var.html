@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>In Defense of var</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>In Defense of var</h1>
+    </header>
+    <main>
+      <p>Many articles and discussions on Twitter have popped up in the last year or so debating when to use the new <code>let</code> and <code>const</code> bindings. Some will say you should only use <code>const</code> for things like string constants, while others take the opposite approach and say to <em>always</em> use const, unless you specifically plan on changing the value later.</p>
+
+<p>These arguments have merit, I don't want to disparage them. I would, however, like to point out the wasted energy these debates (and decisions) cause.</p>
+
+<h2>Once, there was only var</h2>
+
+<p>A (not so) long time ago there was only <code>var</code>, and it was bad. Well, not totally bad but it does unexpected stuff like hoisting. If you're a seasoned JavaScript dev you know about hoisting and probably avoid bugs like this:</p>
+
+<pre><code class="language-js">for(var i = 0; i &lt; teams.length; i++) {
+  getTeamById(i, function(){
+    var name = teams[i]; // OOPS!
+  });
+}
+</code></pre>
+
+<p>I'm sure you spot the error here; <code>i</code>'s value is scoped to the outer function, not lexically inside of the loop. If you've been doing JavaScript a long time you probably still make this mistake from time to time, but overall you instinctively avoid it.</p>
+
+<h2>Semantics Shemantics</h2>
+
+<p>Semantics do matter, and <code>let</code> and <code>const</code> are both (probably) better than <code>var</code> for most uses. Nevertheless I'd rather have 1 type of declaration, however flawed, than 3. I don't want to obsess over when to use <code>let</code> vs. <code>const</code>. I don't want to think about &quot;I'm using a for loop here, which declaration is appropriate...&quot; I want my mind focusing on what the code is trying to accomplish.</p>
+
+<p>Some will say that you never need to use <code>var</code> again. That's probably true; you don't <strong>need</strong> to use it. But this sort of code is not that rare:</p>
+
+<pre><code>getTeams().then(function(teams){
+  displayTeams(team);
+});
+
+if(loggedIn) {
+  var displayTeams = function(){ ... }
+} else {
+  var displayTeams = function(){ ... }
+}
+</code></pre>
+
+<p>Arguably you shouldn't write code like that, but the advantage to having one declaration is that once you get used to how it works, you don't have to think about it anymore.</p>
+
+<p>I'm worried that in a world with 3 declaration choices we're going to be slowed down; paralized by choice.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

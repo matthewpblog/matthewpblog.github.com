@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Removing a Folder on Windows</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Removing a Folder on Windows</h1>
+    </header>
+    <main>
+      <p>I don't use Windows as my main OS any more, but still do use it regularly enough to test out libraries I work on. One thing I regularly find frustrating is trying to remove a large folder. Using Explorer always seems to be slow, and I'd prefer to use the command-line anyways. On a Unix machine a simple <code>rm -rf folder/</code> does the trick.</p>
+
+<h2>rmdir</h2>
+
+<p>The answer you'll typically see in <a href="http://stackoverflow.com/questions/186737/whats-the-fastest-way-to-delete-a-large-folder-in-windows">StackOverflow answers</a> is to use rmdir, specifically:</p>
+
+<pre><code>rmdir /s /q folder
+</code></pre>
+
+<p>The <strong>/s</strong> makes it be recursive and <strong>/q</strong> makes it be quiet. This will still fail when there are large file names, something you often see with Node projects. Usually at this point I give up and open an Explorer window in Adminstrative Mode and delete it that way.</p>
+
+<h2>rimraf</h2>
+
+<p>I had long since accepted my fate when I learned that <a href="https://github.com/isaacs/rimraf">rimraf</a>, a Node module I already use, can be installed as a global and used to remove anything at all:</p>
+
+<pre><code>npm install -g rimraf
+</code></pre>
+
+<p>Then to use:</p>
+
+<pre><code>rimraf folder/
+</code></pre>
+
+<p>I haven't tried to compare it with <code>rmdir</code> in terms of speed, but it feels fairly fast to me. Even if it's a bit slower, the fact that it seems to &quot;just work&quot; without getting errors for long file names or anything else, is enough for me.</p>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

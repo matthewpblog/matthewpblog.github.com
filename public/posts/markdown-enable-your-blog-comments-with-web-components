@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../programming/markdown-enable-your-blog-comments-with-web-components.html';
+</script>

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Functional JavaScript in action</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>Functional JavaScript in action</h1>
+    </header>
+    <main>
+      <p>Recently came across a <a href="http://redactweb.com/javascript-to-convert-between-states-and-abbreviations/">blog post</a> about a JavaScript function to convert state names to abbreviations (or vice versa) and realized that it's an excellent topic to present the power that can be had from functional programming in JavaScript.</p>
+
+<p>The premise of the article is that the author needed a function that when given a state name or abbreviation would return the opposite. The author went about it by first finding a PHP function that does the same, then simply converted the code over to JavaScript. While this method surely works for the purpose needed, it also illustrates how powerful functional programming techniques could be used instead which will produce the same result, but also have some reusable code.</p>
+
+<p>First, let's rewrite the function to get rid of the looping pattern. To do this in a more functional way we can break down what is happening into a few steps. The function is provided two arguments: <code>name</code> and <code>to</code>. Name is the value that we are looking up in our array and to is the key that we want to convert to. Given that, in order to find the value we need to know the name of the key of that value. It's the opposite of <code>to</code>, right? Using the power of Underscore/Lodash -- I prefer <a href="http://lodash.com/docs">Lo-Dash</a> -- this can be done using the <code>_.without</code> function. Now, keep in mind that for performance it would probably be better to find the <code>from</code> value using a ternary expression, but for the sake of the article we want to do it in a functional way. So that makes our first expression:</p>
+
+<pre><code class="language-javascript">var from = _.without(['name', 'abbrev'], to)[0];
+</code></pre>
+
+<p>What this does is simply take the array, find the value that matches <code>to</code> and remove it, leaving only one string which is our <code>from</code> key.</p>
+
+<p>Now that we know what our <code>from</code> key is, we need to look up the <code>name</code> in our states array. But before we do that let's see how the original blog post is doing the lookup:</p>
+
+<pre><code class="language-javascript">$.each(states, function(index, value){
+  if (to == 'name') {
+    if (value.abbrev.toLowerCase() == name.toLowerCase()){
+      returnthis = value.name;
+      return false;
+    }
+  } else if (to == 'abbrev') {
+    if (value.name.toLowerCase() == name.toLowerCase()){
+      returnthis = value.abbrev.toUpperCase();
+      return false;
+    }
+  }
+});
+</code></pre>
+
+<p>Simple enough, they are looping over their <code>states</code> array and finding the value that matches what they want to convert. If they are converting to <code>name</code>, then they are comparing against the <code>abbrev</code>, and they are converting to <code>abbrev</code> they are comparing to <code>name</code>. When they find the match they assign it to their <code>returnthis</code> variable and then returning false, which will existing the loop in <code>$.each</code>.</p>
+
+<p>We can do better. Since we've already gotten the <code>from</code> key, we can skip the repetitive if/else block that does the same thing. And instead of using an <code>each</code> loop let's use the power of functional programming to <code>_.find</code> that value.</p>
+
+<p>First, let's construct a regular expression that we can test against values, to prevent the <code>toLowerCase</code> conversion they are doing.</p>
+
+<pre><code class="language-javascript">var exp = new RegExp('^' + name + '$', 'i');
+</code></pre>
+
+<p>This simply creates a regular expression that matches for the <code>name</code>, ignoring case. Now let's find the object that matches the value in our <code>from</code> key:</p>
+
+<pre><code class="language-javascript">var selected = _.find(states, function(st){
+  return exp.test(st[from]);
+});
+</code></pre>
+
+<p>Perfect, this will find the object we are looking for (<code>RegExp.prototype.test</code> returns true on a match) and we only need to return the <code>to</code> key. Full source:</p>
+
+<pre><code class="language-javascript">function convertState(name, to) {
+  var from = _.without(['name', 'abbrev'], to)[0];
+  var exp = new RegExp('^' + name + '$', 'i');
+   
+  var selected = _.find(states, function(st) {
+    return exp.test(st[from]);
+  });
+   
+  return selected[to];
+}
+</code></pre>
+
+<p>But wait, we've uncovered a pattern here. This is where functional programming becomes most useful. When you write a bit of code, note that there's a pattern, and abstract out that pattern so that you can reuse the code whenever the pattern is discovered. In our case, what are we really doing? We're operating on an array of objects, each containing 2 keys. We look up the value from one key and return the other. Simple, right?</p>
+
+<p>So what we can and should do is create a function that does all of this for you automatically. It returns a functional that operates on that set of rules using the array you provide it. First we need to replace this line:</p>
+
+<pre><code class="language-javascript">var from = _.without(['name', 'abbrev'], to)[0];
+</code></pre>
+
+<p>To get rid of the hard coded string array. Instead we want to pass in our &quot;array of objects&quot; and have the function find the fields. We can do that like so:</p>
+
+<pre><code class="language-javascript">var fields = _.keys(array[0]);
+</code></pre>
+
+<p>And then we simply need to return a function that takes <code>name</code> (for value lookup) and <code>to</code> arguments. With that we've created a <strong><em>higher order function</em></strong> that makes it easy any time we have a situation with the same pattern. Full source and examples below.</p>
+
+<pre><code class="language-javascript">function makeSwappable(array) {
+  var fields = _.keys(array[0]);
+  return function(name, to) {
+    var from = _.without(fields, to)[0];
+    var exp = new RegExp('^' + name + '$', 'i');
+     
+    var selected = _.find(array, function(item) {
+      return exp.test(item[from]);
+    });
+     
+    return selected[to];
+  };
+}
+ 
+var convertState = makeSwappable(states);
+
+convertState('Kentucky', 'abbrev'); // -&gt; 'KY'
+convertState('CA', 'name'); // -&gt; 'California'
+</code></pre>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

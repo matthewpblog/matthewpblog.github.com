@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>What the Func</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+	</head>
+	<body>
+    <header>
+      <h1>What the Func</h1>
+    </header>
+    <main>
+      <p>JavaScript allows you to define functions two different ways. We call the two types of functions, <strong>Function Declarations</strong> and <strong>Function Expressions</strong>.</p>
+
+<h2>Function Declaration</h2>
+
+<p>A function declaration looks like:</p>
+
+<pre><code class="language-js">function addFive(a) {
+  return a + 5;
+}
+</code></pre>
+
+<p>It is a standalone construct within your program. What's interesting about function declarations is that they can be called before they have been defined:</p>
+
+<pre><code class="language-js">addFive(2) // -&gt; 7
+
+function addFive(a) {
+  return a + 5;
+}
+</code></pre>
+
+<p>We'll get back to this in just a second.</p>
+
+<h2>Function Expressions</h2>
+
+<p>A function expression is like any other expression within your JavaScript code. You can use function expressions to assign functions to variables:</p>
+
+<pre><code class="language-js">var addFive = function(a) {
+  return a + 5;
+};
+</code></pre>
+
+<p>Unlike function declarations, however, you cannot call the function before its definition:</p>
+
+<pre><code class="language-js">addFive(2) // throws TypeError: addFive is not a function
+
+var addFive = function(a){
+  return a + 5;
+};
+</code></pre>
+
+<p>So what's going on here? The answer is hoisting.</p>
+
+<h2>Hoisting</h2>
+
+<p>You probably already know that JavaScript variables are scoped to their surrounding function. This allows you to do weird stuff like:</p>
+
+<pre><code class="language-js">var sayHello = function(){
+  return 'Hello ' + name;
+};
+
+var name = 'Matthew';
+</code></pre>
+
+<p>To demonstrate how this works, imagine the code were instead written like below:</p>
+
+<pre><code class="language-js">var name, sayHello;
+
+sayHello = function(){
+  return 'Hello ' + name;
+};
+
+name = 'Matthew';
+</code></pre>
+
+<p>This makes it easier to reason about, and indeed many people prefer writing code this way (CoffeeScript transpiles to code that looks like the above).</p>
+
+<p>The same hoisting rule applies to both types of functions. The key difference is that for variables only the reference (the &quot;name&quot; if you will) is hoisted to the top of the function. Their value is only known after it is assigned. For <strong>function declarations</strong>, however, the entire function body is hoisted. It actually <em>is</em> assigned its value at parse time.</p>
+
+<p>So then, what do you think happens in this scenario:</p>
+
+<pre><code class="language-js">addFive(2);
+
+var add = function addFive(a){
+  return a + 5;
+};
+</code></pre>
+
+<p>At first glance I would expect the above bit of code to work, after all it <em>looks</em> like a function declaration. But alas, it is not. What makes a function declaration a function declaration is not that it is named, but that it is declared within the body of its parent scope. Since it is on the right hand side of an assignment, this is a function expression.</p>
+
+<p>However, named functions can still be super useful as the name is available within the body of the function. This makes it useful for event listeners, for example:</p>
+
+<pre><code class="language-js">window.addEventListener('load', function onload(){
+  window.removeEventListener('load', onload);
+});
+</code></pre>
+
+<p>As well as for recursive functions:</p>
+
+<pre><code class="language-js">var someLongFunctionName = function process(arr){
+  var item = arr.shift();
+
+  if(item) {
+    doStuff(item);
+    process(arr);
+  } else {
+    return true;
+  }
+}
+</code></pre>
+
+<h2>A note on style</h2>
+
+<p>A lot of people feel strongly about using one type of function over the other. To many people sticking with only expressions means less you have to think about because the rules are the same for functions as with any other type of variable.</p>
+
+<p>I tend to use function declarations a little more than function expressions. I like the fact that I don't have to worry about when I call them (assuming they are pure functions that don't depend on outside variables having been assigned). This <em>does</em> force you to think a little more about how the function will be used, but I think that is a good thing that encourages more thoughtfully written code.</p>
+
+<p>The most important bit of any function is the return statement (or the export when a module) and function declarations allow you to define your return near the top of your function.  For example:</p>
+
+<pre><code class="language-js">function doStuff(){
+  var a = 1;
+  var b = 2;
+
+  return doMoreStuff();
+
+  function doMoreStuff() {
+    // A very long function
+  }
+}
+</code></pre>
+
+<p>And for modules it's even nicer as it allows you to define all of your imports and exports at the same place, at the top of your module.</p>
+
+<pre><code class="language-js">// Imports
+var doMath = require('./do_math');
+
+// Exports
+exports.addFive = addFive;
+
+// Body
+function addFive(a) {
+  return a + 5;
+}
+</code></pre>
+
+    </main>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

@@ -1,0 +1,6 @@
+<!doctype html>
+<html>
+<title>Redirect</title>
+<script>
+  window.location = '../books/catwoman-volume-2-no-easy-way-down.html';
+</script>
