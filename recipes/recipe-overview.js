@@ -116,6 +116,8 @@
     }
 
     connectedCallback() {
+      let time = this._getTime();
+
       this.shadowRoot.innerHTML = `
         <style>${styles}</style>
         <div class="overview">
@@ -131,11 +133,20 @@
           </figure>
           <figure>
             ${CLOCK}
-            <figcaption>Minutes</figcaption>
-            <div class="value">${this.dataset.minutes}</div>
+            <figcaption>${time.label}</figcaption>
+            <div class="value">${time.value}</div>
           </figure>
         </div>
       `;
+    }
+
+    _getTime() {
+      let ds = this.dataset;
+      let ts = ds.minutes ? 'Minutes' : ds.hours ? 'Hours' : '';
+      return {
+        label: ts,
+        value: ds.minutes || ds.hours || ''
+      };
     }
   }
 
