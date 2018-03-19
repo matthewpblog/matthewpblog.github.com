@@ -42,6 +42,7 @@ body > section {
 
 .preparation checkable-list ol {
   list-style-type: none;
+  padding-left: 0;
 }
 
 .preparation checkable-list li {
