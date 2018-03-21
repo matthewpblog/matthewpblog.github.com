@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+
+<title>Building Multi-use Web Workers</title>
+<link rel="stylesheet" href="/styles/main.css">
+<link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+
+<header>
+  <h1>Building Multi-use Web Workers</h1>
+</header>
+
+<main>
+<p>In modern web applications we build focused components that are combined together to become a fully functioning app. We use <em>modules</em> to organize our components into smaller pieces. This is fairly universal no matter what framework you use (or if you don't use a framework at all).</p>
+
+<p>If you'd like to take advantage of the performance benefits of using <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker">web workers</a> you are forced to think about code organization <em>outside</em> of the context of modules. Unfortunately, at least today, it is not possible to import a web worker like you can modules that exist within the same thread.</p>
+
+<p>Web workers expose an event-based interface for communication. You use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage">postMessage</a> to send message to a worker, postMessage to send a message back <em>from</em> a worker, and event listeners to receive messages on both sides. It looks like this:</p>
+
+<h3>app.js</h3>
+<pre><code class="language-javascript">const worker = new Worker("./worker.js");
+
+worker.postMessage({
+  message: "ping"
+});
+
+worker.addEventListener("message", ev => {
+  console.log(ev.data.message); // -> "pong"
+});
+</code></pre>
+
+<h3>worker.js</h3>
+
+<pre><code class="language-javascript">self.addEventListener("message", ev => {
+  console.log(ev.data.message); // -> "ping"
+
+  postMessage({ message: "pong" });
+});
+</code></pre>
+
+<p>As you can see, <code>postMessage</code> takes an argument that represents the message. The message can be any type that can be <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm">cloned</a>, as JavaScript cannot share memory between threads (with some exceptions that are beyond the scope if this article). It's common to use an object as the argument to postMessage for reasons we'll discuss next.</p>
+
+<h2>Multi-use workers</h2>
+
+<p>The problem with the above example code is that it only works if the worker is single-use. However, because web workers are still relatively expensive to launch, you'll likely want them to perform more than one task.</p>
+
+<p>At this point you need a way to segment different <em>types</em> of messages that a worker can handle. I typically do this by providing a <code>type</code> property in my messages. This is meant to be similar to the <code>type</code> property in <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event">Events</a>. It looks like so:</p>
+
+<h3>worker.js</h3>
+
+<pre><code class="language-javascript">self.addEventListener("message", ev => {
+  let msg = ev.data;
+  switch(msg.type) {
+    case "do-thing":
+      doThing(msg);
+      break;
+    // TODO handle other cases
+
+    default:
+      console.warn("Oops", msg.type,
+        "is not a supported message type.");
+      break;
+  }
+});
+</code></pre>
+
+<h3>app.js</h3>
+
+<pre><code class="language-javascript">worker.postMessage({
+  type: "do-thing",
+  more: "stuff",
+  forThis: "type of message"
+});
+</code></pre>
+
+<p>As you can see, we are able to support different types of messages within a web worker by providing a <em>type</em> as part of the message, and then using a <code>case</code> statement to <strong>route</strong> the message to the appropriate handler.</p>
+
+<p>This is the very basics of how you are able to handle multi-use worker. If you understand this you can build your own patterns which fit your specific needs. The rest of this article deals with generalizing the pattern to reduce the coupling that our <code>switch</code> statement presents.</p>
+
+<h2>Abstracting the Message Router</h2>
+
+<p>In the previous section we built a message router. However the event listener needs to know about each message that might be received. We can generalize this so that code running within the worker can <em>register</em> to be the handler for a message. If this sounds like event listeners; it is pretty much exactly like that. However in our case we are only going to allow <em>one</em> listener for each message.</p>
+
+<pre><code class="language-javascript">const router = {
+  _handlers: new Map(),
+
+  on(type, cb) {
+    this._handlers.set(type, cb);
+  },
+
+  handle(msg) {
+    let cb = this._handlers.get(msg.type);
+    if(cb) {
+      cb(msg);
+    } else {
+      console.warn('There is no handler for the message:', msg.type);
+    }
+  }
+};
+
+self.addEventListener('message', ev => {
+  router.handle(ev.data);
+});
+</code></pre>
+
+<p>This code is pretty straight forward; we save callbacks in a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a>, registered with <code>on</code>, and emit messages with the <code>handle</code> method. Now anywhere within the worker handlers can be registered like so:</p>
+
+<pre><code class="language-javascript">router.on('fetch-todos', async (msg) => {
+  let res = await fetch('/api/todos');
+  let todos = await res.json();
+
+  postMessage({
+    type: 'fetched-todos',
+    todos
+  });
+});
+</code></pre>
+
+<p>Now we can move our code that handles each type of message our router might receive to separate modules and start to organize the worker code similar to how we organize our main (window) thread code.</p>
+
+<h2>Routing Messages in the Window</h2>
+
+<p>This article mostly talks about what code is written for the web worker. But as you can imagine, very similar code is needed in the window thread as well. For each worker created you'll likely need a <code>router</code> like the one we wrote above, passing that to each component that needs to communicate with the worker. To that end you might encapsulate the router in a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes">JavaScript class</a>, and give it a method to message the worker.</p>
+
+<h2>It Gets More Complicated</h2>
+
+<p>While you can build out the basics of worker communication with just a little code like above, you'll quickly realize it's not enough.</p>
+
+<p>One issue is that often the type of communication between the window and worker follows a <a href="https://en.wikipedia.org/wiki/Request%E2%80%93response">request-response pattern</a>. That is, one side (usually starting from the window) will send a message to the worker and expect a reply. Therefore, it needs to <em>save</em> information about the request so that when the response is received it can handle it.</p>
+
+<p>This can be implemented by giving each request a unique id, and saving metadata about the request in a Map (often this is as simple as a callback). However, as you can imagine, this risks memory leaks if the worker never responds. You can work around this by setting up timeouts for when memory will occassionally be cleaned up.</p>
+
+<p>One possible work-around to this problem is to send all of the metadata along with the request, and then sending it back as part of the reply. This is a little bit wasteful, as the worker gets a larger message than it really needs, and it might not be possible to clone all of the metadata you would like to send (functions cannot be cloned).</p>
+
+<p>The request-response pattern is not as common when the <strong>worker</strong> is the initiator of messages, however, so you can partially avoid the problem by having your workers run the show. In a future article I'll talk more about the advantages of worker-first applications.</p>
+
+<h2>Libraries for Worker Communication</h2>
+
+<p>Previously I wrote about <a href="https://matthewphillips.info/programming/leni-intro.html">Leni</a>, a small library I wrote that encapsulates the router pattern created in this article. It goes a little bit further, adding namespacing so that different parts of an application can safely send short message <code>type</code> names without as much concern for collisions.</p>
+
+Here are a couple of other libraries which generalize worker communication:
+
+<ul>
+  <li><a href="https://github.com/matthewp/theda">Theda</a> builds on top of Leni, and provides a way to register <em>classes</em> that can be proxied from the window side, giving the allusion that you are programming a normal object.</li>
+  <li><a href="https://github.com/GoogleChromeLabs/comlink">Comlink</a> is very similar to Theda but makes a different trade-off. Where Theda only allows communication using async methods, with Comlink you can access properties in the proxied class as well. The downside to allowing property access is that it means you need to <code>await</code> the constructor being instantiated.</li>
+</ul>
+
+
+</main>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
