@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Gazel | key/value store for the browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./css/bootstrap.css" rel="stylesheet">
+  <link href="./css/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="./css/bootswatch.css" rel="stylesheet">
+  <link href="./css/prettify.css" rel="stylesheet">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+  <link href="./css/gazel-theme.css" rel="stylesheet">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="./js/bootstrap.min.js"></script>
+  <script src="./js/bootswatch.js"></script>
+  <script src="./js/prettify.js"></script>
+  <script src="js/gazel.js"></script>
+</head>
+<body id="top" class="preview gazel-brand" data-spy="scroll" data-target=".subnav" data-offset="80">
+  <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="./">Gazel</a>
+        <div class="nav-collapse collapse" id="main-menu">
+          <ul class="nav" id="main-menu-left">
+            <li><a href="./">News</a></li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Commands <b class="caret"></b></a>
+              <ul class="dropdown-menu" id="swatch-menu">
+                <li class="dropdown-submenu">
+                  <a href="#">Keys</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="./commands/get.html">Get</a></li>
+                    <li><a href="./commands/set.html">Set</a></li>
+                    <li><a href="./commands/del.html">Del</a></li>
+                    <li><a href="./commands/incr.html">Incr</a></li>
+                    <li><a href="./commands/incrby.html">Incrby</a></li>
+                    <li><a href="./commands/decr.html">Decr</a></li>
+                    <li><a href="./commands/decrby.html">Decrby</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#">Transactions</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="./commands/multi.html">Multi</a></li>
+                    <li><a href="./commands/exec.html">Exec</a></li>
+                    <li><a href="./commands/discard.html">Discard</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Events <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="./events/set.html">Set</a></li>
+                <li><a href="./events/delete.html">Delete</a></li>
+                <li><a href="./events/error.html">Error</a></li>
+              </ul>
+            </li>
+            <li class="dropdown" id="preview-menu">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Download <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a target="_blank" href="./js/gazel.js">gazel.js</a></li>
+                <li><a target="_blank" href="./js/gazel.min.js">gazel.min.js</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav pull-right" id="main-menu-right">
+            <li>
+              <a rel="tooltip"
+                  target="_blank"
+                  href="https://github.com/matthewp/gazel"
+                  title="Gazel code">Fork on GitHub <i class="icon-share-alt"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <header class="jumbotron subhead" id="overview">
+      <div class="row">
+        <div class="span12">
+          <h1>Gazel</h1>
+          <p class="lead">A high performance key/value store for the browser modeled after Redis.</p>
+        </div>
+      </div>
+      <div class="subnav">
+        <ul class="nav nav-pills">
+          <li><a href="#get-it">Latest</a></li>
+          <li><a href="#usage">Usage</a></li>
+          <li><a href="#commands">Commands</a></li>
+          <li><a href="#plans">Plans</a></li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div id="project" class="project container">
+    <section id="get-it">
+      <div class="page-header">
+        <h1>Get latest</h1>
+      </div>
+      <p>If you like living on the bleeding edge, grab the latest build from GitHub.</p>
+      <pre class="prettyprint">curl https://raw.github.com/matthewp/gazel/master/build/gazel.min.js > gazel.min.js</pre>
+    </section>
+    <section id="usage">
+      <div class="page-header">
+        <h1>Usage</h1>
+      </div>
+      <a id="exec" href="#" class="btn btn-primary pull-right">Execute</a>
+      <h3>Fee: <span id="fee">0</span></h3>
+      <pre id="demo" class="prettyprint linenums languague-js">
+var client = gazel.createClient();
+
+client.on('error', function(err) {
+  alert('Oh noes!');
+});
+
+client.set('Foo', 'bar', gazel.print);
+
+client.multi()
+  .set('Fee', 1)
+  .set('Fi', 2)
+  .set('Fo', 3)
+  .set('Fum', 4)
+  .incrby('Fee', 10)
+  .get('Fee')
+  .exec(function(results) {
+    var fee = results.pop()[0];
+
+    document.getElementById('fee').textContent = fee;
+  });</pre>
+      <script>
+        window.addEventListener('load', function loaded() {
+          window.removeEventListener('load', loaded);
+
+          var demo = document.getElementById('demo');
+          document.getElementById('exec').addEventListener('click', function(e) {
+            e.preventDefault();
+            var code = demo.textContent;
+            var fn = new Function('document', 'gazel', code);
+            fn.apply(null, [document, gazel]);
+          });
+
+          prettyPrint();
+        });
+      </script>
+    </section>
+    <section id="commands">
+      <div class="page-header">
+        <h1>Commands</h1>
+      </div>
+      <!--<div class="row">
+        <aside class="span4">
+          <h2>Contents</h2>
+          <h4>Keys</h4>
+          <h4>Transactions</h4>
+        </aside>
+        <div class="span8">
+          <div class="row">
+            <div class="span4">
+              <h2>get</h2>
+              <div class="well">Get the value of a key.</div>
+            </div>
+            <div class="span4">
+              <h2>set</h2>
+              <div class="well">Set the value of a key.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              <h2>del</h2>
+              <div class="well">
+                <div>Text goes here.</div>
+              </div>
+            </div>
+            <div class="span4">
+              <div class="well">Four</div>
+            </div>
+          </div>
+        </div>
+      </div>-->
+
+      <div id="command-get" class="command">
+        <h2>get</h2>
+        <p>Get the value of a key.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success. Argument is the key's value.</li>
+        </ul>
+      </div>
+      <div id="command-set" class="command">
+        <h2>set</h2>
+        <p>Set the value of a key.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key.</li>
+          <li><span class="arg">value</span>: Object value being set.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success. Includes one argument, which should always have the value of OK.</li>
+        </ul>
+      </div>
+      <div id="command-del" class="command">
+        <h2>del</h2>
+        <p>Delete a key, or series of keys.</p>
+        <ul>
+          <li><span class="arg">key(s)</span>: String key, or a series of arguments for multiple string keys.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success. Argument includes the number of keys deleted.</li>
+        </ul>
+      </div>
+      <div id="command-incr" class="command">
+        <h2>incr</h2>
+        <p>Increment a key by 1. They key's value must be an integer. If the key does not exist, it will be created and assigned the value of 1.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key</li>
+          <li><span class="arg">callback</span>: Function callback in case of success.
+        </ul>
+      </div>
+      <div id="command-incrby" class="command">
+        <h2>incrby</h2>
+        <p>Increment a key by a given increment. They key's value must be an integer. If the key does not exist, it will be created and assigned the value of increment.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key.</li>
+          <li><span class="arg">increment</span>: Number to add to current value.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success.</li>
+        </ul>
+      </div>
+      <div id="command-decr" class="command">
+        <h2>decr</h2>
+        <p>Decrement a key by a value of 1. The key's value must be an integer. If the key does not exist, it will be created with a value of -1.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success.</li>
+        </ul>
+      </div>
+      <div id="command-decrby" class="command">
+        <h2>decrby</h2>
+        <p>Decrement a key by a given decrement. The key's value must be an integer. If the key does not exist, it will be created with a value of decrement.</p>
+        <ul>
+          <li><span class="arg">key</span>: String key</li>
+          <li><span class="arg">decrement</span>: Number to subtract from teh current value.</li>
+          <li><span class="arg">callback</span>: Function callback in case of success.</li>
+        </ul>
+      </div>
+      <div id="command-multi" class="command">
+        <h2>multi</h2>
+        <p>Initiate the start of a chaining operation.</p>
+      </div>
+      <div id="command-exec" class="command">
+        <h2>exec</h2>
+        <p>Execute a chain of commands.</p>
+        <ul>
+          <li><span class="arg">callback</span>: Function callback in case of success. Called when chaining is complete, fed a results array, containing arrays of all of the results.</li>
+        </ul>
+      </div>
+      <div id="command-discard" class="command">
+        <h2>discard</h2>
+        <p>Abort a transaction in process.</p>
+        <ul>
+          <li><span class="arg">callback</span>: Function callback, called after discarding the transactions in process.</li>
+        </ul>
+    </section>
+    <section id="plans">
+      <div class="page-header">
+        <h1>Plans</h1>
+      </div>
+      <ul>
+        <li>Steal more Redis commands. !important</li>
+        <li>Web SQL fallback.</li>
+        <li>Wider test coverage.</li>
+        <li>Allow for multiple databases.</li>
+      </ul>
+    </section>
+    <br><br><br><br>
+    <hr>
+    <footer id="footer">
+      <p class="pull-right">
+        <a href="#top">Back to top</a>
+      </p>
+      <div class="links">
+        <a href="http://www.matthewphillips.info">Home page</a>
+        <a href="http://twitter.com/matthewcp">Twitter</a>
+        <a href="https://plus.google.com/u/0/105036210521897694269">Google+</a>
+        <a href="https://github.com/matthewp">GitHub</a>
+      </div>
+      Made by <a href="http://www.matthewphillips.info">Matthew Phillips</a>. Contact him <a href="mailto:matthew@matthewphillips.info">matthew@matthewphillips.info</a>.
+    </footer>
+  </div>
+</body>
+</html>
