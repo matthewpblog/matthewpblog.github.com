@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<title>Creating Web Component in Go + wasm</title>
+<link rel="stylesheet" href="/styles/main.css">
+<link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Building Multi-use Web Workers">
+<meta property="og:url" content="https://matthewphillips.info/programming/building-multi-use-workers.html">
+<meta property="og:description" content="Building a router that allows a web worker to handle multiple types of messages.">
+<meta property="og:site_name" content="Matthew's Programming Blog">
+
+<meta name="twitter:text:title" content="Building Multi-use Web Workers">
+<meta name="twitter:creator" content="@matthewp">
+
+<header>
+  <h1>Creating Web Components in Go + wasm</h1>
+</header>
+
+<main>
+<p>I recently saw <a href="https://twitter.com/WasmWeekly/status/1008586459836805121">on Twitter</a> about how Golang now supports WebAssembly. I've become a bit of a fan of Go so I was pretty excitted to try it out for myself. For me printing <code>Hello world</code> to the console isn't enough so I thought I'd try building a &lt;hello-world&gt; <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">web component</a> instead. Luckily the interop story with JavaScript is pretty solid (with caveats, explained later) so it wasn't much work at all.</p>
+
+<p>Go doesn't yet support wasm in any of its releases, so you'll have to build from source. <a href="https://blog.owulveryck.info/2018/06/08/some-notes-about-the-upcoming-webassembly-support-in-go.html">This article</a> walks through building it, but you don't need to build from that branch any more, go.googlesource.com's master branch has what you need.</p>
+
+<p>With everything set up, here's the Go code to create a web component, <strong>main.go</strong>:</p>
+
+<pre><code class="language go">package main
+
+import (
+  "syscall/js"
+)
+
+func main() {
+  c := make(chan struct{}, 0)
+
+  init := js.NewCallback(func(i []js.Value) {
+    element := i[0]
+    element.Set("innerHTML", "Hello world!")
+  })
+
+  js.Global.Call("makeComponent", "hello-world", init)
+
+  <-c
+}
+</code></pre>
+
+<p>There are a couple of interesting things going on here. First, the channel is what keeps the code running. Otherwise the Go runtime would garbage collect the program.</p>
+
+<p>Secondly, <code>js.Global.Call</code> does exactly what you expect. We are calling a global function called <code>makeComponent</code>.</p>
+
+<p>Currently JavaScript can't call into Go code until it has been first given a function to call (this is what NewCallback provides). So Go has to initiate communication, but once it does so you can freely communicate back and forth. This does mean, however, that you must provide it a global to call. No big deal.</p>
+
+<p>The makeComponent function is what actually creates a custom element class, it's defined in my HTML like so:</p>
+
+<pre><code class="html">
+&lt;script&gt;
+  makeComponent = function(name, init) {
+    const Element = class extends HTMLElement {
+      constructor() {
+        super();
+        init(this);
+      }
+    };
+
+    customElements.define(name, Element);
+  };
+&lt;/script&gt;
+</code></pre>
+
+<p>Pretty simple, this defines a new custom element and calls the <code>init</code> function when an element is constructed. This is the function that Go provided with js.NewCallback</p>
+
+<p>To build you have to change the GOROOT, GOARCH, and GOOS flags. My <code>Makefile</code> looks like:</p>
+
+<pre><code class="language make">public/example.wasm: main.go
+        GOROOT=~/gowasm GOARCH=wasm GOOS=js ~/gowasm/bin/go build -o public/example.wasm main.go
+
+clean:
+        rm public/example.wasm
+        .PHONY: clean
+</code></pre>
+
+<h2>Impression</h2>
+
+<p>And that's it! It's quite simple. I was pretty impressed with the interop between Go and JavaScript, that's not something I've seen does as nicely from the other wasm languages I've checked out (admittedly I haven't done a lot of looking). There is an open issue to make it possible to export functions from your Go program that would be callable from JavaScript, making the communication be able to be initiated from either side.</p>
+
+<p>Even as it stands now you could easily build nicer APIs on top of what is provided.</p>
+
+<h2>Caveats</h2>
+
+<p>There are a couple of problems I noticed in my experimentation:</p>
+
+<ol>
+  <li>After a while developing I would mysteriously start getting out of memory errors that wouldn't go away no matter what I changed in my code. Creating a new tab would fix it. This makes me suspect that perhaps this is a Chromium bug and not Go, however. Still something to look out for.</li>
+  <li>The resulting .wasm file is 1.3mb. For me this takes it out of the running for <em>most</em> things that i build. I'm not sure what the reason is for this size or if it's something they can fix in the future. It might be a matter of optimizations, or it might be that a garbage collector is included in this size.</li>
+</ol>
+
+
+</main>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
