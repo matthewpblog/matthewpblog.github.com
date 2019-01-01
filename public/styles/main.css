@@ -32,7 +32,8 @@ main h1 {
   text-align: left;
 }
 
-main ul > li {
+main ul > li,
+main ol > li {
   line-height: 1.5em;
 }
 
