@@ -66,3 +66,9 @@ p {
 	max-width: none;
 	line-height: 1.75em;
 }
+
+code:not([class]) {
+	background-color: #f8f8f8;
+	font-size: 85%;
+	padding: .2em .4em;
+}
