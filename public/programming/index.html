@@ -1,43 +1,246 @@
 <!doctype html>
 <html lang="en">
 <title>Programming Blog</title>
-<link rel="stylesheet" href="/styles/topic.css">
+<link rel="stylesheet" href="../styles/topic.css">
 <link rel="alternate" type="application/rss+xml" title="feed one" href="http://feeds.feedburner.com/MatthewsHomeOnTheWorldWideWeb?format=xml"/>
 
 <header>
   <h1>Programming</h1>
 </header>
+
 <main>
 
-<ul>
-<li><a href="./wc-defined-selector.html">Using the :defined selector with slots</a></li>
-<li><a href="/programming/wasm-golang-ce.html">Creating Web Components in Go + wasm</a></li>
-<li><a href="/programming/building-multi-use-workers.html">Building Multi-use Web Workers</a></li>
-<li><a href="/programming/leni-intro.html">Leni - A small library for worker communication</a></li>
-<li><a href="/programming/flora-intro.html">Flora - Streaming templates for Node.js</a></li>
-<li><a href="/programming/about-worker-rendering.html">Thoughts on Worker Rendering</a></li>
-<li><a href="/programming/no-build.html">How Build Processes Hinder Development</a></li>
-<li><a href="/programming/future-of-modules-on-the-web.html">The Future of Modularity on the Web</a></li>
-<li><a href="/programming/in-defense-of-var.html">In Defense of var</a></li>
-<li><a href="/programming/loading-app-with-script-module.html">Loading a Modern Application with &lt;script type=module&gt;</a></li>
-<li><a href="/programming/js-what-the-func.html">What the Func</a></li>
-<li><a href="/programming/rimraf-windows.html">Removing a Folder on Windows</a></li>
-<li><a href="/programming/js-debugging.html">JavaScript Debugging Tips from the Trenches</a></li>
-<li><a href="/programming/handling-next-stream.html">Handling the next Stream in the Pipe Queue</a></li>
-<li><a href="/programming/done-autorender-viewmodel.html">Debugging your application's View Model</a></li>
-<li><a href="/programming/how-hot-swapping-works.html">How hot module swapping works</a></li>
-<li><a href="/programming/gist-based-blogging.html">Building a gist-based blogging tool</a></li>
-<li><a href="/programming/using-npm-with-systemjs.html">Using NPM with SystemJS</a></li>
-<li><a href="/programming/organizing-your-library-project-with-stealjs.html">Organizing your library project with StealJS</a></li>
-<li><a href="/programming/im-sold-on-html-based-templating.html">I'm Sold on HTML-based Templating</a></li>
-<li><a href="/programming/if-books-had-been-invented-for-the-web.html">If Books Had Been Invented for the Web</a></li>
-<li><a href="/programming/responsive-computes.html">Responsive Computes</a></li>
-<li><a href="/programming/fun-with-shadow-dom.html">Fun with Shadow DOM</a></li>
-<li><a href="/programming/test-your-application-entry-point.html">Test Your Application Entry Point</a></li>
-<li><a href="/programming/markdown-enable-your-blog-comments-with-web-components.html">Markdown Enable Your Blog Comments with Web Components</a></li>
-<li><a href="/programming/building-an-accordion-with-can-component.html">Building an accordion with can.Component</a></li>
-<li><a href="/programming/functional-javascript-in-action.html">Functional JavaScript in action</a></li>
-<li><a href="/programming/state-of-developing-on-a-chromebook.html">State of Developing on a Chromebook</a></li>
-<li><a href="/programming/using-cloud-drives-on-chromebooks.html">Using Cloud Drives on Chromebooks</a></li>
-</ul>
+<section class="articles">
+  <article>
+    <header>
+      <a href="./wc-defined-selector.html">Using the :defined selector with slots</a>
+      <time>January 1, 2019</time>
+    </header>
+    <p>How to handle styling before an element&apos;s JavaScript is defined.</p>
+  </article>
+
+  <article>
+    <header>
+      <a href="./wasm-golang-ce.html">Creating Web Components in Go + wasm</a>
+      <time>June 18, 2018</time>
+    </header>
+    <p>Experimenting with wasm support in Go.</p>
+  </article>
+  
+  <article>
+    <header>
+      <a href="./building-multi-use-workers.html">Building Multi-use Web Workers</a>
+      <time>March 27, 2018</time>
+    </header>
+    <p>How to architect Web Workers so that they can be used for different types of tasks.</p>
+  </article>  
+
+  <article>
+    <header>
+      <a href="./leni-intro.html">Leni - A small library for worker communication</a>
+      <time>December 8, 2017</time>
+    </header>
+    <p>An introduction to a new web worker library.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./flora-intro.html">Flora - Streaming templates for Node.js</a>
+      <time>November 9, 2017</time>
+    </header>
+    <p>Streaming HTML through tagged template literals.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./about-worker-rendering.html">Thoughts on Worker Rendering</a>
+      <time>December 12, 2016</time>
+    </header>
+    <p>Some musings on web worker rendering.</p>
+  </article>
+  
+  <article>
+    <header>
+      <a href="./no-build.html">How Build Processes Hinder Development</a>
+      <time>November 29, 2016</time>
+    </header>
+    <p>Why I still prefer refresh-to-compile.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./future-of-modules-on-the-web.html">The Future of Modularity on the Web</a>
+      <time></time>
+    </header>
+    <p>What's next in modules.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./in-defense-of-var.html">In Defense of var</a>
+      <time>May 19, 2016</time>
+    </header>
+    <p>const, let; I still like var.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./loading-app-with-script-module.html">Loading a Modern Application with &lt;script type=module&gt;</a>
+      <time>April 18, 2016</time>
+    </header>
+    <p>How that might happen...</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./js-what-the-func.html">What the Func</a>
+      <time>April 4, 2016</time>
+    </header>
+    <p>Some musings on functions.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./rimraf-windows.html">Removing a Folder on Windows</a>
+      <time>March 22, 2016</time>
+    </header>
+    <p>Aka, how not to wait a month.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./js-debugging.html">JavaScript Debugging Tips from the Trenches</a>
+      <time>March 16, 2016</time>
+    </header>
+    <p>Some of the tricks I've learned to figure out what's happening.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./handling-next-stream.html">Handling the next Stream in the Pipe Queue</a>
+      <time></time>
+    </header>
+    <p>A trick on learned when dealing with Node streams.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./done-autorender-viewmodel.html">Debugging your application&apos;s View Model</a>
+      <time></time>
+    </header>
+    <p>How to inspect your ViewModel in DoneJS apps.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./how-hot-swapping-works.html">How hot module swapping works</a>
+      <time></time>
+    </header>
+    <p>Hot module swapping in StealJS.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./gist-based-blogging.html">Building a gist-based blogging tool</a>
+      <time></time>
+    </header>
+    <p>My new blog, based on gists.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./using-npm-with-systemjs.html">Using npm with SystemJS</a>
+      <time></time>
+    </header>
+    <p>How you can load an npm app with SystemJS.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./organizing-your-library-project-with-stealjs.html">Organizing your library project with StealJS</a>
+      <time></time>
+    </header>
+    <p>A very brief introduction to StealJS project structure.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./im-sold-on-html-based-templating.html">I&apos;m Sold on HTML-based Templating</a>
+      <time></time>
+    </header>
+    <p>How HTML templating won me over.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./if-books-had-been-invented-for-the-web.html">If Books Had Been Invented for the Web</a>
+      <time></time>
+    </header>
+    <p>Some musings on the future of book reading.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./responsive-computes.html">Responsive Computes</a>
+      <time></time>
+    </header>
+    <p>Using can.compute to build responsive interfaces.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./fun-with-shadow-dom.html">Fun with Shadow DOM</a>
+      <time></time>
+    </header>
+    <p>Some things I learned experimenting with Shadow DOM.</p>
+  </article>
+  
+  <article>
+    <header>
+      <a href="./test-your-application-entry-point.html">Test Your Application Entry Point</a>
+      <time></time>
+    </header>
+    <p>Why it's important to do so.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./markdown-enable-your-blog-comments-with-web-components.html">Markdown Enable Your Blog Comments with Web Components</a>
+      <time></time>
+    </header>
+    <p>A markdown component.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./building-an-accordion-with-can-component.html">Building an accordion with can.Component</a>
+      <time></time>
+    </header>
+    <p></p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./functional-javascript-in-action.html">Functional JavaScript in action</a>
+      <time></time>
+    </header>
+    <p>How to write in a functional way.</p>
+  </article>  
+  
+  <article>
+    <header>
+      <a href="./state-of-developing-on-a-chromebook.html">State of Developing on a Chromebook</a>
+      <time></time>
+    </header>
+    <p>What I learned attempt to do programming on a Chromebook.</p>
+  </article>
+
+  <article>
+    <header>
+      <a href="./using-cloud-drives-on-chromebooks.html">Using Cloud Drives on Chromebooks</a>
+      <time></time>
+    </header>
+    <p></p>
+  </article>  
+</section>
 </main>

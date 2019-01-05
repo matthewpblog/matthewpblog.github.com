@@ -15,7 +15,7 @@ nav a:hover {
 	color: #000;
 }
 
-header {
+body > header {
   max-width: 800px;
   margin: 0 auto;
 }
@@ -65,4 +65,36 @@ p {
 	color: #000;
 	max-width: none;
 	line-height: 1.75em;
+}
+
+.articles {
+	/*margin: 0 4rem;*/
+}
+
+.articles p {
+	margin: 0;
+}
+
+.articles a {
+	font-size: 120%;
+	font-weight: 600;
+}
+
+.articles a,
+.articles a:visited {
+	color: #3c79d2;
+}
+
+.articles article {
+	margin-bottom: 2rem;
+}
+
+.articles article header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.articles article header time {
+	font-size: 85%;
 }
