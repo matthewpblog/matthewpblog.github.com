@@ -17,7 +17,17 @@ nav a:hover {
 
 header {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 10px auto 0 auto;
+}
+
+aside.meta {
+	display: flex;
+	justify-content: space-between;
+	font-family: Georgia;
+}
+
+read-time:not(:defined) + span {
+	display: none;
 }
 
 main {
@@ -45,7 +55,7 @@ h3 {
 }
 
 h1 {
-	margin: 150px 0 100px;
+	margin: 140px 0 100px;
 	color: #000;
 	text-align: center;
 	font-size: 65px;
