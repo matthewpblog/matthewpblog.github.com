@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Matthew Phillips Programming Blog</title>
+    <subtitle>Musings on things. Mostly JavaScript / Web.</subtitle>
+    <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
+    <link href="https://matthewphillips.info/programming/index.html" />
+    <id>https://matthewphillips.info/programming/index.html</id>
+    <updated>2019-01-06T15:06:49.740Z</updated>
+    <entry>
+    <title>Using the :defined selector with slots</title>
+    <link href="https://matthewphillips.info/programming/wc-defined-selector.html" />
+    <id>https://matthewphillips.info/programming/wc-defined-selector.html</id>
+    <updated>2019-01-01T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Creating Web Components in Go + wasm</title>
+    <link href="https://matthewphillips.info/programming/wasm-golang-ce.html" />
+    <id>https://matthewphillips.info/programming/wasm-golang-ce.html</id>
+    <updated>2018-06-18T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Building Multi-use Web Workers</title>
+    <link href="https://matthewphillips.info/programming/building-multi-use-workers.html" />
+    <id>https://matthewphillips.info/programming/building-multi-use-workers.html</id>
+    <updated>2018-03-27T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Leni - A small library for worker communication</title>
+    <link href="https://matthewphillips.info/programming/leni-intro.html" />
+    <id>https://matthewphillips.info/programming/leni-intro.html</id>
+    <updated>2017-12-08T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Flora - Streaming templates for Node.js</title>
+    <link href="https://matthewphillips.info/programming/flora-intro.html" />
+    <id>https://matthewphillips.info/programming/flora-intro.html</id>
+    <updated>2017-11-09T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Thoughts on Worker Rendering</title>
+    <link href="https://matthewphillips.info/programming/about-worker-rendering.html" />
+    <id>https://matthewphillips.info/programming/about-worker-rendering.html</id>
+    <updated>2016-12-12T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>How Build Processes Hinder Development</title>
+    <link href="https://matthewphillips.info/programming/no-build.html" />
+    <id>https://matthewphillips.info/programming/no-build.html</id>
+    <updated>2016-11-29T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>In Defense of var</title>
+    <link href="https://matthewphillips.info/programming/in-defense-of-var.html" />
+    <id>https://matthewphillips.info/programming/in-defense-of-var.html</id>
+    <updated>2016-05-19T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Loading a Modern Application with <script type=module></title>
+    <link href="https://matthewphillips.info/programming/loading-app-with-script-module.html" />
+    <id>https://matthewphillips.info/programming/loading-app-with-script-module.html</id>
+    <updated>2016-04-18T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>What the Func</title>
+    <link href="https://matthewphillips.info/programming/js-what-the-func.html" />
+    <id>https://matthewphillips.info/programming/js-what-the-func.html</id>
+    <updated>2016-04-04T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Removing a Folder on Windows</title>
+    <link href="https://matthewphillips.info/programming/rimraf-windows.html" />
+    <id>https://matthewphillips.info/programming/rimraf-windows.html</id>
+    <updated>2016-03-22T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>JavaScript Debugging Tips from the Trenches</title>
+    <link href="https://matthewphillips.info/programming/js-debugging.html" />
+    <id>https://matthewphillips.info/programming/js-debugging.html</id>
+    <updated>2016-03-16T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+  </feed>
