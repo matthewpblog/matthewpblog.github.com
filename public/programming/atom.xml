@@ -5,7 +5,7 @@
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-01-06T15:06:49.740Z</updated>
+    <updated>2019-01-06T15:14:01.943Z</updated>
     <entry>
     <title>Using the :defined selector with slots</title>
     <link href="https://matthewphillips.info/programming/wc-defined-selector.html" />
@@ -63,7 +63,7 @@
     <author><name>Matthew Phillips</name></author>
   </entry>
 <entry>
-    <title>Loading a Modern Application with <script type=module></title>
+    <title>Loading a Modern Application with &lt;script type=module&gt;</title>
     <link href="https://matthewphillips.info/programming/loading-app-with-script-module.html" />
     <id>https://matthewphillips.info/programming/loading-app-with-script-module.html</id>
     <updated>2016-04-18T04:00:00.000Z</updated>

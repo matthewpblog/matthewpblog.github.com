@@ -6,5 +6,6 @@ serve:
 	http-server -p 5000
 .PHONY: serve
 
-public/programming/atom.xml: public/programming/index.html
+public/programming/atom.xml: public/programming/index.html \
+	scripts/programming/src/feed.js
 	node scripts/programming/src/feed.js > $@

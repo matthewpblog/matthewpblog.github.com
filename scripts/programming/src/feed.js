@@ -1,6 +1,22 @@
 const fsc = require('fs-cheerio');
 
+let REG_ESCAPE_ALL = /[<>&]/g;
 let now = new Date();
+
+function escape(txt) {
+  return txt.replace(REG_ESCAPE_ALL, function(match) {
+    switch(match) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      default:
+        return match;
+    }
+  });
+}
 
 function feed(entries) {
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -16,7 +32,7 @@ function feed(entries) {
 }
 
 function entry(el) {
-  let title = el.find('a').text();
+  let title = escape(el.find('a').text());
   let href = el.find('a').attr('href').substr(1);
   let url = `https://matthewphillips.info/programming${href}`;
   let time = new Date(el.find('time').text());
