@@ -22,10 +22,12 @@ body > header {
 
 main {
 	font-family: Arial, sans-serif;
-	font-size: 18px;
+	font-size: 14px;
 	margin: 0 auto;
 	max-width: 800px;
 	padding: 0 50px 150px;
+
+	--tablet-up-width: 900px;
 }
 
 main h1 {
@@ -67,16 +69,12 @@ p {
 	line-height: 1.75em;
 }
 
-.articles {
-	/*margin: 0 4rem;*/
-}
-
 .articles p {
 	margin: 0;
 }
 
 .articles a {
-	font-size: 120%;
+	font-size: calc(18px * 1.8);
 	font-weight: 600;
 }
 
@@ -96,5 +94,20 @@ p {
 }
 
 .articles article header time {
-	font-size: 85%;
+	font-size: 100%;
+}
+
+/* Landscape tablet + up */
+@media (min-width: 992px) {
+	main {
+		font-size: 18px;
+	}
+
+	.articles a {
+		font-size: 120%;
+	}
+
+	.articles article header time {
+		font-size: 85%;
+	}
 }
