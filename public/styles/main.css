@@ -30,9 +30,12 @@ read-time:not(:defined) + span {
 	display: none;
 }
 
+header, main {
+	font-size: 24px;
+}
+
 main {
 	font-family: Arial, sans-serif;
-	font-size: 18px;
 	margin: 0 auto;
 	max-width: 800px;
 	padding: 0 50px 100px;
@@ -75,7 +78,11 @@ main img {
 p {
 	color: #000;
 	max-width: none;
-	line-height: 1.75em;
+	line-height: 1.8em;
+}
+
+pre code[class] {
+	font-size: 125%;
 }
 
 code:not([class]) {
@@ -93,4 +100,19 @@ footer a,
 footer a:visited {
 	color: #3c79d2;
 	font-size: calc(18px * 1.8);
+}
+
+/* Landscape tablet + up */
+@media (min-width: 992px) {
+	header, main {
+		font-size: 18px;
+	}
+
+	header {
+		font-size: inherit;
+	}
+
+	pre code[class] {
+		font-size: 100%;
+	}
 }
