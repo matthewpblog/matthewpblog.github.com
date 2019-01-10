@@ -17,16 +17,20 @@ nav a:hover {
 
 header {
   max-width: 800px;
-  margin: 10px auto 0 auto;
+	margin: 10px auto 0 auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 }
 
-aside.meta {
-	display: flex;
-	justify-content: space-between;
-	font-family: Georgia;
+header read-time {
+	justify-self: flex-end;
 }
 
-read-time:not(:defined) + span {
+header h1 {
+	grid-column: 1 / 3;
+}
+
+read-time:not(:defined) {
 	display: none;
 }
 

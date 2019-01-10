@@ -1,18 +1,13 @@
-<!doctype html>
-<html lang="en">
-
-<title>Using the :defined selector with slots</title>
+<!DOCTYPE html><html lang="en"><head><title>Using the :defined selector with slots</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../styles/main.css">
-<link rel="alternate" type="application/atom+xml"
-  title="Matthew Phillips Programming Blog"
-  href="https://matthewphillips.info/programming/atom.xml">
+<link rel="alternate" type="application/atom+xml" title="Matthew Phillips Programming Blog" href="https://matthewphillips.info/programming/atom.xml">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Using the :defined selector with slots">
 <meta property="og:url" content="https://matthewphillips.info/programming/wc-defined-selector.html">
 <meta property="og:description" content="How to use the :defined selector in association with slots.">
-<meta property="og:site_name" content="Matthew's Programming Blog">
+<meta property="og:site_name" content="Matthew&apos;s Programming Blog">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@matthewcp">
@@ -22,19 +17,13 @@
 
 <script type="module" src="../scripts/read-time.js"></script>
 
-<header>
-  <aside class="meta">
-    <time>January 1, 2019</time>
-    <span>
-      <read-time selector="main"></read-time>
-      <span>min read</span>
-    </span>
-  </aside>
+</head><body><header><time>January 1, 2019</time><read-time selector="main">min read</read-time>
+  
   <h1>Using the :defined selector with slots</h1>
 </header>
 
 <main>
-<p>The <code>:defined</code> CSS selector allows you to target custom elements. See the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:defined">MDN docs</a> for full usage. Let's compare a couple of ways you could target custom elements:</p>
+<p>The <code>:defined</code> CSS selector allows you to target custom elements. See the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:defined">MDN docs</a> for full usage. Let&apos;s compare a couple of ways you could target custom elements:</p>
 
 <pre><code class="language-css">my-element {
   display: block;
@@ -50,9 +39,9 @@
 
 <h2>Using with :not()</h2>
 
-<p>The primary use case I've found for <code>:defined</code> is to use it in conjuction with <code>:not</code>. The <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:not">:not</a> selector, as you might have guessed, let's you target falsey selectors.</p>
+<p>The primary use case I&apos;ve found for <code>:defined</code> is to use it in conjuction with <code>:not</code>. The <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:not">:not</a> selector, as you might have guessed, let&apos;s you target falsey selectors.</p>
 
-<p>Unless you inline your custom element's JavaScript in the top of the page, there will be a period of time in which the element is visible to the user, but the JavaScript defining its behavior has not yet executed. For example you might have:</p>
+<p>Unless you inline your custom element&apos;s JavaScript in the top of the page, there will be a period of time in which the element is visible to the user, but the JavaScript defining its behavior has not yet executed. For example you might have:</p>
 
 <pre><code class="language-html">&lt;my-element&gt;
   &lt;span&gt;Some content here&lt;/span&gt;
@@ -72,22 +61,22 @@
 
 <p>Shadow DOM gives you the capability to define multiple slots, using <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots">named slots</a>. Some times you might conditionally show a slot only under certain scenarios.</p>
 
-<p>For the sake of showing what is possible, let's pretend you are creating a <strong>conditional</strong> component. This is a component that acts like an <code>if</code> statement in JavaScript. Using slots you define what should be shown when the condition is true and when it is false. Let's say usage is like so:</p>
+<p>For the sake of showing what is possible, let&apos;s pretend you are creating a <strong>conditional</strong> component. This is a component that acts like an <code>if</code> statement in JavaScript. Using slots you define what should be shown when the condition is true and when it is false. Let&apos;s say usage is like so:</p>
 
 <pre><code class="language-html">&lt;my-conditional on&gt;
-  &lt;span slot="true"&gt;Value is true!&lt;/span&gt;
-  &lt;span slot="false"&gt;Value is false!&lt;/span&gt;
+  &lt;span slot=&quot;true&quot;&gt;Value is true!&lt;/span&gt;
+  &lt;span slot=&quot;false&quot;&gt;Value is false!&lt;/span&gt;
 &lt;/my-conditional&gt;</code></pre>
 
 <p>The important parts of above are:</p>
 
 <ul>
   <li>The <code>on</code> attribute is set when the condition is <strong>true</strong>.</li>
-  <li><code>slot="true"</code> is the content that should be shown when the condition is true.</li>
-  <li><code>slot="false"</code> is the content that should be shown when the condition is false (the <code>on</code> attribute is not set).</li>
+  <li><code>slot=&quot;true&quot;</code> is the content that should be shown when the condition is true.</li>
+  <li><code>slot=&quot;false&quot;</code> is the content that should be shown when the condition is false (the <code>on</code> attribute is not set).</li>
 </ul>
 
-<p>Without any styling the browser is going to show both slots before the element is defined. We obviously don't want that. As shown above, we can set the display to none to prevent the problem:</p>
+<p>Without any styling the browser is going to show both slots before the element is defined. We obviously don&apos;t want that. As shown above, we can set the display to none to prevent the problem:</p>
 
 <pre><code class="language-css">my-conditional:not(:defined) {
   display: none;
@@ -105,14 +94,15 @@ my-conditional:not(:defined):not([on]) [slot=true] {
 
 <h2>Conclusion</h2>
 
-<p>That's it! I hope I've convinced you custom element authors that <code>:not</code> combined with <code>:defined</code> gives you a lot of power to do whatever you need in that small window between the page loading and JavaScript executing.</p>
+<p>That&apos;s it! I hope I&apos;ve convinced you custom element authors that <code>:not</code> combined with <code>:defined</code> gives you a lot of power to do whatever you need in that small window between the page loading and JavaScript executing.</p>
 
 </main>
 
 <footer>
-  <a href="./index.html">← Programming Blog</a>
+  <a href="./index.html">&#x2190; Programming Blog</a>
 </footer>
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
+</body></html>
