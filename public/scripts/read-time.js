@@ -4,6 +4,10 @@ template.innerHTML = /* html */ `
     :host {
       display: inline;
     }
+
+    /*slot {
+      display: inline;
+    }*/
   </style>
   <span id="root"></span>
   <slot></slot>
