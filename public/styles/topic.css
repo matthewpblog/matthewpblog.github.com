@@ -22,7 +22,7 @@ body > header {
 
 main {
 	font-family: Arial, sans-serif;
-	font-size: 14px;
+	font-size: 18px;
 	margin: 0 auto;
 	max-width: 800px;
 	padding: 0 50px 150px;
@@ -101,10 +101,6 @@ p {
 
 /* Landscape tablet + up */
 @media (min-width: 992px) {
-	main {
-		font-size: 18px;
-	}
-
 	h1 {
 		font-size: 65px;
 	}
