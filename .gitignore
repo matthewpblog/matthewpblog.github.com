@@ -3,3 +3,4 @@ Thumbs.db
 .grunt/
 .sass-cache/
 node_modules/
+.DS_Store
