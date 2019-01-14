@@ -17,7 +17,7 @@ nav a:hover {
 
 header {
   max-width: 800px;
-	margin: 10px auto 0 auto;
+	margin: 10px 20px 0;
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 }
@@ -36,14 +36,14 @@ read-time:not(:defined) {
 }
 
 header, main {
-	font-size: 24px;
+	font-size: 18px;
 }
 
 main {
 	font-family: Arial, sans-serif;
 	margin: 0 auto;
 	max-width: 800px;
-	padding: 0 50px 100px;
+	padding: 0 20px 100px;
 }
 
 main h1 {
@@ -114,12 +114,13 @@ footer a:visited {
 		font-size: 65px;
 	}
 
-	header, main {
-		font-size: 18px;
-	}
-
 	header {
 		font-size: inherit;
+		margin: 10px auto 0 auto;
+	}
+
+	main {
+		padding: 0 50px 100px;
 	}
 
 	pre code[class] {
