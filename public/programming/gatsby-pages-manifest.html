@@ -62,14 +62,14 @@
 
 <p>And of course this goes on and on to contain every page on your site. This means that with every new post this config grows by another object (and there's also another mapping further down in the file). Every page on the site loads this metadata file.</p>
 
-<p>All in all, the Gatsby blog loads <strong>424kb</strong> of JavaScript on this particular blog post. The result is that when viewing on a 3G connection there is <em>jank</em> that occurs after the code has loaded that pushes the user back to the top of the page. Below is a video of what that looks like.</p>
+<p>All in all, the Gatsby blog loads <strong>424kb</strong> of JavaScript on this particular blog post. The result is that when viewing on a 3G connection there is a <em>jump</em> that occurs after the code has loaded that pushes the user back to the top of the page. Below is a video of what that looks like.</p>
 
 <figure>
   <video controls autoplay>
     <source type="video/webm" src="../images/gatsby-manifest/jump.webm">  
     <source type="video/mp4" src="../images/gatsby-manifest/jump.mp4">
   </video>
-  <figcaption>Jank caused by slow loading JavaScript.</figcaption>
+  <figcaption>Jump caused by slow loading JavaScript.</figcaption>
 </figure>
 
 <p>I went back on forth on whether I should write about this problem or just let it go. Ultimately I decided it was fair to do so for two reasons:</p>
