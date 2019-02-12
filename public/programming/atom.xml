@@ -5,8 +5,15 @@
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-01-17T12:15:11.211Z</updated>
+    <updated>2019-02-12T01:04:32.261Z</updated>
     <entry>
+    <title>Defining custom elements in HTML</title>
+    <link href="https://matthewphillips.info/programming/decorate-element.html" />
+    <id>https://matthewphillips.info/programming/decorate-element.html</id>
+    <updated>2019-02-11T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
     <title>Writing on your Gatsby blog leads to JavaScript bloat</title>
     <link href="https://matthewphillips.info/programming/gatsby-pages-manifest.html" />
     <id>https://matthewphillips.info/programming/gatsby-pages-manifest.html</id>
