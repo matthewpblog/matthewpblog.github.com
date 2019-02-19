@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<title>Accessible disappearing header thanks to :focus-within</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="icon" href="../images/html-icon.ico">
+<link rel="alternate" type="application/atom+xml" title="Matthew Phillips Programming Blog" href="https://matthewphillips.info/programming/atom.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Accessible disappearing header thanks to :focus-within">
+<meta property="og:url" content="https://matthewphillips.info/programming/focus-within.html">
+<meta property="og:description" content="How what could have been a painful jumble of JavaScript turned into a 1 line CSS change">
+<meta property="og:site_name" content="Matthew&apos;s Programming Blog">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@matthewcp">
+<meta name="twitter:title" content="Accessible disappearing header thanks to :focus-within">
+<meta name="twitter:description" content="How what could have been a painful jumble of JavaScript turned into a 1 line CSS change">
+<meta name="twitter:image" content="https://matthewphillips.info/images/focus-within/example.png">
+
+
+<script type="module" src="../scripts/read-time.js"></script>
+<style>
+  .demo {
+    background-color: tomato;
+    color: #000;
+  }
+
+  .demo-content, .demo-header {
+    padding: 1em;
+  }
+
+  .demo-header {
+    background-color: black;
+    opacity: 0;
+    transition: opacity 1s;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .demo-header.open,
+  .demo-fixed .demo-header:focus-within {
+    opacity: 1;
+  }
+
+  .demo-header button {
+    background-color: transparent;
+    color: white;
+    font-size: 100%;
+  }
+
+  .demo-content {
+    height: 8rem;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    font-size: 120%;
+  }
+</style>
+
+<header>
+  <time>February 19, 2019</time>
+  <read-time selector="main">min read</read-time>
+  
+  <h1>Accessible disappearing header thanks to :focus-within</h1>
+</header>
+
+<main>
+<p>So, in a side project I'm working on I wanted to make it so that the navbar would disappear when not in use. So I made it so that it has <code>opacity: 0</code> by default. If you click in the middle of the viewport it becomes <code>opacity: 1</code>. After a few seconds it hides itself again.</p>
+
+<p>You can check out a demo below. Just click anywhere within the content of the box:</p>
+
+<div class="demo">
+  <div class="demo-header">
+    <button>Cool App</button>
+    <button>👩‍💼 User</button>
+  </div>
+  <div class="demo-content">
+    <p><strong>Click</strong> here to <span id="header-state">see</span> the nav.</p>
+  </div>
+</div>
+
+<p>It's a nice effect and works exactly how I wanted... Except there's one problem. If you use the keyboard and tab into the navbar in order to use one of the buttons it remains invisible. Try it above. You can tab into the button but won't see that the button is focused. 😔</p>
+
+<p>At first I thought of these two possible solutions:</p>
+
+<ol>
+  <li>Give the navbar a <code>tabindex</code> which makes it focusable. Then I could use the <code>:focus</code> selector to make it visible. However this only works when the navbar itself is focused; once you tab to one of the button it loses focus and would disappear. So this one was a <strong>fail</strong>.</li>
+  <li>Write some JavaScript to listen to when the navbar receives focus and add a class. Remove the class when it loses focus. This would have of course worked but it would also make me cry. <strong>fail</strong>.</li>
+</ol>
+
+<h2>:focus-within</h2>
+
+<p>And then somehow <code>:focus-within</code> crawled into my mind. I have never used this selector before, I only read about it... somewhere. It does make you wonder how developers who don't read material or try to "stay in the know" find out about things like this. Because I was dangerously close to going the JavaScript route.</p>
+
+<p>Anyways, the solution is <em>dead simple</em>. The <code>:focus-within</code> selector can be used to select elements which are ancestors of elements with focus. This means in my case if any of the buttons have focus, I can give the navbar a <code>opacity: 1</code>. Here's the diff of the change:</p>
+
+<pre><code class="language-diff">  .demo-header.open,
++ .demo-header:focus-within {
+    opacity: 1;
+  }</code></pre>
+
+<p>And another demo. This time try to tab in. Notice that the focus goes to the buttons, and once you tab out it disappears again. Perfect!</p>
+
+<div class="demo demo-fixed">
+  <div class="demo-header">
+    <button>Cool App</button>
+    <button>👩‍💼 User</button>
+  </div>
+  <div class="demo-content">
+    <p><strong>Click</strong> here to <span id="header-state">see</span> the nav. Or tab into it!</p>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <a href="./index.html">&#x2190; Programming Blog</a>
+</footer>
+
+<script type="module">
+  for(let demo of document.querySelectorAll('.demo')) {
+    let content = demo.querySelector('.demo-content');
+    let header = demo.querySelector('.demo-header');
+    let state = demo.querySelector('#header-state');
+    let id;
+
+    function disable() {
+      header.classList.remove('open');
+      state.textContent = 'see';
+    }
+
+    function onClick() {
+      clearTimeout(id);
+      let open = header.classList.toggle('open');
+      state.textContent = open ? 'hide' : 'see';
+
+      if(open)
+        id = setTimeout(disable, 3000);
+    }
+
+    content.addEventListener('click', onClick);
+  }
+</script>
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/github.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
