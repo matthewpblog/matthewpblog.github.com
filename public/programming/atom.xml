@@ -5,8 +5,22 @@
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-02-12T01:04:32.261Z</updated>
+    <updated>2019-04-23T11:43:47.191Z</updated>
     <entry>
+    <title>Styling a fullscreen PWA</title>
+    <link href="https://matthewphillips.info/programming/focus-within.html" />
+    <id>https://matthewphillips.info/programming/focus-within.html</id>
+    <updated>2019-04-23T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
+    <title>Accessible disappearing header thanks to :focus-within</title>
+    <link href="https://matthewphillips.info/programming/focus-within.html" />
+    <id>https://matthewphillips.info/programming/focus-within.html</id>
+    <updated>2019-02-19T05:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
     <title>Defining custom elements in HTML</title>
     <link href="https://matthewphillips.info/programming/decorate-element.html" />
     <id>https://matthewphillips.info/programming/decorate-element.html</id>
