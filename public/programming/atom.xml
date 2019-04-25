@@ -5,8 +5,15 @@
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-04-23T11:45:00.541Z</updated>
+    <updated>2019-04-25T00:52:10.976Z</updated>
     <entry>
+    <title>How Svelte shifted its narrative</title>
+    <link href="https://matthewphillips.info/programming/svelte3-narrative.html" />
+    <id>https://matthewphillips.info/programming/svelte3-narrative.html</id>
+    <updated>2019-04-24T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
     <title>Styling a fullscreen PWA</title>
     <link href="https://matthewphillips.info/programming/fullscreen-pwa.html" />
     <id>https://matthewphillips.info/programming/fullscreen-pwa.html</id>

@@ -29,59 +29,24 @@
 
 <main>
 <blockquote>
-  Warning, this post assumes you are familiar with Svelte and the history of the project. If you're not, you're better off <a href="https://svelte.dev/">Checking out the home page</a>.
+  Warning, this post assumes you are familiar with Svelte and the history of the project. If you're not, you're better off <a href="https://svelte.dev/">checking out the home page</a> than reading this.
 </blockquote>
 
-<p>Gatbsy's popularity as a blogging platform has been rising rapidly over the last year or so. If you aren't familiar, Gatbsy is built on top of React and allows you to build your blog (or any other type of site I imagine) as a single-page app using React.</p>
+<p>I've been thinking a lot about Svelte 3 in the last few days since its release. Some of it is ideas that I haven't fully fleshed out. I might write more about it in the future. I first wanted to get out this thought, though, first.</p>
 
-<p>Using the SPA method on a blog may sound odd to many, but it shouldn't be surprising given how the SPA has become the hammer of web development. In any case I was curious to see how this affected performance.</p>
+<p>Any successful product, including programming libraries, must contain a narrative; an essence of what it is about. Svelte established its narrative right from the start, with version 1. It was about performance.</p>
 
-<p>So I'll just cut to the chase; every time you create a new post or page in your Gatsby blog a manifest file that contains metadata about every page grows by roughly <strong>100 bytes</strong> (being generous on this number).</p>
+<p>Its early, but signs seem to indicate that Svelte 3 is going to be a success. Its made a compelling case, both from a UX and DX perspective and that's a winning combination.</p>
 
-<p>You can see for yourself, look at <a href="https://www.gatsbyjs.org/blog/2019-01-14-modern-publications-with-gatsby-ghost/">Gatbsy's own blog</a> for an example. Their manifest is <strong>103KB</strong>.</p>
+<p>There are likely many reasons why it will be successful, and some are more obvious than others. What has occurred to me, though, is how it has successfully shifted its narrative.</p>
 
-<p>This file looks like so:</p>
+<p>In version 1 there was a lot of emphasis put on how small apps compiled to. Whether right or wrong, there was some pushback on this front and some claimed it wouldn't scale.</p>
 
-<pre><code class="language-javascript">(window.webpackJsonp = window.webpackJsonp || []).push([[33], {
-  696: function(a) {
-    a.exports = {
-      pages: [{
-        componentChunkName: "component---src-pages-index-js",
-        jsonName: "index",
-        path: "/"
-      }, {
-        componentChunkName: "component---src-pages-404-js",
-        jsonName: "404-html-516",
-        path: "/404.html"
-      }, {
-        componentChunkName: "component---src-pages-404-js",
-        jsonName: "404-22d",
-        path: "/404/"
-      }, {
-        componentChunkName: "component---src-templates-template-docs-markdown-js",
-        jsonName: "readme-445",
-        path: "/README/"
-      }
-      ...</code></pre>
+<p>With version 3, Svelte is still about performance, but the narrative has shifted to be about <em>runtime</em> performance moreso than file size. Rich Harris <a href="https://www.youtube.com/watch?v=AdNJ3fydeao&feature=youtu.be">gave a talk</a> (which I encourage everyone to watch) in which he talks about precisely that.</p>
 
-<p>And of course this goes on and on to contain every page on your site. This means that with every new post this config grows by another object (and there's also another mapping further down in the file). Every page on the site loads this metadata file.</p>
+<p>The narrative makes sense. A view that compiles to minimal imperative JavaScript <em>should</em> be extremely performant. It's easy to understand the argument and hard to knock holes in.</p>
 
-<p>All in all, the Gatsby blog loads <strong>424kb</strong> of JavaScript on this particular blog post. The result is that when viewing on a 3G connection there is a <em>jump</em> that occurs after the code has loaded that pushes the user back to the top of the page. Below is a video of what that looks like.</p>
-
-<figure>
-  <video controls autoplay>
-    <source type="video/webm" src="../images/gatsby-manifest/jump.webm">  
-    <source type="video/mp4" src="../images/gatsby-manifest/jump.mp4">
-  </video>
-  <figcaption>Jump caused by slow loading JavaScript.</figcaption>
-</figure>
-
-<p>I went back on forth on whether I should write about this problem or just let it go. Ultimately I decided it was fair to do so for two reasons:</p>
-
-<ul>
-  <li>Gatsby is a VC backed startup.</li>
-  <li>They are gaining significant ground as a blogging platform. Any problems Gatsby has will affect all readers of the web.</li>
-</ul>
+<p>The narrative about file size was/is a good one, but this one is simply better. It's an interesting lesson on how a small tweak to a narrative can have a large impact on a product's success.</p>
 
 </main>
 
