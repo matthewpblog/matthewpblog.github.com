@@ -5,8 +5,15 @@
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-04-25T00:52:10.976Z</updated>
+    <updated>2019-05-30T22:40:02.357Z</updated>
     <entry>
+    <title>Classes are not options objects</title>
+    <link href="https://matthewphillips.info/programming/classes-are-not-options.html" />
+    <id>https://matthewphillips.info/programming/classes-are-not-options.html</id>
+    <updated>2019-05-30T04:00:00.000Z</updated>
+    <author><name>Matthew Phillips</name></author>
+  </entry>
+<entry>
     <title>How Svelte shifted its narrative</title>
     <link href="https://matthewphillips.info/programming/svelte3-narrative.html" />
     <id>https://matthewphillips.info/programming/svelte3-narrative.html</id>
