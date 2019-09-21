@@ -5,6 +5,7 @@ date: 2019-09-21
 tags: post
 permalink: programming/announcing-robot.html
 description: Robot is a new library for building finite state machines, in only 1kB.
+image: /images/announcing-robot/example.png
 ---
 
 __[Robot](https://thisrobot.life/)__ is a new library for building [finite state machines](https://en.wikipedia.org/wiki/Finite-state_machine) in only __1.3kB__. Here's an obligatory toggle machine example:
