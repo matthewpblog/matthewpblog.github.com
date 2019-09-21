@@ -1,3 +1,5 @@
+ELEVENTY=node_modules/.bin/eleventy
+
 all: public/programming/atom.xml
 PHONY: all
 
@@ -8,6 +10,10 @@ deploy:
 serve:
 	http-server -p 5000
 .PHONY: serve
+
+docs:
+	$(ELEVENTY) --input site --output public
+.PHONY: docs
 
 public/programming/atom.xml: public/programming/index.html \
 	scripts/programming/src/feed.js

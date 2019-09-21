@@ -113,6 +113,10 @@ blockquote p {
   display: inline;
 }
 
+hr {
+	border: 1px solid salmon;
+}
+
 /* Landscape tablet + up */
 @media (min-width: 992px) {
 	h1 {
@@ -127,9 +131,5 @@ blockquote p {
 
 	main {
 		padding: 0 50px 100px;
-	}
-
-	pre code[class] {
-		font-size: 100%;
 	}
 }

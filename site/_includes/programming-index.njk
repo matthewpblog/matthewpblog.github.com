@@ -14,13 +14,18 @@
 
 <main>
 
-<section class="articles"><article>
+<section class="articles">
+    {%- for post in collections.post -%}
+    <article>
       <header>
-        <a href="./announcing-robot.html">Announcing Robot</a>
-        <time>September 20, 2019</time>
+        <a href="{{ post.url | relUrl(page.url) }}">{{ post.data.title }}</a>
+        <time>{{ post.date | formatDate }}</time>
       </header>
-      <p>Robot is a new library...</p>
-    </article><article>
+      <p>{{ post.data.description }}</p>
+    </article>
+    {%- endfor -%}
+
+  <article>
     <header>
       <a href="./classes-are-not-options.html">Classes are not options objects</a>
       <time>May 30, 2019</time>

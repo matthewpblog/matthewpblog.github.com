@@ -1,3 +1,9 @@
+---
+permalink: programming/atom.xml
+metadata:
+  title: Matthew Phillips Programming Blog
+  url: https://matthewphillips.info/programming/index.html
+---
 <?xml version="1.0" encoding="utf-8"?>
   <feed xmlns="http://www.w3.org/2005/Atom">
     <title>Matthew Phillips Programming Blog</title>
@@ -6,14 +12,16 @@
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
     <updated>2019-05-30T22:40:02.357Z</updated>
-  
+{%- for post in collections.post %}
+  {% set absolutePostUrl %}{{ post.url | url | absoluteUrl(metadata.url) }}{% endset %}
   <entry>
-    <title>Announcing Robot</title>
-    <link href="https://matthewphillips.info/programming/announcing-robot.html" />
-    <id>https://matthewphillips.info/programming/announcing-robot.html</id>
-    <updated>2019-09-20T15:44:57.605-04:00</updated>
+    <title>{{ post.data.title }}</title>
+    <link href="{{ absolutePostUrl }}" />
+    <id>{{ absolutePostUrl }}</id>
+    <updated>{{ post.date | rssDate }}</updated>
     <author><name>Matthew Phillips</name></author>
   </entry>
+{%- endfor %}
   <entry>
     <title>Classes are not options objects</title>
     <link href="https://matthewphillips.info/programming/classes-are-not-options.html" />
