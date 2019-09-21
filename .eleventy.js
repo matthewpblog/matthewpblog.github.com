@@ -22,9 +22,9 @@ module.exports = function(eleventyConfig) {
   });
 
   eleventyConfig.addFilter('formatDate', date => {
-    let monthName = monthNames[date.getMonth()];
-    let day = date.getDate();
-    let year = date.getFullYear();
+    let monthName = monthNames[date.getUTCMonth()];
+    let day = date.getUTCDate();
+    let year = date.getUTCFullYear();
 
     return `${monthName} ${day}, ${year}`;
   });
