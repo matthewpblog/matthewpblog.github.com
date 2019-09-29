@@ -15,7 +15,7 @@
 <main>
 
 <section class="articles">
-    {%- for post in collections.post -%}
+    {%- for post in collections.post | reverse -%}
     <article>
       <header>
         <a href="{{ post.url | relUrl(page.url) }}">{{ post.data.title }}</a>

@@ -12,7 +12,7 @@ metadata:
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
     <updated>2019-05-30T22:40:02.357Z</updated>
-{%- for post in collections.post %}
+{%- for post in collections.post | reverse %}
   {% set absolutePostUrl %}{{ post.url | url | absoluteUrl(metadata.url) }}{% endset %}
   <entry>
     <title>{{ post.data.title }}</title>
