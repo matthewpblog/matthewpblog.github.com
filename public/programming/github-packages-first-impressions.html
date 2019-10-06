@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<title>First Impressions of GitHub Package Registry</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="icon" href="../images/html-icon.ico">
+<link rel="alternate" type="application/atom+xml" title="Matthew Phillips Programming Blog" href="https://matthewphillips.info/programming/atom.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="First Impressions of GitHub Package Registry">
+<meta property="og:url" content="/programming/github-packages-first-impressions.html">
+<meta property="og:description" content="My first impressions after trying out the GitHub Package Registry.">
+<meta property="og:site_name" content="Matthew&apos;s Programming Blog">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@matthewcp">
+<meta name="twitter:title" content="First Impressions of GitHub Package Registry">
+<meta name="twitter:description" content="My first impressions after trying out the GitHub Package Registry.">
+
+
+<link rel="stylesheet" href="../styles/prism-cb.css">
+<script type="module" src="../scripts/read-time.js"></script>
+
+<header>
+  <time>October 6, 2019</time>
+  <read-time selector="main">min read</read-time>
+  
+  <h1>First Impressions of GitHub Package Registry</h1>
+</header>
+
+<main><p>I recently received an invite to GitHub's new <a href="https://github.com/features/package-registry">Package Registry</a> and have been itching for an opportunity to try it out. For those unaware, GitHub Package Registry is a new feature that allows publishing packages for many programming environments including  RubyGems, Maven, and npm. I was most interested in npm.</p>
+<p>For context, when I worked on <a href="https://thisrobot.life/">Robot</a> I was unable to get the package name <code>robot</code> because it was being name squatted. The same for <code>robot2</code> in fact! So I went with <code>robot3</code>.</p>
+<p>I didn't go through the conflict resolution process because I previously attempted that on another project back in August and have still never received a reply from npm (other than the initial automated reply). It seems that company turmoil is affecting their custom support.</p>
+<p>So being a little bitter I strongly considered the idea of just releasing my projects under scoped names from now on. I like the idea that GitHub <em>only</em> has scoped package names, so there's less of a &quot;land grab&quot; for good names.</p>
+<h2>Publishing a First Package</h2>
+<p>In one of my side projects using <a href="https://www.11ty.io/">Eleventy</a> I had a need to build a plugin. It seemed like a plugin that was very specific to my needs and not necessarily something that others would find useful, and probably not something I wanted to maintain in a very public sort of way. To me this is a great use-case for a scoped package.</p>
+<p>Previously I've published scoped packages to npm, but this gave me a great chance to try out GitHub Package Registry. So I created a new repo, threw in a <code>console.log('hello world')</code> and tried to publish.</p>
+<p>The <a href="https://help.github.com/en/articles/configuring-npm-for-use-with-github-package-registry#publishing-a-package">directions for publishing</a> are fairly good, but for me it didn't work the first time. I actually published it to npm by mistake. Oops! I was able to get it to work the second time when I added the <a href="https://docs.npmjs.com/files/package.json#publishconfig">publishConfig</a> option. I'm not sure if that's required or not, but it was for me.</p>
+<p>After publishing I tried to add the package to the project that needed it. Again here the documentation was quite good, but again it didn't work the first time. I had to blow away my <code>node_modules/</code> as well as the <code>package-lock.json</code> and then it finally did work.</p>
+<h2>Pitfalls</h2>
+<p>I ran into a few pitfalls along the way but overall the experience was fairly seamless. Some problems I experienced:</p>
+<ul>
+<li>It instructs you to add your access token to a <code>~/.npmrc</code> file, but for me that file already had a token for the npm registry. Was I supposed to remove the other token? Is it one per file? This was unclear. I eventually did remove the other so now I'm not sure if that means I won't be able to publish to regular npm or not.</li>
+<li>Unable to install in an existing npm-based project. This one makes sense after thinking about it. If you have an existing project that is using npm as the registry you first need to delete your package-lock.json so a new one can be created. Once you do that it works well.</li>
+<li>Doesn't work with <a href="https://pnpm.js.org/">pnpm</a>. The project I was installing into used pnpm but I was unable to get pnpm to work. It uses the same configuration files as npm so I'm not sure why. It could very well be my fault. This makes me curious if it works with <a href="https://yarnpkg.com/lang/en/">Yarn</a> or not, I didn't try it.</li>
+</ul>
+<h2>Conclusion</h2>
+<p>After having used it in a test I definitely think I would try it again. One key feature is that GitHub Package Registry actually <em>proxies</em> npm, which means you can use npm packages in your GH projects. Whether you can depend on GH packages in your npm packages is a bit more blurry to me, probably not.</p>
+<p>I see this as particularly useful for private packages, since this way you don't have to worry about maintaining a separate npm account, it all goes through GitHub.</p>
+<p>Another question is whether I would use it for open source projects and the answer there is <em>maybe</em>. At least for open-source projects that are small in scale and I don't care if they become popular or not, this becomes more and more enticing. We'll see.</p>
+<p>Would recommend. 👍</p>
+</main>
+
+<footer>
+  <a href="./index.html">&#x2190; Programming Blog</a>
+</footer>
