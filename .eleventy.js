@@ -28,4 +28,10 @@ module.exports = function(eleventyConfig) {
 
     return `${monthName} ${day}, ${year}`;
   });
+
+  eleventyConfig.addFilter('indexed', collection => {
+    return collection.filter(post => {
+      return !post.data.tags.includes('noindex');
+    });
+  });
 };
