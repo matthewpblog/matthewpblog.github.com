@@ -11,7 +11,7 @@ metadata:
     <link href="https://matthewphillips.info/programming/atom.xml" rel="self" />
     <link href="https://matthewphillips.info/programming/index.html" />
     <id>https://matthewphillips.info/programming/index.html</id>
-    <updated>2019-05-30T22:40:02.357Z</updated>
+    <updated>{{ collections.post | rssLastUpdatedDate }}</updated>
 {%- for post in collections.post | reverse | indexed %}
   {% set absolutePostUrl %}{{ post.url | url | absoluteUrl(metadata.url) }}{% endset %}
   <entry>
